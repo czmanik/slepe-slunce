@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /nahled/
+
+Sitemap: https://slepeslunce.cz/sitemap.xml
