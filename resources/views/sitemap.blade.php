@@ -3,5 +3,6 @@
     <url><loc>{{ route('home') }}</loc></url>
     <url><loc>{{ route('posts.index') }}</loc></url>
     <url><loc>{{ route('route.index') }}</loc></url>
+    <url><loc>{{ route('members.index') }}</loc></url>
     @foreach($posts as $post)<url><loc>{{ route('posts.show', $post) }}</loc><lastmod>{{ $post->updated_at->toAtomString() }}</lastmod></url>@endforeach
 </urlset>

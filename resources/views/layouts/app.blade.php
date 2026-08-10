@@ -13,6 +13,8 @@
     <link rel="canonical" href="{{ url()->current() }}">
     <link rel="stylesheet" href="{{ asset('assets/site.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/route.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/expedition.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/map-photo.css') }}">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-REWW639R3N"></script>
     <script>
@@ -36,6 +38,7 @@
                 <a href="{{ route('home') }}#smysl">Proč jedeme</a>
                 <a href="{{ route('posts.index') }}" @if(request()->routeIs('posts.*')) aria-current="page" @endif>Deník</a>
                 <a href="{{ route('route.index') }}" @if(request()->routeIs('route.*')) aria-current="page" @endif>Trasa</a>
+                <a href="{{ route('members.index') }}" @if(request()->routeIs('members.*')) aria-current="page" @endif>Členové</a>
             </nav>
         </div>
     </header>

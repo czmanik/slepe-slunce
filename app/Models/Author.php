@@ -10,7 +10,7 @@ class Author extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'bio', 'is_expedition_member', 'sort_order'];
+    protected $fillable = ['name', 'bio', 'photo', 'photo_alt', 'is_expedition_member', 'sort_order'];
 
     protected function casts(): array
     {
