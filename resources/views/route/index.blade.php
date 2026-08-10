@@ -5,6 +5,8 @@
 
 @push('head')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" crossorigin="">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" crossorigin="">
 @endpush
 
 @section('content')
@@ -30,6 +32,7 @@
                     <span><i class="legend-line legend-line--completed" aria-hidden="true"></i> Dokončeno</span>
                     <span><i class="legend-line legend-line--progress" aria-hidden="true"></i> Právě cestujeme</span>
                     <span><i class="legend-line legend-line--planned" aria-hidden="true"></i> Plánováno</span>
+                    <span>📍 Poloha člena</span><span>📷 Fotografie</span>
                 </div>
                 <p class="map-note">Mapa je doplňková. Stejné informace včetně časů, dopravy a médií jsou v přístupné časové ose níže.</p>
                 <noscript><p class="map-warning">Interaktivní mapa vyžaduje JavaScript. Celou cestu najdete v časové ose níže.</p></noscript>
@@ -106,6 +109,7 @@
 @if($points->isNotEmpty())
 @push('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" crossorigin=""></script>
     <script>
         (() => {
             const element = document.getElementById('route-map');
@@ -113,6 +117,9 @@
 
             const points = {{ Illuminate\Support\Js::from($mapPoints) }};
             const segments = {{ Illuminate\Support\Js::from($mapSegments) }};
+            const photos = {{ Illuminate\Support\Js::from($mapPhotos) }};
+            const members = {{ Illuminate\Support\Js::from($memberLocations) }};
+            const activePosition = {{ Illuminate\Support\Js::from($position) }};
             const map = L.map(element, { scrollWheelZoom: false });
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
@@ -127,7 +134,7 @@
                 segment.geometry.forEach(coordinate => allCoordinates.push(coordinate));
                 const style = {
                     color: transportColors[segment.transport] || transportColors.other,
-                    weight: segment.status === 'in_progress' ? 7 : 5,
+                    weight: segment.isActive ? 8 : (segment.status === 'in_progress' ? 7 : 5),
                     opacity: segment.status === 'planned' ? .75 : 1,
                     dashArray: segment.status === 'planned' ? '10 11' : null,
                     lineCap: 'round'
@@ -171,7 +178,7 @@
             points.forEach((point, index) => {
                 allCoordinates.push([point.latitude, point.longitude]);
                 const marker = L.circleMarker([point.latitude, point.longitude], {
-                    radius: point.isGoal ? 11 : 8,
+                    radius: point.isActive ? 14 : (point.isGoal ? 11 : 8),
                     color: '#17150f', weight: 3,
                     fillColor: point.status === 'current' ? '#f4c542' : (point.status === 'visited' ? '#ffffff' : '#c7b978'),
                     fillOpacity: 1
@@ -205,7 +212,28 @@
                 marker.bindPopup(popup).bindTooltip(`${index + 1}. ${point.name}`);
             });
 
-            if (allCoordinates.length === 1) map.setView(allCoordinates[0], 10);
+            if (typeof L.markerClusterGroup === 'function') {
+                const photoLayer = L.markerClusterGroup({showCoverageOnHover:false, maxClusterRadius:55});
+                photos.forEach(photo => {
+                    const marker = L.marker([photo.latitude, photo.longitude], {title: photo.alt});
+                    const popup = document.createElement('div'); popup.className='map-popup map-photo-popup';
+                    const image=document.createElement('img'); image.src=photo.image; image.alt=photo.alt; image.loading='lazy'; popup.append(image);
+                    if(photo.caption){const caption=document.createElement('p');caption.textContent=photo.caption;popup.append(caption)}
+                    const meta=document.createElement('span');meta.textContent=[photo.author,photo.takenAt].filter(Boolean).join(' · ');popup.append(meta);marker.bindPopup(popup);photoLayer.addLayer(marker);
+                }); map.addLayer(photoLayer);
+            }
+            members.forEach(member => {
+                const marker=L.circleMarker([member.latitude,member.longitude],{radius:9,color:'#fff',weight:3,fillColor:member.stale?'#777':'#347442',fillOpacity:1}).addTo(map);
+                marker.bindTooltip(`${member.name} · ${member.age}`).bindPopup(`<strong>${member.name}</strong><p>Poloha hlášena ${member.reportedAt}. Veřejně je zobrazena pouze přibližně.</p>`);
+            });
+
+            if (activePosition) {
+                const current=L.circleMarker([activePosition.latitude,activePosition.longitude],{radius:12,color:'#17150f',weight:4,fillColor:'#f4c542',fillOpacity:1}).addTo(map);
+                current.bindTooltip(activePosition.source==='gps'?'Poslední potvrzená poloha':'Odhadovaná poloha podle itineráře');
+            }
+
+            if (activePosition) map.setView([activePosition.latitude, activePosition.longitude], activePosition.source === 'point' ? 11 : 8);
+            else if (allCoordinates.length === 1) map.setView(allCoordinates[0], 10);
             else map.fitBounds(L.latLngBounds(allCoordinates), { padding: [35, 35], maxZoom: 12 });
         })();
     </script>

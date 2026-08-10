@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\RoutePoint;
 use App\Models\RouteSegment;
+use App\Models\MapPhoto;
+use App\Models\MemberLocation;
+use App\Services\ExpeditionTracker;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class RouteController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(ExpeditionTracker $tracker): View
     {
         $points = RoutePoint::query()
             ->with(['post' => fn ($query) => $query->publiclyVisible()])
@@ -23,6 +26,12 @@ class RouteController extends Controller
             ])
             ->ordered()
             ->get();
+        $active = $tracker->active();
+        $position = $tracker->position($active);
+        if (($position['source'] ?? null) === 'gps') {
+            $position['latitude'] = round($position['latitude'], 3);
+            $position['longitude'] = round($position['longitude'], 3);
+        }
         $mapPoints = $points->map(fn (RoutePoint $point): array => [
             'name' => $point->name,
             'description' => $point->description,
@@ -34,6 +43,7 @@ class RouteController extends Controller
             'image' => $point->cover_image ? asset('storage/'.$point->cover_image) : null,
             'imageAlt' => $point->cover_alt,
             'postUrl' => $point->post ? route('posts.show', $point->post) : null,
+            'isActive' => $active instanceof RoutePoint && $active->is($point),
         ])->values();
         $mapSegments = $segments->map(fn (RouteSegment $segment): array => [
             'name' => $segment->name ?: $segment->fromPoint->name.' → '.$segment->toPoint->name,
@@ -55,11 +65,23 @@ class RouteController extends Controller
             'image' => $segment->cover_image ? asset('storage/'.$segment->cover_image) : null,
             'imageAlt' => $segment->cover_alt,
             'postUrl' => $segment->post ? route('posts.show', $segment->post) : null,
+            'isActive' => $active instanceof RouteSegment && $active->is($segment),
+        ])->values();
+        $mapPhotos = MapPhoto::query()->with('user')->latest('taken_at')->get()->map(fn (MapPhoto $photo): array => [
+            'latitude' => (float) $photo->latitude, 'longitude' => (float) $photo->longitude,
+            'image' => asset('storage/'.$photo->image), 'alt' => $photo->alt, 'caption' => $photo->caption,
+            'author' => $photo->user?->name, 'takenAt' => $photo->taken_at?->translatedFormat('j. n. Y H:i'),
+        ])->values();
+        $memberLocations = MemberLocation::query()->with('user')->get()->map(fn (MemberLocation $location): array => [
+            'name' => str((string) $location->user?->name)->before(' ')->toString(),
+            'latitude' => round((float) $location->latitude, 3), 'longitude' => round((float) $location->longitude, 3),
+            'reportedAt' => $location->reported_at->translatedFormat('j. n. Y H:i'), 'age' => $location->reported_at->diffForHumans(),
+            'stale' => $location->reported_at->lt(now()->subHours(6)),
         ])->values();
 
         $timeline = $this->buildTimeline($points, $segments);
 
-        return view('route.index', compact('points', 'segments', 'mapPoints', 'mapSegments', 'timeline'));
+        return view('route.index', compact('points', 'segments', 'mapPoints', 'mapSegments', 'mapPhotos', 'memberLocations', 'position', 'timeline'));
     }
 
     private function buildTimeline(Collection $points, Collection $segments): Collection

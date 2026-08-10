@@ -69,7 +69,7 @@ class PostResource extends Resource
                     FileUpload::make('path')->label('Soubor')->image()->disk('public')->directory('posts/gallery')->visibility('public')->maxSize(12288)->required(),
                     Textarea::make('alt')->label('Alternativní text')->required()->rows(2)->maxLength(300),
                     TextInput::make('caption')->label('Popisek')->maxLength(300),
-                ])->columns(2)->columnSpanFull(),
+                ])->columns(2)->defaultItems(0)->columnSpanFull(),
             ])->collapsed(),
 
             Section::make('YouTube videa')->schema([
@@ -78,7 +78,7 @@ class PostResource extends Resource
                     TextInput::make('title')->label('Přístupný název videa')->required()->maxLength(180),
                     Textarea::make('description')->label('Stručný popis obsahu')->rows(2)->required()->maxLength(500),
                     Textarea::make('transcript')->label('Přepis nebo odkaz na přepis')->rows(4)->columnSpanFull(),
-                ])->columns(2)->columnSpanFull(),
+                ])->columns(2)->defaultItems(0)->columnSpanFull(),
             ])->collapsed(),
 
             Section::make('Vyhledávače a sdílení')->schema([

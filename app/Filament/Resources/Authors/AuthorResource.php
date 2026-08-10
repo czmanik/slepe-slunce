@@ -10,6 +10,7 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\FileUpload;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
@@ -28,6 +29,8 @@ class AuthorResource extends Resource
         return $schema->components([
             TextInput::make('name')->label('Jméno')->required()->maxLength(120),
             Textarea::make('bio')->label('Krátké představení')->rows(5)->maxLength(1000)->columnSpanFull(),
+            FileUpload::make('photo')->label('Fotografie člena')->image()->disk('public')->directory('members')->visibility('public')->maxSize(12288),
+            Textarea::make('photo_alt')->label('Alternativní text fotografie')->requiredWith('photo')->rows(2)->maxLength(300),
             Toggle::make('is_expedition_member')->label('Člen expedice')->default(true),
             TextInput::make('sort_order')->label('Pořadí')->numeric()->default(0),
         ]);

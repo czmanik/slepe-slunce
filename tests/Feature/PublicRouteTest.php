@@ -36,7 +36,7 @@ class PublicRouteTest extends TestCase
         $this->get(route('route.index'))
             ->assertOk()
             ->assertSeeInOrder(['První bod', 'Druhý bod'])
-            ->assertSee('Interaktivní mapa trasy expedice')
+            ->assertSee('Interaktivní mapa zastávek a přesunů expedice')
             ->assertSee('Chronologicky a bez mapy');
     }
 

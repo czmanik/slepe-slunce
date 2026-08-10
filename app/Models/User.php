@@ -8,6 +8,7 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -34,5 +35,10 @@ class User extends Authenticatable implements FilamentUser
     public function canPublish(): bool
     {
         return in_array($this->role, [UserRole::Admin, UserRole::Editor], true);
+    }
+
+    public function location(): HasOne
+    {
+        return $this->hasOne(MemberLocation::class);
     }
 }

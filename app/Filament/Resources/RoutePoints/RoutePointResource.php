@@ -64,7 +64,7 @@ class RoutePointResource extends Resource
                     FileUpload::make('path')->label('Soubor')->image()->disk('public')->directory('route/gallery')->visibility('public')->maxSize(12288)->required(),
                     Textarea::make('alt')->label('Alternativní text')->required()->rows(2)->maxLength(300),
                     TextInput::make('caption')->label('Popisek')->maxLength(300),
-                ])->columns(2)->columnSpanFull(),
+                ])->columns(2)->defaultItems(0)->columnSpanFull(),
             ])->collapsed(),
 
             Section::make('YouTube videa')->schema([
@@ -72,7 +72,7 @@ class RoutePointResource extends Resource
                     TextInput::make('url')->label('YouTube odkaz')->url()->regex('/^https?:\\/\\/(?:www\\.)?(?:youtube(?:-nocookie)?\\.com|youtu\\.be)\\//i')->required(),
                     TextInput::make('title')->label('Název videa')->required()->maxLength(180),
                     Textarea::make('description')->label('Popis obsahu')->rows(2)->maxLength(500),
-                ])->columns(2)->columnSpanFull(),
+                ])->columns(2)->defaultItems(0)->columnSpanFull(),
             ])->collapsed(),
         ]);
     }
