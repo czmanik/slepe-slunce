@@ -18,6 +18,18 @@ class PublicJournalTest extends TestCase
         $this->get('/')->assertOk()->assertSee('Přeskočit na hlavní obsah')->assertSee('Čtyři kamarádi');
     }
 
+    public function test_public_layout_contains_analytics_and_partner_links(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('https://www.googletagmanager.com/gtag/js?id=G-REWW639R3N', escape: false)
+            ->assertSee("gtag('config', 'G-REWW639R3N')", escape: false)
+            ->assertSee('href="https://www.sons.cz/"', escape: false)
+            ->assertSee('href="https://odskodnenizauraz.cz/"', escape: false)
+            ->assertSee('SONS ČR')
+            ->assertSee('Odškodnění za úraz');
+    }
+
     public function test_only_published_posts_are_public(): void
     {
         $user = User::create(['name' => 'Editor', 'email' => 'editor@example.test', 'password' => 'password-password', 'role' => UserRole::Editor]);
