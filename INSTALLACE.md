@@ -2,6 +2,24 @@
 
 Tento návod počítá s čistým nebo existujícím Ubuntu serverem, nginx, PHP-FPM, MariaDB/MySQL a doménou `slepeslunce.cz`. Aplikace je Laravel 13 + Filament 5 a webroot musí vždy směřovat do adresáře `public`.
 
+## Automatické nasazení
+
+Součástí projektu je `deploy.sh`, který obslouží první instalaci i další aktualizace. Při prvním spuštění vytvoří `.env`, databázi a samostatného databázového uživatele, vygeneruje klíč aplikace, provede migrace, nastaví práva, storage link, scheduler a systemd worker fronty. Při dalších spuštěních bezpečně stáhne zvolenou větev a nasadí změny.
+
+```bash
+cd /opt/notm/apps/slepe-slunce
+sudo chmod +x deploy.sh
+sudo ./deploy.sh main
+```
+
+Pro otestování otevřeného PR lze místo `main` zadat jeho větev:
+
+```bash
+sudo ./deploy.sh agent/analytics-media-footer-links
+```
+
+Skript se při první instalaci zeptá pouze na název databáze a uživatele. Silné databázové heslo vygeneruje a uloží do `.env`; nevypisuje je do logu. Existující `.env` ani existující databázi při dalších nasazeních nepřepisuje. Před migracemi vytvoří databázovou zálohu v `/var/backups/slepe-slunce`, pokud je dostupný `mariadb-dump` nebo `mysqldump`. Log je v `/var/log/slepe-slunce-deploy.log`.
+
 ## 1. Požadavky
 
 - PHP 8.3 nebo novější,

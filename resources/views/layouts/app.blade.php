@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="{{ asset('assets/route.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/expedition.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/map-photo.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/journal.css') }}">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-REWW639R3N"></script>
     <script>

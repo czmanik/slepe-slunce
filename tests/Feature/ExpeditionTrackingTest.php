@@ -29,6 +29,30 @@ class ExpeditionTrackingTest extends TestCase
         $this->assertDatabaseHas('member_locations', ['user_id' => $user->id, 'latitude' => 41.3]);
     }
 
+    public function test_signed_in_member_can_open_journal_actions_and_return_after_reporting_location(): void
+    {
+        $user = $this->user();
+
+        $this->actingAs($user)->get(route('posts.index'))
+            ->assertOk()
+            ->assertSee('Oznámit polohu')
+            ->assertSee('Přidat fotku na mapu');
+
+        $this->actingAs($user)->post(route('tracking.location.store'), [
+            'latitude' => 50.1,
+            'longitude' => 14.2,
+            'return_to' => 'journal',
+        ])->assertRedirect(route('posts.index'));
+    }
+
+    public function test_journal_actions_are_hidden_from_guests(): void
+    {
+        $this->get(route('posts.index'))
+            ->assertOk()
+            ->assertDontSee('Oznámit polohu')
+            ->assertDontSee('Přidat fotku na mapu');
+    }
+
     public function test_manual_active_item_is_unique_across_point_and_segment(): void
     {
         $user = $this->user();
@@ -48,6 +72,22 @@ class ExpeditionTrackingTest extends TestCase
         $this->actingAs($user)->post(route('tracking.photo.store'), ['image' => UploadedFile::fake()->image('airport.jpg'), 'alt' => 'Členové čekají u odletové tabule'])->assertRedirect();
         $photo = MapPhoto::query()->firstOrFail(); Storage::disk('public')->assertExists($photo->image);
         $path = $photo->image; $photo->delete(); Storage::disk('public')->assertMissing($path);
+    }
+
+    public function test_photo_added_from_journal_returns_to_journal(): void
+    {
+        Storage::fake('public');
+        $user = $this->user();
+
+        $this->actingAs($user)->post(route('tracking.photo.store'), [
+            'image' => UploadedFile::fake()->image('airport.jpg'),
+            'alt' => 'Členové čekají u odletové tabule',
+            'latitude' => 50.1,
+            'longitude' => 14.2,
+            'return_to' => 'journal',
+        ])->assertRedirect(route('posts.index'));
+
+        $this->assertDatabaseCount('map_photos', 1);
     }
 
     public function test_members_page_only_lists_expedition_members_with_photos(): void

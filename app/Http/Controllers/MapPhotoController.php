@@ -23,6 +23,7 @@ class MapPhotoController extends Controller
             'image' => ['required', 'image', 'max:15360'], 'alt' => ['required', 'string', 'max:300'],
             'caption' => ['nullable', 'string', 'max:500'], 'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'], 'taken_at' => ['nullable', 'date'],
+            'return_to' => ['nullable', 'in:journal'],
         ]);
         $embedded = $metadata->location($request->file('image')->getRealPath());
         $fallback = $tracker->position();
@@ -39,6 +40,9 @@ class MapPhotoController extends Controller
             'route_point_id' => $active instanceof \App\Models\RoutePoint ? $active->id : null,
             'route_segment_id' => $active instanceof \App\Models\RouteSegment ? $active->id : null,
         ]);
-        return back()->with('message', 'Fotografie byla zveřejněna na mapě.');
+        $message = 'Fotografie byla zveřejněna na mapě.';
+        return $request->input('return_to') === 'journal'
+            ? redirect()->route('posts.index')->with('message', $message)
+            : back()->with('message', $message);
     }
 }
