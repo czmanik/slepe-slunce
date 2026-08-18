@@ -3,13 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PostController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        return view('posts.index', ['posts' => Post::publiclyVisible()->with('authors')->latest('published_at')->paginate(9)]);
+        $days = Post::publiclyVisible()
+            ->chronological()
+            ->get(['event_date', 'published_at'])
+            ->map(fn (Post $post): ?string => $post->journalDateKey())
+            ->filter()
+            ->unique()
+            ->values();
+
+        $selectedDay = $request->string('day')->toString();
+        $selectedDay = $days->contains($selectedDay) ? $selectedDay : null;
+
+        $posts = Post::publiclyVisible()
+            ->with('authors')
+            ->when($selectedDay, fn ($query) => $query->where(function ($query) use ($selectedDay): void {
+                $query->whereDate('event_date', $selectedDay)
+                    ->orWhere(function ($query) use ($selectedDay): void {
+                        $query->whereNull('event_date')->whereDate('published_at', $selectedDay);
+                    });
+            }))
+            ->chronological()
+            ->get();
+
+        return view('posts.index', compact('posts', 'days', 'selectedDay'));
     }
 
     public function show(Post $post): View
