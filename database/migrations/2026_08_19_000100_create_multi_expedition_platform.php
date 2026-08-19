@@ -113,6 +113,11 @@ return new class extends Migration
         });
 
         Schema::table('member_locations', function (Blueprint $table): void {
+            // MySQL uses the original unique index as the supporting index for
+            // member_locations.user_id's foreign key. Give that foreign key a
+            // replacement index before removing the one-user-one-location
+            // constraint, otherwise MySQL fails with error 1553.
+            $table->index('user_id', 'member_locations_user_id_index');
             $table->dropUnique('member_locations_user_id_unique');
             $table->foreignId('expedition_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
             $table->unique(['expedition_id', 'user_id']);
@@ -287,6 +292,7 @@ return new class extends Migration
             $table->dropUnique(['expedition_id', 'user_id']);
             $table->dropConstrainedForeignId('expedition_id');
             $table->unique('user_id');
+            $table->dropIndex('member_locations_user_id_index');
         });
         Schema::table('map_photos', fn (Blueprint $table) => $table->dropConstrainedForeignId('expedition_id'));
         Schema::table('expedition_states', function (Blueprint $table): void {
