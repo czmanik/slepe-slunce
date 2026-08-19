@@ -1,0 +1,36 @@
+.expedition-nav { border-top: 1px solid rgba(255,255,255,.15); background: #242118; }
+.expedition-nav .shell { display: flex; align-items: center; gap: 24px; overflow-x: auto; padding-block: 12px; }
+.expedition-nav strong, .expedition-nav a { white-space: nowrap; font-size: .84rem; }
+.expedition-nav a[aria-current="page"] { color: var(--sun); font-weight: 800; }
+.flash-message { padding: 16px; background: #e9f8e9; color: #123b16; border-bottom: 2px solid #347442; font-weight: 700; }
+.expedition-cards { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; margin-top: 52px; }
+.expedition-card { padding: 34px; background: #fff; color: var(--ink); border: 1px solid var(--line); }
+.expedition-card h2, .expedition-card h3 { font-family: Georgia,'Times New Roman',serif; font-size: 2rem; line-height: 1.15; margin: .45em 0; }
+.expedition-card h2 a, .expedition-card h3 a { color: var(--ink); }
+.status-pill { display: inline-block; margin: 0; padding: 5px 10px; border-radius: 99px; background: #eee; color: #333; font-size: .74rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.status-pill--active { background: #d9f6df; color: #174b22; }
+.status-pill--planned { background: #fff2b8; color: #4c3b00; }
+.status-pill--completed, .status-pill--archived { background: #e6e3dc; color: #45413a; }
+.dark-link { color: #604e00; }
+.narrow-section { max-width: 850px; }
+.accessible-form { display: grid; gap: 24px; margin-top: 38px; }
+.accessible-form label:not(.check-label) { display: block; font-weight: 800; margin-bottom: 7px; }
+.accessible-form input:not([type="checkbox"]):not([type="radio"]), .accessible-form textarea, .accessible-form select { width: 100%; padding: 12px; border: 2px solid #6e685d; background: #fff; color: #17150f; }
+.accessible-form fieldset { border: 1px solid var(--line); padding: 20px; }
+.accessible-form legend { font-weight: 800; padding-inline: 8px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.check-label { display: block; margin: 10px 0; }
+.check-label input { width: 1.2em; height: 1.2em; vertical-align: -.18em; margin-right: 8px; }
+.field-error, .error-summary { color: #8b1111; }
+.error-summary { border: 3px solid #b82222; padding: 20px; background: #fff; }
+.field-help, .optional { font-size: .84rem; color: #5b574e; }
+.honeypot { position: absolute !important; left: -10000px !important; }
+.expedition-facts { margin-top: 30px; }
+.info-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 30px; }
+.info-grid h2 { font-size: 1.8rem; }
+.dark-prose { color: #48433b; }
+.article-reader { margin-top: 22px; background: transparent; color: #17150f; border-color: #17150f; cursor: pointer; }
+.program-list { display: grid; gap: 18px; padding-left: 1.5rem; margin-top: 40px; }.program-list article { padding: 24px; background: #fff; border: 1px solid var(--line); }.program-list h3 { font-family: Georgia,'Times New Roman',serif; font-size: 1.7rem; margin: .45em 0; }
+.shop-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }.wine-card { background: #fff; border: 1px solid var(--line); }.wine-card img { aspect-ratio: 4/3; object-fit: cover; width: 100%; }.wine-card>div { padding: 24px; }.wine-card h2 { font-size: 1.7rem; }.variant-row,.cart-line { display: flex; justify-content: space-between; gap: 30px; padding: 25px 0; border-bottom: 1px solid var(--line); }.inline-cart { margin: 0; min-width: 240px; }.cart-total { font-size: 1.4rem; margin-top: 30px; }
+.invoice { background: #fff; color: #17150f; padding: 45px; }.invoice table { width: 100%; border-collapse: collapse; margin-block: 35px; }.invoice th,.invoice td { padding: 12px; text-align: left; border: 1px solid #777; }
+@media (max-width: 700px) { .expedition-cards, .form-grid, .info-grid, .shop-grid { grid-template-columns: 1fr; }.variant-row,.cart-line { display: block; } }

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Trasa a časová osa expedice — Slepé Slunce')
+@section('title', 'Program a trasa — '.$expedition->name)
 @section('description', 'Sledujte cestu expedice Slepé Slunce: zastávky, lety, jízdy autem a autobusem, fotografie, videa a aktuální polohu.')
 
 @push('head')
@@ -12,11 +12,22 @@
 @section('content')
     <header class="page-header route-header">
         <div class="shell">
-            <p class="eyebrow">Expedice v pohybu</p>
-            <h1>Trasa a časová osa</h1>
-            <p>Zastávky, cíle a jednotlivé přesuny za úplným zatměním Slunce. Každý druh dopravy má vlastní podobu; přerušovaná čára znamená plánovanou cestu.</p>
+            <p class="eyebrow">{{ $expedition->name }}</p>
+            <h1>Trasa a program</h1>
+            <p>Zastávky, aktivity a jednotlivé přesuny expedice. Mapa je doplněná plně přístupnou časovou osou.</p>
         </div>
     </header>
+
+    @if($activities->isNotEmpty())
+        <section class="section light-section" aria-labelledby="program-title"><div class="shell route-shell">
+            <p class="eyebrow ink">Harmonogram</p><h2 id="program-title">Aktivity expedice</h2>
+            <ol class="program-list">@foreach($activities as $activity)<li><article>
+                <p class="status-pill">{{ $activity->kind->label() }}</p><h3>{{ $activity->title }}</h3>
+                @if($activity->starts_at)<p><time datetime="{{ $activity->starts_at->toIso8601String() }}">{{ $activity->starts_at->translatedFormat('l j. n. Y H:i') }}</time>@if($activity->ends_at)–<time datetime="{{ $activity->ends_at->toIso8601String() }}">{{ $activity->ends_at->translatedFormat('H:i') }}</time>@endif</p>@endif
+                @if($activity->description)<p>{{ $activity->description }}</p>@endif
+            </article></li>@endforeach</ol>
+        </div></section>
+    @endif
 
     <section class="route-section light-section" aria-labelledby="mapa-nadpis">
         <div class="shell">
@@ -24,7 +35,7 @@
             @if($points->isEmpty())
                 <div class="empty-state dark-empty">
                     <h2>Trasu právě připravujeme</h2>
-                    <p>Jakmile přidáme první zastávky, objeví se tady mapa i jejich chronologický přehled.</p>
+                    <p>Jakmile přidáme první zastávky, objeví se tady mapa i jejich chronologický přehled. Naplánované aktivity jsou uvedené výše.</p>
                 </div>
             @else
                 <div id="route-map" class="route-map" role="region" aria-label="Interaktivní mapa zastávek a přesunů expedice" tabindex="0"></div>

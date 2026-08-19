@@ -1,7 +1,7 @@
 <x-filament-widgets::widget>
     <x-filament::section>
-        <x-slot name="heading">Expediční dispečink</x-slot>
-        <x-slot name="description">Jedna společná aktivní etapa, poslední hlášení polohy a rychlé ovládání z telefonu.</x-slot>
+        <x-slot name="heading">Expediční dispečink · {{ $expedition->name }}</x-slot>
+        <x-slot name="description">Aktivní etapa hlavní expedice, poslední hlášení polohy a rychlé ovládání z telefonu.</x-slot>
         <div class="space-y-5">
             @if($active)
                 <div class="rounded-xl bg-primary-50 p-5 ring-1 ring-primary-200 dark:bg-primary-950/30 dark:ring-primary-800">

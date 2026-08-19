@@ -11,6 +11,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -23,15 +24,21 @@ use UnitEnum;
 class MapPhotoResource extends Resource
 {
     protected static ?string $model = MapPhoto::class;
+
     protected static ?string $modelLabel = 'fotografie na mapě';
+
     protected static ?string $pluralModelLabel = 'fotografie na mapě';
+
     protected static ?string $navigationLabel = 'Fotografie na mapě';
+
     protected static string|UnitEnum|null $navigationGroup = 'Expedice';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+            Select::make('expedition_id')->label('Expedice')->relationship('expedition', 'name')->required()->searchable()->preload(),
             FileUpload::make('image')->label('Fotografie')->image()->disk('public')->directory('map/photos')->required()->maxSize(15360),
             Textarea::make('alt')->label('Alternativní text')->required()->maxLength(300),
             Textarea::make('caption')->label('Popisek')->maxLength(500),
@@ -46,6 +53,7 @@ class MapPhotoResource extends Resource
         return $table->defaultSort('taken_at', 'desc')->columns([
             ImageColumn::make('image')->label('Náhled')->disk('public'),
             TextColumn::make('caption')->label('Popisek')->limit(60)->searchable(),
+            TextColumn::make('expedition.name')->label('Expedice'),
             TextColumn::make('user.name')->label('Přidal'),
             TextColumn::make('taken_at')->label('Pořízeno')->dateTime('j. n. Y H:i'),
         ])->recordActions([EditAction::make()])->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);

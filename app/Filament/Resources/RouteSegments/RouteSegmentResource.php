@@ -28,17 +28,24 @@ use UnitEnum;
 class RouteSegmentResource extends Resource
 {
     protected static ?string $model = RouteSegment::class;
+
     protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?string $modelLabel = 'úsek cesty';
+
     protected static ?string $pluralModelLabel = 'úseky cesty';
+
     protected static ?string $navigationLabel = 'Přesuny';
-    protected static string | UnitEnum | null $navigationGroup = 'Expedice';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Expedice';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
             Section::make('Odkud a kam')->description('Úsek propojuje dva existující body trasy. Body musí být nejprve založené v sekci Trasa.')->schema([
+                Select::make('expedition_id')->label('Expedice')->relationship('expedition', 'name')->required()->searchable()->preload(),
                 Select::make('from_point_id')->label('Výchozí bod')->relationship('fromPoint', 'name')->searchable()->preload()->required(),
                 Select::make('to_point_id')->label('Cílový bod')->relationship('toPoint', 'name')->searchable()->preload()->required()->different('from_point_id'),
                 TextInput::make('name')->label('Vlastní název úseku')->placeholder('Let Praha → Barcelona')->maxLength(180)->columnSpanFull(),
@@ -105,15 +112,19 @@ class RouteSegmentResource extends Resource
     {
         return $table->defaultSort('sort_order')->reorderable('sort_order')->columns([
             TextColumn::make('sort_order')->label('Pořadí')->sortable(),
+            TextColumn::make('expedition.name')->label('Expedice')->sortable(),
             TextColumn::make('fromPoint.name')->label('Odkud')->searchable(),
             TextColumn::make('toPoint.name')->label('Kam')->searchable(),
             TextColumn::make('transport_mode')->label('Doprava')->badge()->formatStateUsing(fn (TransportMode $state): string => $state->label()),
             TextColumn::make('status')->label('Stav')->badge()->formatStateUsing(fn (RouteSegmentStatus $state): string => $state->label())
-                ->color(fn (RouteSegmentStatus $state): string => match ($state) { RouteSegmentStatus::Completed => 'success', RouteSegmentStatus::InProgress => 'warning', default => 'gray' }),
+                ->color(fn (RouteSegmentStatus $state): string => match ($state) {
+                    RouteSegmentStatus::Completed => 'success', RouteSegmentStatus::InProgress => 'warning', default => 'gray'
+                }),
             TextColumn::make('scheduled_departure_at')->label('Odjezd')->dateTime('j. n. Y H:i')->sortable(),
         ])->filters([
             SelectFilter::make('transport_mode')->label('Doprava')->options(TransportMode::options()),
             SelectFilter::make('status')->label('Stav')->options(RouteSegmentStatus::options()),
+            SelectFilter::make('expedition_id')->label('Expedice')->relationship('expedition', 'name'),
         ])->recordActions([EditAction::make()])->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 

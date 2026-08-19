@@ -1,7 +1,7 @@
 server {
     listen 80;
     listen [::]:80;
-    server_name slepeslunce.cz www.slepeslunce.cz;
+    server_name slepeslunce.cz www.slepeslunce.cz shop.slepeslunce.cz;
 
     root /opt/notm/apps/slepe-slunce/public;
     index index.php;

@@ -1,6 +1,18 @@
 # Slepé Slunce
 
-Přístupný expediční deník postavený na Laravelu 13 a Filamentu 5. Veřejná část je v Blade a vlastním CSS; interaktivní mapa používá Leaflet a OpenStreetMap.
+Přístupná platforma pro opakovatelné expedice, projektové články a prodej archivních vín, postavená na Laravelu 13 a Filamentu 5. Veřejná část je v Blade a vlastním CSS; interaktivní mapa používá Leaflet a OpenStreetMap.
+
+## Nová platforma
+
+- samostatné expedice s termínem, automatickým nebo ručním stavem a vlastním menu,
+- oddělené týmy, články, program, zastávky, přesuny, fotografie a GPS pro každou expedici,
+- znovu použitelný katalog míst a kontrola, že propojené body patří stejné expedici,
+- konfigurovatelné přihlášky, kapacita, schvalování, platby, slevy a 48hodinová rezervace,
+- tematický double opt-in odběr; urgentní denní a standardní týdenní dávky z cronu,
+- e-shop pro archivní vína se variantami/ročníky, skladovými rezervacemi, objednávkami, DPH a připraveným Comgate API,
+- vlastní tlačítko pro hlasité přečtení článku vedle podpory běžných čteček obrazovky.
+
+Produktový a projektový návrh je udržován jako samostatný projektový dokument. Před ostrým spuštěním je nutné doplnit finální právní texty, DIČ, dopravu, místo osobního odběru a produkční údaje Comgate.
 
 ## Co obsahuje první verze
 
@@ -73,6 +85,14 @@ Do cronu přidejte:
 ```cron
 * * * * * www-data cd /opt/notm/apps/slepe-slunce && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
 ```
+
+Scheduler navíc publikuje naplánované články, každý den odešle urgentní souhrn, v pondělí týdenní souhrn a denně vynucuje retenční lhůty a 48hodinové rezervace.
+
+## Obchod a Comgate
+
+V produkci běží obchod na doméně z `SHOP_DOMAIN` (výchozí `shop.slepeslunce.cz`), lokálně na `/obchod`. Nastavte `COMGATE_MERCHANT`, `COMGATE_SECRET` a nejprve ponechte `COMGATE_TEST=true`. Callback v portálu Comgate směřuje na `https://shop.slepeslunce.cz/platba/comgate/callback`.
+
+Byl prověřen Lunar Core. Stabilní Lunar 1.3 nepodporuje Laravel 13 a řada 2 je zatím alpha, proto není bezpečné ji nasadit do obchodu s 8 000 lahvemi. Současná verze používá malý nativní Laravel modul s oddělenou doménovou vrstvou; po stabilizaci Lunar 2 lze katalog a objednávky převést bez změny veřejných URL a Comgate adaptéru.
 
 ## Nahrávání fotografií
 

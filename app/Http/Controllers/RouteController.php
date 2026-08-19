@@ -2,23 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RoutePoint;
-use App\Models\RouteSegment;
+use App\Models\Expedition;
 use App\Models\MapPhoto;
 use App\Models\MemberLocation;
+use App\Models\ProgramItem;
+use App\Models\RoutePoint;
+use App\Models\RouteSegment;
 use App\Services\ExpeditionTracker;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class RouteController extends Controller
 {
-    public function __invoke(ExpeditionTracker $tracker): View
+    public function legacy(ExpeditionTracker $tracker): View
+    {
+        return $this->render(Expedition::default(), $tracker);
+    }
+
+    public function show(Expedition $expedition, ExpeditionTracker $tracker): View
+    {
+        abort_unless($expedition->publication_status === 'published', 404);
+
+        return $this->render($expedition, $tracker);
+    }
+
+    private function render(Expedition $expedition, ExpeditionTracker $tracker): View
     {
         $points = RoutePoint::query()
+            ->whereBelongsTo($expedition)
             ->with(['post' => fn ($query) => $query->publiclyVisible()])
             ->ordered()
             ->get();
         $segments = RouteSegment::query()
+            ->whereBelongsTo($expedition)
             ->with([
                 'fromPoint',
                 'toPoint',
@@ -26,8 +42,14 @@ class RouteController extends Controller
             ])
             ->ordered()
             ->get();
-        $active = $tracker->active();
-        $position = $tracker->position($active);
+        $activities = ProgramItem::query()
+            ->whereBelongsTo($expedition)
+            ->where('is_public', true)
+            ->whereNull('item_id')
+            ->ordered()
+            ->get();
+        $active = $tracker->active(null, $expedition);
+        $position = $tracker->position($active, null, $expedition);
         if (($position['source'] ?? null) === 'gps') {
             $position['latitude'] = round($position['latitude'], 3);
             $position['longitude'] = round($position['longitude'], 3);
@@ -67,12 +89,12 @@ class RouteController extends Controller
             'postUrl' => $segment->post ? route('posts.show', $segment->post) : null,
             'isActive' => $active instanceof RouteSegment && $active->is($segment),
         ])->values();
-        $mapPhotos = MapPhoto::query()->with('user')->latest('taken_at')->get()->map(fn (MapPhoto $photo): array => [
+        $mapPhotos = MapPhoto::query()->whereBelongsTo($expedition)->with('user')->latest('taken_at')->get()->map(fn (MapPhoto $photo): array => [
             'latitude' => (float) $photo->latitude, 'longitude' => (float) $photo->longitude,
             'image' => asset('storage/'.$photo->image), 'alt' => $photo->alt, 'caption' => $photo->caption,
             'author' => $photo->user?->name, 'takenAt' => $photo->taken_at?->translatedFormat('j. n. Y H:i'),
         ])->values();
-        $memberLocations = MemberLocation::query()->with('user')->get()->map(fn (MemberLocation $location): array => [
+        $memberLocations = MemberLocation::query()->whereBelongsTo($expedition)->with('user')->get()->map(fn (MemberLocation $location): array => [
             'name' => str((string) $location->user?->name)->before(' ')->toString(),
             'latitude' => round((float) $location->latitude, 3), 'longitude' => round((float) $location->longitude, 3),
             'reportedAt' => $location->reported_at->translatedFormat('j. n. Y H:i'), 'age' => $location->reported_at->diffForHumans(),
@@ -81,7 +103,7 @@ class RouteController extends Controller
 
         $timeline = $this->buildTimeline($points, $segments);
 
-        return view('route.index', compact('points', 'segments', 'mapPoints', 'mapSegments', 'mapPhotos', 'memberLocations', 'position', 'timeline'));
+        return view('route.index', compact('expedition', 'points', 'segments', 'activities', 'mapPoints', 'mapSegments', 'mapPhotos', 'memberLocations', 'position', 'timeline'));
     }
 
     private function buildTimeline(Collection $points, Collection $segments): Collection

@@ -7,10 +7,11 @@ use App\Filament\Resources\Authors\Pages\EditAuthor;
 use App\Filament\Resources\Authors\Pages\ListAuthors;
 use App\Models\Author;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\FileUpload;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
@@ -20,8 +21,11 @@ use Filament\Tables\Table;
 class AuthorResource extends Resource
 {
     protected static ?string $model = Author::class;
+
     protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?string $modelLabel = 'autor';
+
     protected static ?string $pluralModelLabel = 'autoři';
 
     public static function form(Schema $schema): Schema
@@ -32,6 +36,7 @@ class AuthorResource extends Resource
             FileUpload::make('photo')->label('Fotografie člena')->image()->disk('public')->directory('members')->visibility('public')->maxSize(12288),
             Textarea::make('photo_alt')->label('Alternativní text fotografie')->requiredWith('photo')->rows(2)->maxLength(300),
             Toggle::make('is_expedition_member')->label('Člen expedice')->default(true),
+            Select::make('expeditions')->label('Členství v expedicích')->relationship('expeditions', 'name')->multiple()->searchable()->preload()->helperText('Každá expedice má vlastní tým. Podrobnou roli lze doplnit přímo v databázi/pivot editoru v další etapě.'),
             TextInput::make('sort_order')->label('Pořadí')->numeric()->default(0),
         ]);
     }
@@ -41,6 +46,7 @@ class AuthorResource extends Resource
         return $table->columns([
             TextColumn::make('name')->label('Jméno')->searchable()->sortable(),
             IconColumn::make('is_expedition_member')->label('Expedice')->boolean(),
+            TextColumn::make('expeditions.name')->label('Členství')->badge(),
             TextColumn::make('posts_count')->label('Příspěvky')->counts('posts'),
         ])->recordActions([EditAction::make()]);
     }

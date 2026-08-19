@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Expedition;
 use App\Models\MapPhoto;
+use App\Models\RoutePoint;
+use App\Models\RouteSegment;
 use App\Services\ExpeditionTracker;
 use App\Services\PhotoMetadata;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class MapPhotoController extends Controller
@@ -29,18 +32,23 @@ class MapPhotoController extends Controller
         $fallback = $tracker->position();
         $latitude = $embedded['latitude'] ?? $data['latitude'] ?? $fallback['latitude'] ?? null;
         $longitude = $embedded['longitude'] ?? $data['longitude'] ?? $fallback['longitude'] ?? null;
-        if ($latitude === null || $longitude === null) return back()->withErrors(['latitude' => 'Nejdřív určete polohu telefonu nebo vyplňte souřadnice.'])->withInput();
+        if ($latitude === null || $longitude === null) {
+            return back()->withErrors(['latitude' => 'Nejdřív určete polohu telefonu nebo vyplňte souřadnice.'])->withInput();
+        }
         $active = $tracker->active();
+        $expedition = $active?->expedition ?? Expedition::default();
         $storedImage = $request->file('image')->store('map/photos', 'public');
         $metadata->strip(Storage::disk('public')->path($storedImage));
         MapPhoto::query()->create([
+            'expedition_id' => $expedition->getKey(),
             'user_id' => $request->user()->id, 'image' => $storedImage,
             'alt' => $data['alt'], 'caption' => $data['caption'] ?? null, 'latitude' => $latitude, 'longitude' => $longitude,
             'taken_at' => $data['taken_at'] ?? now(),
-            'route_point_id' => $active instanceof \App\Models\RoutePoint ? $active->id : null,
-            'route_segment_id' => $active instanceof \App\Models\RouteSegment ? $active->id : null,
+            'route_point_id' => $active instanceof RoutePoint ? $active->id : null,
+            'route_segment_id' => $active instanceof RouteSegment ? $active->id : null,
         ]);
         $message = 'Fotografie byla zveřejněna na mapě.';
+
         return $request->input('return_to') === 'journal'
             ? redirect()->route('posts.index')->with('message', $message)
             : back()->with('message', $message);
