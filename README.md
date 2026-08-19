@@ -14,6 +14,8 @@ Přístupná platforma pro opakovatelné expedice, projektové články a prodej
 
 Produktový a projektový návrh je udržován jako samostatný projektový dokument. Před ostrým spuštěním je nutné doplnit finální právní texty, DIČ, dopravu, místo osobního odběru a produkční údaje Comgate.
 
+Kompletní provozní popis updatu, přednastavených dat, účtů, rolí, nasazení a obnovy je v [DOKUMENTACE_UPDATE_PLATFORMY.md](DOKUMENTACE_UPDATE_PLATFORMY.md).
+
 ## Co obsahuje první verze
 
 - veřejnou úvodní stránku, deník, detail příspěvku, mapu a časovou osu,
