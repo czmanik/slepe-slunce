@@ -1,0 +1,5 @@
+@extends('layouts.app')
+@section('title','Objednávka '.$order->number.' — obchod Slepé Slunce')
+@section('content')
+<header class="page-header"><div class="shell"><p class="eyebrow">Objednávka {{ $order->number }}</p><h1>Děkujeme</h1><p>Stav objednávky: <strong>{{ $order->status }}</strong>. Platba: <strong>{{ $order->payment_status }}</strong>.</p>@if($order->invoice_number)<p>Číslo daňového dokladu: {{ $order->invoice_number }} · <a href="{{ route('shop.invoice', [$order, $order->access_token]) }}">Zobrazit daňový doklad</a></p>@endif</div></header><section class="section light-section"><div class="shell narrow-section"><h2>Objednané položky</h2>@foreach($order->items as $item)<p>{{ $item->quantity }} × {{ $item->name }} — {{ number_format($item->total/100,2,',',' ') }} {{ $order->currency }}</p>@endforeach<p><strong>Celkem {{ number_format($order->grand_total/100,2,',',' ') }} {{ $order->currency }}</strong></p><p>O termínu a místě osobního odběru vás budeme kontaktovat e-mailem.</p></div></section>
+@endsection

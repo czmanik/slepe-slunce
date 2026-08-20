@@ -29,17 +29,24 @@ use UnitEnum;
 class RoutePointResource extends Resource
 {
     protected static ?string $model = RoutePoint::class;
+
     protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?string $modelLabel = 'bod trasy';
+
     protected static ?string $pluralModelLabel = 'body trasy';
+
     protected static ?string $navigationLabel = 'Trasa';
-    protected static string | UnitEnum | null $navigationGroup = 'Expedice';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Expedice';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
             Section::make('Zastávka')->schema([
+                Select::make('expedition_id')->label('Expedice')->relationship('expedition', 'name')->required()->searchable()->preload(),
                 TextInput::make('name')->label('Název')->required()->maxLength(160),
                 Textarea::make('description')->label('Krátký popis')->rows(3)->maxLength(700)->columnSpanFull(),
                 Select::make('post_id')->label('Propojený článek')->relationship('post', 'title')->searchable()->preload(),
@@ -47,6 +54,7 @@ class RoutePointResource extends Resource
             ])->columns(2),
 
             Section::make('Poloha a pořadí')->description('Souřadnice zkopírujte z mapy. Na telefonu stačí dlouze podržet místo v Mapy.cz nebo Google Maps.')->schema([
+                Select::make('location_id')->label('Uložené místo')->relationship('location', 'name')->searchable()->preload()->helperText('Volitelné. Při uložení převezme bod souřadnice z katalogu míst.'),
                 TextInput::make('latitude')->label('Zeměpisná šířka')->numeric()->required()->minValue(-90)->maxValue(90)->step('0.0000001')->placeholder('41.3873974'),
                 TextInput::make('longitude')->label('Zeměpisná délka')->numeric()->required()->minValue(-180)->maxValue(180)->step('0.0000001')->placeholder('2.1685680'),
                 TextInput::make('route_order')->label('Pořadí na trase')->numeric()->integer()->minValue(0)->required()->default(0),
@@ -82,12 +90,16 @@ class RoutePointResource extends Resource
         return $table->defaultSort('route_order')->reorderable('route_order')->columns([
             TextColumn::make('route_order')->label('Pořadí')->sortable(),
             TextColumn::make('name')->label('Místo')->searchable()->sortable(),
+            TextColumn::make('expedition.name')->label('Expedice')->sortable(),
             TextColumn::make('status')->label('Stav')->badge()->formatStateUsing(fn (RoutePointStatus $state): string => $state->label())
-                ->color(fn (RoutePointStatus $state): string => match ($state) { RoutePointStatus::Visited => 'success', RoutePointStatus::Current => 'warning', default => 'gray' }),
+                ->color(fn (RoutePointStatus $state): string => match ($state) {
+                    RoutePointStatus::Visited => 'success', RoutePointStatus::Current => 'warning', default => 'gray'
+                }),
             IconColumn::make('is_goal')->label('Cíl')->boolean(),
             TextColumn::make('occurred_at')->label('Datum')->dateTime('j. n. Y H:i')->sortable(),
         ])->filters([
             SelectFilter::make('status')->label('Stav')->options(RoutePointStatus::options()),
+            SelectFilter::make('expedition_id')->label('Expedice')->relationship('expedition', 'name'),
         ])->recordActions([EditAction::make()])->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 

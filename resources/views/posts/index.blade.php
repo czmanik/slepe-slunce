@@ -1,9 +1,10 @@
 @extends('layouts.app')
-@section('title', 'Deník expedice — Slepé Slunce')
+@section('title', isset($expedition) ? 'Deník — '.$expedition->name : 'Články — Slepé Slunce')
 @section('description', 'Přípravy, cesta Španělskem, zatmění a praktické zkušenosti s asistencí pro lidi se zrakovým postižením.')
 
 @section('content')
-<header class="page-header"><div class="shell"><p class="eyebrow">Slepé Slunce</p><h1>Deník expedice</h1><p>Od prvního nápadu přes cestu Španělskem až po chvíli, kdy zhasne Slunce.</p>
+@php($journalRoute = isset($expedition) ? 'expeditions.posts' : 'posts.index')
+<header class="page-header"><div class="shell"><p class="eyebrow">{{ $expedition->name ?? 'Slepé Slunce' }}</p><h1>{{ isset($expedition) ? 'Deník expedice' : 'Články a příběhy' }}</h1><p>{{ isset($expedition) ? 'Zápisy, zkušenosti a aktuality z této expedice.' : 'Život projektu, přístupné cestování, asistence a příběhy našich expedic.' }}</p>
 @auth
 <nav class="journal-actions" aria-label="Rychlé zápisy z cesty">
     <a class="button button-primary" href="{{ route('tracking.location.create', ['from' => 'journal']) }}">Oznámit polohu</a>
@@ -16,9 +17,9 @@
         @if(session('message'))<div class="journal-message" role="status">{{ session('message') }}</div>@endif
         @if($days->isNotEmpty())
         <nav class="journal-timeline" aria-label="Den expedice">
-            <a href="{{ route('posts.index') }}" @if(!$selectedDay) aria-current="page" @endif>Vše</a>
+            <a href="{{ route($journalRoute, isset($expedition) ? [$expedition] : []) }}" @if(!$selectedDay) aria-current="page" @endif>Vše</a>
             @foreach($days as $day)
-                <a href="{{ route('posts.index', ['day' => $day]) }}" @if($selectedDay === $day) aria-current="page" @endif>
+                <a href="{{ route($journalRoute, [...(isset($expedition) ? [$expedition] : []), 'day' => $day]) }}" @if($selectedDay === $day) aria-current="page" @endif>
                     <time datetime="{{ $day }}">{{ \Illuminate\Support\Carbon::parse($day)->translatedFormat('j. F') }}</time>
                 </a>
             @endforeach

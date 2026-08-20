@@ -14,11 +14,13 @@
 <article>
     <header class="article-header">
         <div class="article-shell">
-            <a class="back-link" href="{{ route('posts.index') }}"><span aria-hidden="true">←</span> Deník expedice</a>
+            <a class="back-link" href="{{ $post->expedition ? route('expeditions.posts', $post->expedition) : route('posts.index') }}"><span aria-hidden="true">←</span> {{ $post->expedition ? 'Deník expedice' : 'Všechny články' }}</a>
             <p class="article-meta">@if($post->journalDate())<time datetime="{{ $post->journalDateKey() }}">{{ $post->journalDate()->translatedFormat('j. F Y') }}</time>@endif @if($post->location)<span>·</span> {{ $post->location }}@endif</p>
             <h1>{{ $post->title }}</h1>
             <p class="article-lead">{{ $post->excerpt }}</p>
             @if($post->authors->isNotEmpty())<p class="byline">Napsali {{ $post->authors->pluck('name')->join(', ', ' a ') }} · {{ $post->readingMinutes() }} min čtení</p>@endif
+            <button id="read-article" class="button article-reader" type="button" aria-pressed="false">Přečíst článek nahlas</button>
+            <p id="reader-status" class="visually-hidden" role="status" aria-live="polite"></p>
             @if($photoCount || $videoCount)
             <nav class="article-media-summary" aria-label="Média v článku">
                 @if($photoCount)<a href="#fotografie"><span aria-hidden="true">▧</span> {{ $post->photoCountLabel() }}</a>@endif
@@ -30,7 +32,7 @@
 
     @if($post->cover_image)<figure class="cover-figure"><a class="full-image-link" href="{{ $thumbnails->originalUrl($post->cover_image) }}" data-full-image data-alt="{{ $post->cover_alt }}"><img src="{{ $thumbnails->url($post->cover_image, 'medium') }}" alt="{{ $post->cover_alt }}" width="1440" height="1080"><span>Zobrazit v plné velikosti</span></a></figure>@endif
 
-    <div class="article-shell article-body">{!! $post->body !!}</div>
+    <div id="article-text" class="article-shell article-body">{!! $post->body !!}</div>
 
     @if($photoCount)
     <section id="fotografie" class="article-shell article-gallery anchored-section" aria-labelledby="gallery-title"><h2 id="gallery-title">Fotografie z cesty <small>{{ $post->photoCountLabel() }}</small></h2><div class="gallery-grid">
@@ -51,6 +53,12 @@
     </section>
     @endif
 </article>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded',()=>{const button=document.getElementById('read-article'),article=document.getElementById('article-text'),status=document.getElementById('reader-status');if(!button||!article)return;if(!('speechSynthesis'in window)){button.hidden=true;return}let utterance=null;const stop=()=>{window.speechSynthesis.cancel();utterance=null;button.setAttribute('aria-pressed','false');button.textContent='Přečíst článek nahlas';status.textContent='Čtení bylo zastaveno.'};button.addEventListener('click',()=>{if(utterance){stop();return}utterance=new SpeechSynthesisUtterance(`${@json($post->title)}. ${article.innerText}`);utterance.lang='cs-CZ';utterance.onend=()=>{utterance=null;button.setAttribute('aria-pressed','false');button.textContent='Přečíst článek nahlas';status.textContent='Čtení článku skončilo.'};utterance.onerror=()=>{stop();status.textContent='Článek se nepodařilo přečíst.'};button.setAttribute('aria-pressed','true');button.textContent='Zastavit čtení';status.textContent='Čtení článku začalo.';window.speechSynthesis.speak(utterance)});window.addEventListener('pagehide',()=>window.speechSynthesis.cancel())});
+</script>
+@endpush
 
 @if($post->cover_image || $photoCount)
 <dialog class="image-lightbox" id="image-lightbox" aria-labelledby="image-lightbox-caption">

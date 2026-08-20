@@ -6,6 +6,7 @@
 /public/storage
 /storage/*.key
 /vendor
+/database/*.sqlite
 .env
 .env.backup
 .DS_Store
