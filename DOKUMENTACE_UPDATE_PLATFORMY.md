@@ -504,6 +504,33 @@ Pokud migrace skončí jinou chybou, nepokračujte ručním mazáním tabulek. U
 
 ## 16. Kontrola po nasazení
 
+### Přenos obsahu z původní instalace
+
+Jednorázový import čte pouze autory, články, vazby autorů a jejich mediální soubory. Zdrojovou databázi nijak nemění a nepřenáší uživatele, hesla, odběratele, objednávky ani platby. Články přiřadí k existující expedici `slepe-slunce-2026` a jejich vlastníkem se stane zvolený správce vývojové instalace.
+
+Nejprve spusťte povinný náhled bez zápisu:
+
+```bash
+php artisan app:import-production-content \
+  --source-env=/opt/notm/apps/slepeslunce/.env \
+  --source-storage=/opt/notm/apps/slepeslunce/storage/app/public \
+  --owner=info@slepeslunce.cz
+```
+
+Po kontrole počtů a vypsaných slugů spusťte import přidáním `--apply`:
+
+```bash
+php artisan app:import-production-content \
+  --source-env=/opt/notm/apps/slepeslunce/.env \
+  --source-storage=/opt/notm/apps/slepeslunce/storage/app/public \
+  --owner=info@slepeslunce.cz \
+  --apply
+php artisan app:generate-post-thumbnails
+php artisan optimize:clear
+```
+
+Import je opakovatelný: autory páruje podle jména a články podle slugu, takže druhé spuštění nevytvoří duplicity. Existující cílové mediální soubory nepřepisuje. Před spuštěním ověřte, že uvedené cesty skutečně patří ostré instalaci.
+
 ### Technická kontrola
 
 ```bash
@@ -535,7 +562,7 @@ Automatické ověření vývojové verze:
 php artisan test
 ```
 
-Referenční stav updatu je 28 úspěšných testů a 117 kontrol.
+Referenční stav updatu je 29 úspěšných testů a 126 kontrol.
 
 ## 17. Přístupnost
 
