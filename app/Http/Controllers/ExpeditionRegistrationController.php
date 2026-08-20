@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PaymentMethod;
 use App\Enums\RegistrationMode;
 use App\Models\Expedition;
 use Illuminate\Http\RedirectResponse;
@@ -22,12 +23,17 @@ class ExpeditionRegistrationController extends Controller
     {
         abort_unless($expedition->acceptsRegistrations(), 404);
         $allowedModes = $expedition->allowed_registration_modes ?? [];
+        $allowedPaymentMethods = collect($expedition->allowed_payment_methods ?? [])
+            ->filter(fn (string $method): bool => PaymentMethod::tryFrom($method)?->available() === true)
+            ->values()
+            ->all();
         $data = $request->validate([
             'mode' => ['required', Rule::in($allowedModes)],
             'name' => ['required', 'string', 'max:160'],
             'email' => ['required', 'email:rfc', 'max:190'],
             'phone' => ['nullable', 'string', 'max:50'],
             'party_size' => ['required', 'integer', 'min:1', 'max:20'],
+            'payment_method' => ['required', Rule::in($allowedPaymentMethods)],
             'departure_choice' => ['nullable', 'string', 'max:250'],
             'assistance_needs' => ['nullable', 'string', 'max:3000'],
             'dietary_needs' => ['nullable', 'string', 'max:2000'],

@@ -16,6 +16,8 @@ Produktový a projektový návrh je udržován jako samostatný projektový doku
 
 Kompletní provozní popis updatu, přednastavených dat, účtů, rolí, nasazení a obnovy je v [DOKUMENTACE_UPDATE_PLATFORMY.md](DOKUMENTACE_UPDATE_PLATFORMY.md).
 
+Pracovní produktové otázky k pilotním víkendům ve Valticích jsou v [PODKLADY_SCHUZKA_MIREK_VALTICE.md](PODKLADY_SCHUZKA_MIREK_VALTICE.md).
+
 ## Co obsahuje první verze
 
 - veřejnou úvodní stránku, deník, detail příspěvku, mapu a časovou osu,

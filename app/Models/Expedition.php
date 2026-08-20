@@ -24,7 +24,7 @@ class Expedition extends Model
     protected $fillable = [
         'organizer_user_id', 'name', 'slug', 'short_description', 'description', 'start_at', 'end_at',
         'timezone', 'publication_status', 'status_override', 'is_featured', 'hero_image', 'hero_alt',
-        'registration_enabled', 'allowed_registration_modes', 'capacity', 'public_capacity',
+        'registration_enabled', 'allowed_registration_modes', 'allowed_payment_methods', 'capacity', 'public_capacity',
         'registration_opens_at', 'registration_closes_at', 'price_czk', 'price_eur',
         'reservation_hold_hours', 'leader_name', 'contact_email', 'contact_phone', 'departure_details',
         'transport_details', 'accommodation_details', 'accessibility_details', 'included_services',
@@ -37,7 +37,7 @@ class Expedition extends Model
         return [
             'start_at' => 'datetime', 'end_at' => 'datetime', 'registration_opens_at' => 'datetime',
             'registration_closes_at' => 'datetime', 'is_featured' => 'boolean',
-            'registration_enabled' => 'boolean', 'allowed_registration_modes' => 'array',
+            'registration_enabled' => 'boolean', 'allowed_registration_modes' => 'array', 'allowed_payment_methods' => 'array',
             'capacity' => 'integer', 'public_capacity' => 'integer', 'price_czk' => 'decimal:2',
             'price_eur' => 'decimal:2', 'reservation_hold_hours' => 'integer',
             'minimum_participants' => 'integer', 'archive_member_locations' => 'boolean',

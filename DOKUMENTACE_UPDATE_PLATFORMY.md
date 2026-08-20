@@ -562,7 +562,7 @@ Automatické ověření vývojové verze:
 php artisan test
 ```
 
-Referenční stav updatu je 29 úspěšných testů a 126 kontrol.
+Referenční stav updatu je 30 úspěšných testů a 140 kontrol.
 
 ## 17. Přístupnost
 

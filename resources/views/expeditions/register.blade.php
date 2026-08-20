@@ -12,6 +12,19 @@
                 <label class="check-label"><input type="radio" name="mode" value="{{ $mode }}" required @checked(old('mode') === $mode)> {{ $registrationMode->label() }}</label>
             @endforeach
         </fieldset>
+        <fieldset><legend>Preferovaný způsob platby</legend>
+            @foreach(App\Enums\PaymentMethod::cases() as $paymentMethod)
+                @php($paymentAvailable = $paymentMethod->available() && in_array($paymentMethod->value, $expedition->allowed_payment_methods ?? [], true))
+                <label class="check-label @if(!$paymentAvailable) disabled-option @endif">
+                    <input type="radio" name="payment_method" value="{{ $paymentMethod->value }}" required
+                        @checked(old('payment_method') === $paymentMethod->value)
+                        @disabled(!$paymentAvailable)>
+                    {{ $paymentMethod->label() }}
+                    @if(!$paymentAvailable)<span class="optional">(zatím není aktivní)</span>@endif
+                </label>
+            @endforeach
+            <p class="field-help">Jde o preferenci. Pokyny k úhradě obdržíte až po potvrzení místa pořadatelem.</p>
+        </fieldset>
         <div class="form-grid">
             <div><label for="registration-name">Jméno a příjmení</label><input id="registration-name" name="name" autocomplete="name" required value="{{ old('name') }}"></div>
             <div><label for="registration-email">E-mail</label><input id="registration-email" name="email" type="email" autocomplete="email" required value="{{ old('email') }}"></div>
@@ -24,7 +37,7 @@
         <label for="registration-note">Poznámka <span class="optional">(nepovinné)</span></label><textarea id="registration-note" name="note" rows="4">{{ old('note') }}</textarea>
         <label class="check-label"><input type="checkbox" name="privacy_consent" value="1" required> Souhlasím se zpracováním údajů pro vyřízení účasti. Údaje budou uchovány nejdéle 2 roky, nevyžaduje-li zákon déle.</label>
         <div class="honeypot" aria-hidden="true"><label for="registration-website">Web</label><input id="registration-website" name="website" tabindex="-1" autocomplete="off"></div>
-        <button class="button button-primary" type="submit">Odeslat přihlášku</button>
+        <button class="button button-primary" type="submit">Odeslat žádost o rezervaci</button>
     </form>
 </div></section>
 @endsection

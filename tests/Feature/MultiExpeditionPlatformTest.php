@@ -32,12 +32,40 @@ class MultiExpeditionPlatformTest extends TestCase
     {
         $expedition = Expedition::query()->create([
             'name' => 'Ochutnávka vín', 'slug' => 'ochutnavka', 'publication_status' => 'published',
-            'registration_enabled' => true, 'allowed_registration_modes' => ['application'], 'public_capacity' => 5,
+            'registration_enabled' => true, 'allowed_registration_modes' => ['application'],
+            'allowed_payment_methods' => ['cash', 'bank_transfer'], 'public_capacity' => 5,
         ]);
         $this->post(route('expeditions.register.store', $expedition), [
-            'mode' => 'application', 'name' => 'Jan Novák', 'email' => 'jan@example.test', 'party_size' => 2, 'privacy_consent' => '1',
+            'mode' => 'application', 'payment_method' => 'bank_transfer', 'name' => 'Jan Novák', 'email' => 'jan@example.test', 'party_size' => 2, 'privacy_consent' => '1',
         ])->assertRedirect(route('expeditions.show', $expedition));
-        $this->assertDatabaseHas('expedition_registrations', ['expedition_id' => $expedition->id, 'party_size' => 2, 'status' => 'new']);
+        $this->assertDatabaseHas('expedition_registrations', ['expedition_id' => $expedition->id, 'party_size' => 2, 'status' => 'new', 'payment_method' => 'bank_transfer']);
+    }
+
+    public function test_valtice_prototypes_are_ready_and_card_payment_stays_disabled(): void
+    {
+        $expeditions = Expedition::query()->where('settings->prototype', true)->orderBy('start_at')->get();
+
+        $this->assertCount(3, $expeditions);
+        $this->assertSame(['2026-09-05', '2026-09-26', '2026-10-17'], $expeditions->map(fn (Expedition $expedition): string => $expedition->start_at->toDateString())->all());
+        $this->assertTrue($expeditions->every(fn (Expedition $expedition): bool => $expedition->programItems()->count() === 5));
+
+        $expedition = $expeditions->first();
+        $this->get(route('expeditions.show', $expedition))
+            ->assertOk()
+            ->assertSee('Návrh pro testovací provoz')
+            ->assertSee('Co je v ceně');
+        $this->get(route('expeditions.register', $expedition))
+            ->assertOk()
+            ->assertSee('Hotově na místě')
+            ->assertSee('Bankovním převodem')
+            ->assertSee('Platební kartou')
+            ->assertSee('zatím není aktivní');
+
+        $this->post(route('expeditions.register.store', $expedition), [
+            'mode' => 'reservation', 'payment_method' => 'card', 'name' => 'Jan Novák',
+            'email' => 'jan@example.test', 'party_size' => 1, 'privacy_consent' => '1',
+        ])->assertSessionHasErrors('payment_method');
+        $this->assertDatabaseMissing('expedition_registrations', ['email' => 'jan@example.test']);
     }
 
     public function test_subscription_requires_confirmation_and_records_topics(): void

@@ -9,7 +9,10 @@ class ExpeditionController extends Controller
 {
     public function index(): View
     {
-        $expeditions = Expedition::published()->orderByDesc('start_at')->get();
+        $expeditions = Expedition::published()
+            ->orderByRaw('CASE WHEN end_at >= ? THEN 0 ELSE 1 END', [now()])
+            ->orderBy('start_at')
+            ->get();
 
         return view('expeditions.index', compact('expeditions'));
     }

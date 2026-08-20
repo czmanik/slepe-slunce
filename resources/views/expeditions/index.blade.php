@@ -12,6 +12,7 @@
             <h2><a href="{{ route('expeditions.show', $expedition) }}">{{ $expedition->name }}</a></h2>
             @if($expedition->start_at)<p class="expedition-date"><time datetime="{{ $expedition->start_at->toDateString() }}">{{ $expedition->start_at->translatedFormat('j. n. Y') }}</time>@if($expedition->end_at)–<time datetime="{{ $expedition->end_at->toDateString() }}">{{ $expedition->end_at->translatedFormat('j. n. Y') }}</time>@endif</p>@endif
             <p>{{ $expedition->short_description }}</p>
+            @if($expedition->price_czk)<p><strong>Orientačně {{ number_format((float) $expedition->price_czk, 0, ',', ' ') }} Kč za osobu</strong></p>@endif
             @if($expedition->acceptsRegistrations())<p><strong>{{ $expedition->availablePlaces() ?? 'Kapacita bude upřesněna' }} volných míst</strong></p>@endif
             <p><a class="text-link dark-link" href="{{ route('expeditions.show', $expedition) }}">Podrobnosti o expedici <span aria-hidden="true">→</span></a></p>
         </article>

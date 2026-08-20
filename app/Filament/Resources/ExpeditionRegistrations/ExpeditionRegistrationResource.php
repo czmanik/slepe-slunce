@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ExpeditionRegistrations;
 
+use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Enums\RegistrationStatus;
 use App\Filament\Resources\ExpeditionRegistrations\Pages\EditExpeditionRegistration;
@@ -46,6 +47,7 @@ class ExpeditionRegistrationResource extends Resource
             Section::make('Schválení a platba')->schema([
                 Select::make('status')->label('Stav přihlášky')->options(RegistrationStatus::options())->required(),
                 Select::make('payment_status')->label('Platba')->options(PaymentStatus::options())->required(),
+                Select::make('payment_method')->label('Způsob platby')->options(PaymentMethod::options()),
                 TextInput::make('amount_due')->label('Částka k úhradě')->numeric(), TextInput::make('amount_paid')->label('Zaplaceno')->numeric(),
                 TextInput::make('currency')->label('Měna')->maxLength(3), TextInput::make('discount_amount')->label('Sleva')->numeric(),
                 Textarea::make('discount_note')->label('Důvod slevy')->rows(2),
@@ -60,6 +62,7 @@ class ExpeditionRegistrationResource extends Resource
             TextColumn::make('expedition.name')->label('Expedice')->sortable(), TextColumn::make('name')->label('Zájemce')->searchable(),
             TextColumn::make('party_size')->label('Osob'), TextColumn::make('status')->label('Stav')->badge()->formatStateUsing(fn ($state) => $state->label()),
             TextColumn::make('payment_status')->label('Platba')->badge()->formatStateUsing(fn ($state) => $state->label()),
+            TextColumn::make('payment_method')->label('Způsob')->formatStateUsing(fn ($state) => $state?->label() ?? '—'),
             TextColumn::make('hold_expires_at')->label('Rezervace do')->dateTime('j. n. Y H:i'),
         ])->filters([SelectFilter::make('expedition_id')->relationship('expedition', 'name'), SelectFilter::make('status')->options(RegistrationStatus::options())])->recordActions([EditAction::make()]);
     }

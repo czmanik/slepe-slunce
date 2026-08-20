@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Expeditions;
 
 use App\Enums\ExpeditionStatus;
+use App\Enums\PaymentMethod;
 use App\Enums\RegistrationMode;
 use App\Filament\Resources\Expeditions\Pages\CreateExpedition;
 use App\Filament\Resources\Expeditions\Pages\EditExpedition;
@@ -57,6 +58,8 @@ class ExpeditionResource extends Resource
             Section::make('Přihlášky a kapacita')->schema([
                 Checkbox::make('registration_enabled')->label('Přijímat přihlášky'),
                 Select::make('allowed_registration_modes')->label('Nabízené typy formuláře')->multiple()->options(RegistrationMode::options()),
+                Select::make('allowed_payment_methods')->label('Povolené způsoby platby')->multiple()->options(PaymentMethod::options())
+                    ->helperText('Platba kartou je v testovací fázi na veřejném formuláři vždy neaktivní.'),
                 TextInput::make('capacity')->label('Celková kapacita')->integer()->minValue(1),
                 TextInput::make('public_capacity')->label('Místa pro veřejnost')->integer()->minValue(1),
                 DateTimePicker::make('registration_opens_at')->label('Přihlášky od')->seconds(false)->native(false),
