@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Subscriber extends Model
 {
     protected $fillable = [
-        'email', 'name', 'status', 'new_expeditions', 'project_news', 'shop_news', 'confirm_token',
+        'email', 'name', 'status', 'new_expeditions', 'project_news', 'confirm_token',
         'unsubscribe_token', 'confirmed_at', 'unsubscribed_at', 'consent_at', 'consent_ip',
         'source', 'mailchimp_synced_at',
     ];
@@ -17,7 +17,7 @@ class Subscriber extends Model
     protected function casts(): array
     {
         return [
-            'new_expeditions' => 'boolean', 'project_news' => 'boolean', 'shop_news' => 'boolean',
+            'new_expeditions' => 'boolean', 'project_news' => 'boolean',
             'confirmed_at' => 'datetime', 'unsubscribed_at' => 'datetime', 'consent_at' => 'datetime',
             'mailchimp_synced_at' => 'datetime',
         ];
