@@ -78,19 +78,35 @@ class MultiExpeditionPlatformTest extends TestCase
         $this->assertSame('active', $subscriber->fresh()->status);
     }
 
-    public function test_guest_can_order_available_wine_and_stock_is_reserved(): void
+    public function test_shop_is_available_only_to_an_authenticated_admin_when_testing_is_enabled(): void
     {
-        config(['shop.comgate.merchant' => null, 'shop.comgate.secret' => null]);
+        config(['shop.testing_enabled' => true, 'shop.comgate.merchant' => null, 'shop.comgate.secret' => null]);
         $product = WineProduct::query()->create(['name' => 'Ryzlink', 'slug' => 'ryzlink', 'is_active' => true]);
         $variant = WineVariant::query()->create(['wine_product_id' => $product->id, 'sku' => 'R-2008', 'vintage' => 2008, 'price_czk' => 125000, 'stock_quantity' => 3, 'is_active' => true]);
-        $this->post(route('shop.cart.add', $variant), ['quantity' => 1, 'age_confirmed' => '1'])->assertRedirect(route('shop.cart'));
-        $response = $this->post(route('shop.checkout.store'), [
+        $this->get(route('shop.index'))->assertRedirect('/admin/login');
+
+        $admin = User::query()->create(['name' => 'Admin', 'email' => 'admin@example.test', 'password' => 'test-password', 'role' => 'admin', 'is_active' => true]);
+        $this->actingAs($admin)->post(route('shop.cart.add', $variant), ['quantity' => 1, 'age_confirmed' => '1'])->assertRedirect(route('shop.cart'));
+        $response = $this->actingAs($admin)->post(route('shop.checkout.store'), [
             'customer_name' => 'Jan Novák', 'email' => 'jan@example.test', 'billing_street' => 'Hlavní 1', 'billing_city' => 'Praha',
             'billing_postcode' => '11000', 'billing_country' => 'CZ', 'age_confirmed' => '1', 'terms' => '1', 'privacy_consent' => '1',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('shop_orders', ['email' => 'jan@example.test', 'grand_total' => 125000]);
         $this->assertSame(1, $variant->fresh()->reserved_quantity);
+    }
+
+    public function test_public_pages_do_not_link_to_shop_and_show_the_planned_croatia_expedition(): void
+    {
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertDontSee('>Obchod<', escape: false)
+            ->assertSee('Chorvatsko: moře bez bariér');
+
+        $this->get(route('expeditions.show', 'chorvatsko-pripravujeme'))
+            ->assertOk()
+            ->assertSee('Termín a podrobnosti zveřejníme')
+            ->assertDontSee('Přihlásit se');
     }
 
     public function test_admin_can_open_new_management_screens(): void
