@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\RestrictShopToTesting;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->redirectGuestsTo('/admin/login');
         $middleware->validateCsrfTokens(except: ['obchod/platba/comgate/callback', 'platba/comgate/callback']);
+        $middleware->alias(['shop.testing' => RestrictShopToTesting::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Výchozí Laravel reporting a rendering.
