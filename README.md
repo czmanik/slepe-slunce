@@ -92,6 +92,25 @@ Do cronu přidejte:
 
 Scheduler navíc publikuje naplánované články, každý den odešle urgentní souhrn, v pondělí týdenní souhrn a denně vynucuje retenční lhůty a 48hodinové rezervace.
 
+## Odesílání e-mailů
+
+Potvrzovací odkazy odběru se odesílají přes E-mail Profi/Seznam SMTP. Produkční `.env` musí obsahovat skutečné heslo schránky; do repozitáře jej nikdy neukládejte:
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_SCHEME=null
+MAIL_URL=null
+MAIL_HOST=smtp.seznam.cz
+MAIL_PORT=587
+MAIL_USERNAME="news@slepeslunce.cz"
+MAIL_PASSWORD=TAJNE_HESLO_SCHRANKY
+MAIL_FROM_ADDRESS="news@slepeslunce.cz"
+MAIL_FROM_NAME="Slepé Slunce"
+MAIL_EHLO_DOMAIN=slepeslunce.cz
+```
+
+Port 587 používá STARTTLS. Po změně `.env` spusťte `php artisan optimize:clear` a odešlete testovací odběr, abyste ověřili doručení potvrzovacího odkazu.
+
 ## Testovací modul vín a Comgate
 
 Modul vín není součástí veřejného webu ani navigace. Pro technické testování jej správce zapne v `.env`; po přihlášení do administrace je pak dostupný na `/obchod`:
