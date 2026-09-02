@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class TerminalPayment extends Model
 {
     protected $fillable = [
-        'expedition_registration_id', 'created_by', 'transaction_id', 'reference', 'status', 'amount', 'currency',
+        'expedition_registration_id', 'created_by', 'transaction_id', 'reference', 'reason', 'status', 'amount', 'currency',
         'provider_payload', 'checked_at', 'paid_at', 'applied_at',
     ];
 
