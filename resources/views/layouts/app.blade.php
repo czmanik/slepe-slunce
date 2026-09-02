@@ -47,7 +47,6 @@
                 <div class="shell">
                     <strong>{{ $expedition->name }}</strong>
                     <a href="{{ route('expeditions.show', $expedition) }}" @if(request()->routeIs('expeditions.show')) aria-current="page" @endif>Přehled</a>
-                    <a href="{{ route('expeditions.route', $expedition) }}" @if(request()->routeIs('expeditions.route')) aria-current="page" @endif>Program a trasa</a>
                     <a href="{{ route('expeditions.posts', $expedition) }}" @if(request()->routeIs('expeditions.posts')) aria-current="page" @endif>Deník</a>
                     <a href="{{ route('expeditions.members', $expedition) }}" @if(request()->routeIs('expeditions.members')) aria-current="page" @endif>Členové</a>
                 </div>
