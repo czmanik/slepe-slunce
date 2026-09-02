@@ -40,10 +40,11 @@ $shopRoutes = function (): void {
     Route::get('/objednavka/{order}', [ShopCheckoutController::class, 'show'])->name('order');
     Route::get('/doklad/{order}/{token}', [ShopCheckoutController::class, 'invoice'])->name('invoice');
     Route::get('/platba/{order}/navrat', [ShopCheckoutController::class, 'paymentReturn'])->name('payment.return');
-    Route::post('/platba/comgate/callback', [ShopCheckoutController::class, 'callback'])->name('payment.callback');
+    Route::post('/platba/comgate/callback', [ShopCheckoutController::class, 'callback'])->withoutMiddleware('auth')->name('payment.callback');
 };
 
-(app()->environment(['local', 'testing']) ? Route::prefix('obchod') : Route::domain(config('shop.domain')))
+Route::prefix('obchod')
+    ->middleware(['shop.testing', 'auth'])
     ->name('shop.')
     ->group($shopRoutes);
 Route::middleware('auth')->group(function (): void {
