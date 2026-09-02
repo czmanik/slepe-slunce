@@ -8,7 +8,6 @@
         @error('topics')<p class="field-error">{{ $message }}</p>@enderror
         <label class="check-label"><input type="checkbox" name="project_news" value="1" @checked(old('project_news', true))> Život projektu a nové články</label>
         <label class="check-label"><input type="checkbox" name="new_expeditions" value="1" @checked(old('new_expeditions', true))> Nové expedice</label>
-        <label class="check-label"><input type="checkbox" name="shop_news" value="1" @checked(old('shop_news'))> Novinky z obchodu s víny</label>
         @foreach($expeditions as $subscriptionExpedition)
             <label class="check-label"><input type="checkbox" name="expeditions[]" value="{{ $subscriptionExpedition->id }}" @checked(in_array($subscriptionExpedition->id, old('expeditions', [])))> Jen aktuality: {{ $subscriptionExpedition->name }}</label>
         @endforeach
