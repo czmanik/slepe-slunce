@@ -38,7 +38,6 @@
             <nav aria-label="Hlavní navigace">
                 <a href="{{ route('expeditions.index') }}" @if(request()->routeIs('expeditions.index')) aria-current="page" @endif>Expedice</a>
                 <a href="{{ route('posts.index') }}" @if(request()->routeIs('posts.*')) aria-current="page" @endif>Články</a>
-                <a href="{{ route('shop.index') }}" @if(request()->routeIs('shop.*')) aria-current="page" @endif>Obchod</a>
                 <a href="{{ route('home') }}#smysl">O projektu</a>
                 <a href="{{ route('home') }}#odber">Odběr</a>
             </nav>
