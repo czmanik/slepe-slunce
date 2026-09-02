@@ -18,14 +18,13 @@ class SubscriberController extends Controller
             'name' => ['nullable', 'string', 'max:160'],
             'new_expeditions' => ['nullable', 'boolean'],
             'project_news' => ['nullable', 'boolean'],
-            'shop_news' => ['nullable', 'boolean'],
             'expeditions' => ['nullable', 'array'],
             'expeditions.*' => ['integer', 'exists:expeditions,id'],
             'privacy_consent' => ['accepted'],
             'website' => ['nullable', 'max:0'],
         ]);
         $topicsSelected = $request->boolean('new_expeditions') || $request->boolean('project_news')
-            || $request->boolean('shop_news') || count($data['expeditions'] ?? []) > 0;
+            || count($data['expeditions'] ?? []) > 0;
         if (! $topicsSelected) {
             return back()->withErrors(['topics' => 'Vyberte alespoň jedno téma.'])->withInput();
         }
@@ -36,7 +35,6 @@ class SubscriberController extends Controller
             'status' => 'pending',
             'new_expeditions' => $request->boolean('new_expeditions'),
             'project_news' => $request->boolean('project_news'),
-            'shop_news' => $request->boolean('shop_news'),
             'confirm_token' => Str::random(64),
             'unsubscribe_token' => $subscriber->unsubscribe_token ?: Str::random(64),
             'confirmed_at' => null,
