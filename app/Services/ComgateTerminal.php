@@ -20,7 +20,7 @@ class ComgateTerminal
             && filled(config('shop.terminal.secret'));
     }
 
-    public function create(ExpeditionRegistration $registration, int $amount): TerminalPayment
+    public function create(?ExpeditionRegistration $registration, int $amount, ?string $reason = null): TerminalPayment
     {
         if (! $this->configured()) {
             throw new RuntimeException('Terminál Comgate není nakonfigurován. Doplňte přístupové údaje CloudPOS do .env.');
@@ -29,10 +29,11 @@ class ComgateTerminal
             throw new RuntimeException('Minimální platba na terminálu je 1 Kč.');
         }
 
-        $reference = 'ER'.$registration->id.'-'.now()->format('YmdHis');
+        $reference = ($registration ? 'ER'.$registration->id : 'TP').'-'.now()->format('YmdHis');
+        $currency = strtoupper($registration?->currency ?: 'CZK');
         $response = $this->client()->post($this->url('/terminalPayment.json'), [
             'price' => $amount,
-            'curr' => strtoupper($registration->currency ?: 'CZK'),
+            'curr' => $currency,
             'refId' => $reference,
         ]);
         $response->throw();
@@ -41,9 +42,9 @@ class ComgateTerminal
             throw new RuntimeException('Comgate terminál odmítl platbu: '.(data_get($payload, 'message') ?: 'neznámá chyba'));
         }
 
-        return $registration->terminalPayments()->create([
-            'created_by' => auth()->id(), 'transaction_id' => data_get($payload, 'transId'), 'reference' => $reference,
-            'status' => 'PENDING', 'amount' => $amount, 'currency' => strtoupper($registration->currency ?: 'CZK'),
+        return TerminalPayment::query()->create([
+            'expedition_registration_id' => $registration?->id, 'created_by' => auth()->id(), 'transaction_id' => data_get($payload, 'transId'), 'reference' => $reference, 'reason' => $reason,
+            'status' => 'PENDING', 'amount' => $amount, 'currency' => $currency,
             'provider_payload' => $payload, 'checked_at' => now(),
         ]);
     }
@@ -75,6 +76,11 @@ class ComgateTerminal
                 return;
             }
 
+            if (! $payment->expedition_registration_id) {
+                $payment->update(['applied_at' => now()]);
+
+                return;
+            }
             $registration = $payment->registration()->lockForUpdate()->firstOrFail();
             $amountPaid = round((float) $registration->amount_paid + ($payment->amount / 100), 2);
             $amountDue = max(0, (float) $registration->amount_due - (float) $registration->discount_amount);
