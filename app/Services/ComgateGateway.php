@@ -23,9 +23,9 @@ class ComgateGateway
         }
         $response = Http::asForm()->accept('application/x-www-form-urlencoded')->timeout(15)->post($this->endpoint.'/create', [
             'merchant' => config('shop.comgate.merchant'), 'secret' => config('shop.comgate.secret'), 'test' => config('shop.comgate.test') ? 'true' : 'false', 'price' => $order->grand_total, 'curr' => $order->currency,
-            'label' => mb_substr('Vino '.$order->number, 0, 16), 'refId' => $order->number, 'method' => 'ALL', 'email' => $order->email, 'phone' => $order->phone, 'fullName' => $order->customer_name,
+            'label' => mb_substr('Vino '.$order->number, 0, 16), 'refId' => $order->number, 'method' => config('shop.comgate.gateway_method'), 'email' => $order->email, 'phone' => $order->phone, 'fullName' => $order->customer_name,
             'billingAddrCity' => $order->billing_city, 'billingAddrStreet' => $order->billing_street, 'billingAddrPostalCode' => $order->billing_postcode, 'billingAddrCountry' => $order->billing_country,
-            'delivery' => 'PICKUP', 'category' => 'PHYSICAL_GOODS_ONLY', 'prepareOnly' => 'true', 'lang' => 'cs', 'expirationTime' => '2d',
+            'delivery' => 'PICKUP', 'category' => 'PHYSICAL_GOODS_ONLY', 'lang' => 'cs', 'expirationTime' => '2d', 'prepareOnly' => 'true',
             'url_paid' => route('shop.payment.return', ['order' => $order, 'result' => 'paid']), 'url_cancelled' => route('shop.payment.return', ['order' => $order, 'result' => 'cancelled']), 'url_pending' => route('shop.payment.return', ['order' => $order, 'result' => 'pending']),
         ]);
         $response->throw();
