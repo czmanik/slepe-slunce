@@ -30,7 +30,6 @@ class MailchimpSubscriberSync
         $tags = collect([
             $subscriber->project_news ? 'Projekt' : null,
             $subscriber->new_expeditions ? 'Nové expedice' : null,
-            $subscriber->shop_news ? 'Obchod' : null,
             ...$subscriber->expeditions->map(fn ($expedition) => 'Expedice: '.$expedition->name),
         ])->filter()->map(fn (string $name): array => ['name' => $name, 'status' => 'active'])->values()->all();
         if ($tags) {
