@@ -15,7 +15,6 @@
         @if($expedition->acceptsRegistrations())<p><strong>Volná místa:</strong> {{ $expedition->availablePlaces() ?? 'kapacita není omezena' }}</p>@endif
     </div>
     <div class="button-row">
-        <a class="button button-primary" href="{{ route('expeditions.route', $expedition) }}">Program a trasa</a>
         @if($expedition->acceptsRegistrations())<a class="button button-quiet" href="{{ route('expeditions.register', $expedition) }}">Přihlásit se</a>@endif
     </div>
 </div></header>
