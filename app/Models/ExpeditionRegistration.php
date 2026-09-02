@@ -8,6 +8,7 @@ use App\Enums\RegistrationMode;
 use App\Enums\RegistrationStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExpeditionRegistration extends Model
 {
@@ -36,5 +37,10 @@ class ExpeditionRegistration extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function terminalPayments(): HasMany
+    {
+        return $this->hasMany(TerminalPayment::class);
     }
 }
