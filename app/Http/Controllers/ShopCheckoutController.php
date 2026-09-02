@@ -25,7 +25,8 @@ class ShopCheckoutController extends Controller
 
     public function store(Request $request, ShopCart $cart, ComgateGateway $gateway): RedirectResponse
     {
-        $data = $request->validate(['customer_name' => ['required', 'string', 'max:190'], 'email' => ['required', 'email:rfc', 'max:190'], 'phone' => ['nullable', 'string', 'max:50'], 'billing_street' => ['required', 'string', 'max:250'], 'billing_city' => ['required', 'string', 'max:160'], 'billing_postcode' => ['required', 'string', 'max:30'], 'billing_country' => ['required', 'in:CZ,SK,AT,DE'], 'note' => ['nullable', 'string', 'max:2000'], 'age_confirmed' => ['accepted'], 'terms' => ['accepted'], 'privacy_consent' => ['accepted']]);
+        $data = $request->validate(['customer_name' => ['required', 'string', 'max:190'], 'email' => ['required', 'email:rfc', 'max:190'], 'phone' => ['nullable', 'string', 'max:50'], 'billing_street' => ['required', 'string', 'max:250'], 'billing_city' => ['required', 'string', 'max:160'], 'billing_postcode' => ['required', 'string', 'max:30'], 'billing_country' => ['required', 'in:CZ,SK,AT,DE'], 'note' => ['nullable', 'string', 'max:2000'], 'payment_method' => ['required', 'in:online_card'], 'age_confirmed' => ['accepted'], 'terms' => ['accepted'], 'privacy_consent' => ['accepted']]);
+        unset($data['payment_method']);
         $lines = $cart->lines();
         abort_if($lines->isEmpty(), 422);
         $order = DB::transaction(function () use ($data, $lines, $cart) {
