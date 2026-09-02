@@ -92,9 +92,18 @@ Do cronu přidejte:
 
 Scheduler navíc publikuje naplánované články, každý den odešle urgentní souhrn, v pondělí týdenní souhrn a denně vynucuje retenční lhůty a 48hodinové rezervace.
 
-## Obchod a Comgate
+## Testovací modul vín a Comgate
 
-V produkci běží obchod na doméně z `SHOP_DOMAIN` (výchozí `shop.slepeslunce.cz`), lokálně na `/obchod`. Nastavte `COMGATE_MERCHANT`, `COMGATE_SECRET` a nejprve ponechte `COMGATE_TEST=true`. Callback v portálu Comgate směřuje na `https://shop.slepeslunce.cz/platba/comgate/callback`.
+Modul vín není součástí veřejného webu ani navigace. Pro technické testování jej správce zapne v `.env`; po přihlášení do administrace je pak dostupný na `/obchod`:
+
+```dotenv
+SHOP_TESTING_ENABLED=true
+COMGATE_MERCHANT=
+COMGATE_SECRET=
+COMGATE_TEST=true
+```
+
+Callback v portálu Comgate nastavte na `https://slepeslunce.cz/obchod/platba/comgate/callback`. Po dokončení testu nastavte `SHOP_TESTING_ENABLED=false`; veřejné stránky ani data expedic to neovlivní.
 
 Byl prověřen Lunar Core. Stabilní Lunar 1.3 nepodporuje Laravel 13 a řada 2 je zatím alpha, proto není bezpečné ji nasadit do obchodu s 8 000 lahvemi. Současná verze používá malý nativní Laravel modul s oddělenou doménovou vrstvou; po stabilizaci Lunar 2 lze katalog a objednávky převést bez změny veřejných URL a Comgate adaptéru.
 
