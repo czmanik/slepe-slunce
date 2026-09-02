@@ -89,7 +89,7 @@ class MultiExpeditionPlatformTest extends TestCase
         $this->actingAs($admin)->post(route('shop.cart.add', $variant), ['quantity' => 1, 'age_confirmed' => '1'])->assertRedirect(route('shop.cart'));
         $response = $this->actingAs($admin)->post(route('shop.checkout.store'), [
             'customer_name' => 'Jan Novák', 'email' => 'jan@example.test', 'billing_street' => 'Hlavní 1', 'billing_city' => 'Praha',
-            'billing_postcode' => '11000', 'billing_country' => 'CZ', 'age_confirmed' => '1', 'terms' => '1', 'privacy_consent' => '1',
+            'billing_postcode' => '11000', 'billing_country' => 'CZ', 'payment_method' => 'online_card', 'age_confirmed' => '1', 'terms' => '1', 'privacy_consent' => '1',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('shop_orders', ['email' => 'jan@example.test', 'grand_total' => 125000]);
