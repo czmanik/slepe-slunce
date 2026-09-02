@@ -120,9 +120,26 @@ SHOP_TESTING_ENABLED=true
 COMGATE_MERCHANT=
 COMGATE_SECRET=
 COMGATE_TEST=true
+COMGATE_GATEWAY_METHOD=CARD_ALL
 ```
 
 Callback v portálu Comgate nastavte na `https://slepeslunce.cz/obchod/platba/comgate/callback`. Po dokončení testu nastavte `SHOP_TESTING_ENABLED=false`; veřejné stránky ani data expedic to neovlivní.
+
+`CARD_ALL` omezí platební bránu na karty. Pro ostré platby změňte `COMGATE_TEST=false` až po úspěšném testu.
+
+### Terminál Comgate N80 Move
+
+V administraci otevřete registraci ochutnávky, nastavte nejdřív částku k úhradě a uložte ji. Poté lze tlačítkem **Vyžádat platbu kartou na terminálu** poslat částku na N80 Move; po zaplacení ji potvrďte tlačítkem **Ověřit stav terminálu**. Systém platbu při potvrzení zapíše právě jednou a promítne ji do uhrazené částky registrace.
+
+```dotenv
+COMGATE_TERMINAL_ENABLED=true
+COMGATE_TERMINAL_LOGIN=
+COMGATE_TERMINAL_SECRET=
+COMGATE_TERMINAL_API_URL=https://payments.comgate.cz/v2.0
+COMGATE_TERMINAL_TIMEOUT=20
+```
+
+Přístupové údaje vytvořte v portálu Comgate v nastavení terminálů a povolte veřejnou IP produkčního serveru. N80 Move musí mít přístup k internetu; lokální propojení s notebookem ani tabletem není potřeba.
 
 Byl prověřen Lunar Core. Stabilní Lunar 1.3 nepodporuje Laravel 13 a řada 2 je zatím alpha, proto není bezpečné ji nasadit do obchodu s 8 000 lahvemi. Současná verze používá malý nativní Laravel modul s oddělenou doménovou vrstvou; po stabilizaci Lunar 2 lze katalog a objednávky převést bez změny veřejných URL a Comgate adaptéru.
 
