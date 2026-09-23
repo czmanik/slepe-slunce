@@ -46,7 +46,7 @@
                 <section class="journal-featured" aria-labelledby="journal-featured-title">
                     <div class="journal-featured-media">
                         @if($featuredPost->cover_image)
-                            <img src="{{ app(\App\Services\ImageThumbnail::class)->url($featuredPost->cover_image, 'small') }}" alt="{{ $featuredPost->cover_alt ?: '' }}" width="960" height="640">
+                            <img src="{{ app(\App\Services\ImageThumbnail::class)->url($featuredPost->cover_image, 'medium') }}" alt="{{ $featuredPost->cover_alt ?: '' }}" width="960" height="640">
                         @else
                             <div class="journal-featured-placeholder" aria-hidden="true"></div>
                         @endif
