@@ -39,3 +39,61 @@
 .shop-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }.wine-card { background: #fff; border: 1px solid var(--line); }.wine-card img { aspect-ratio: 4/3; object-fit: cover; width: 100%; }.wine-card>div { padding: 24px; }.wine-card h2 { font-size: 1.7rem; }.variant-row,.cart-line { display: flex; justify-content: space-between; gap: 30px; padding: 25px 0; border-bottom: 1px solid var(--line); }.inline-cart { margin: 0; min-width: 240px; }.cart-total { font-size: 1.4rem; margin-top: 30px; }
 .invoice { background: #fff; color: #17150f; padding: 45px; }.invoice table { width: 100%; border-collapse: collapse; margin-block: 35px; }.invoice th,.invoice td { padding: 12px; text-align: left; border: 1px solid #777; }
 @media (max-width: 700px) { .expedition-cards, .form-grid, .info-grid, .shop-grid { grid-template-columns: 1fr; }.variant-row,.cart-line { display: block; }.journal-expedition-switcher { display: grid; grid-template-columns: 1fr; }.journal-expedition-switcher a { min-width: 0; } }
+
+/* Editorial journal: scoped so other page headers and cards stay unchanged. */
+.journal-hero { padding-block: clamp(54px, 7vw, 94px); }
+.journal-hero .shell { max-width: 1200px; }
+.journal-hero h1 { max-width: 980px; font-size: clamp(2.8rem, 6vw, 5.5rem); line-height: 1.06; }
+.journal-hero .eyebrow { color: #e5bf59; }
+.journal-page { padding-top: clamp(30px, 5vw, 66px); }
+.journal-page > .shell { max-width: 1200px; }
+.journal-filter-panel { margin-bottom: clamp(38px, 6vw, 76px); padding-bottom: 26px; border-bottom: 1px solid #d8d0c0; }
+.journal-kicker { margin: 0 0 16px; color: #66531e; font-size: .77rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.journal-page .journal-expedition-switcher { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; }
+.journal-page .journal-expedition-switcher a { min-width: 0; display: inline-flex; justify-content: center; gap: 4px; padding: 13px 19px; border: 1px solid #a79d8a; border-radius: 4px; background: #fffdf8; color: #211e18; font-size: .95rem; font-weight: 750; line-height: 1.3; }
+.journal-page .journal-expedition-switcher a[aria-current="page"] { background: #211e18; border-color: #211e18; color: #fff; }
+.journal-page .journal-expedition-switcher small { font-size: .72rem; font-weight: 500; opacity: .8; }
+.journal-page a:focus-visible { outline: 3px solid #8d6d0d; outline-offset: 3px; }
+.journal-day-filter { margin-top: 28px; }
+.journal-page .journal-timeline { margin: 0; padding-bottom: 12px; border: 0; }
+.journal-page .journal-timeline a { border-radius: 3px; background: transparent; }
+.journal-page .journal-timeline a[aria-current="page"] { background: #211e18; }
+.journal-featured { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); min-height: 360px; margin-bottom: 72px; background: #fffdf8; border: 1px solid #e4dccd; }
+.journal-featured-media { min-height: 360px; background: #29251d; }
+.journal-featured-media img { width: 100%; height: 100%; max-height: 580px; object-fit: cover; display: block; }
+.journal-featured-placeholder { min-height: 360px; background: linear-gradient(135deg,#28251c,#8d7938); }
+.journal-featured-copy { align-self: center; padding: clamp(26px, 4vw, 58px); }
+.journal-featured-copy h2 { margin: 0 0 16px; font-family: Georgia,'Times New Roman',serif; font-size: clamp(2rem, 3.5vw, 3.5rem); line-height: 1.12; }
+.journal-featured-copy h2 a, .journal-entry-copy h3 a { color: #211e18; text-decoration: none; }
+.journal-featured-copy h2 a:hover, .journal-entry-copy h3 a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.journal-featured-copy > p:not(.journal-kicker), .journal-entry-copy > p:not(.journal-kicker) { color: #504a40; line-height: 1.65; }
+.journal-featured-date, .journal-entry-location { font-size: .84rem; }
+.journal-read-link { display: inline-block; margin-top: 12px; color: #51400f; font-weight: 800; text-underline-offset: 4px; }
+.journal-list-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 35px; border-bottom: 1px solid #d8d0c0; padding-bottom: 18px; }
+.journal-list-heading h2 { margin: 0; font-family: Georgia,'Times New Roman',serif; font-size: clamp(1.8rem,3vw,2.5rem); }
+.journal-list-heading p { margin: 0; color: #665e51; font-size: .88rem; }
+.journal-page .journal-days { gap: 52px; }
+.journal-page .journal-day { padding-left: 26px; }
+.journal-page .journal-day-heading { margin-bottom: 22px; }
+.journal-page .journal-day-heading time { font-size: clamp(1.35rem,2.5vw,1.85rem); }
+.journal-entry-list { display: grid; gap: 22px; }
+.journal-entry { display: grid; grid-template-columns: minmax(180px, 34%) minmax(0, 1fr); gap: clamp(18px,3vw,38px); padding: 0 0 22px; border-bottom: 1px solid #e3dbce; }
+.journal-entry-image { display: block; min-height: 190px; background: #e9e2d5; }
+.journal-entry-image img { display: block; width: 100%; height: 100%; max-height: 280px; object-fit: cover; }
+.journal-entry-copy { padding: 10px 0; }
+.journal-entry-copy h3 { margin: 0 0 12px; font-family: Georgia,'Times New Roman',serif; font-size: clamp(1.5rem,2.5vw,2.2rem); line-height: 1.18; }
+.journal-editor-tools { margin-top: 75px; padding: 24px; border: 1px solid #d8d0c0; background: #eee8db; }
+.journal-editor-tools h2 { margin: 0 0 6px; font-size: 1.15rem; }
+.journal-editor-tools p { margin: 0; }
+.journal-editor-tools .journal-actions { margin-top: 16px; }
+@media (max-width: 760px) {
+ .journal-featured { grid-template-columns: 1fr; }
+ .journal-featured-media, .journal-featured-placeholder { min-height: 230px; }
+ .journal-featured-media img { max-height: 320px; aspect-ratio: 16/10; }
+ .journal-page .journal-expedition-switcher { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 12px; scrollbar-width: thin; }
+ .journal-page .journal-expedition-switcher a { flex: 0 0 auto; }
+ .journal-entry { grid-template-columns: 1fr; gap: 12px; }
+ .journal-entry-image { min-height: 0; }
+ .journal-entry-image img { aspect-ratio: 16/9; max-height: none; }
+ .journal-list-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+}
