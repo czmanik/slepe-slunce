@@ -40,6 +40,13 @@ class PostController extends Controller
         return view('posts.index', compact('posts', 'days', 'selectedDay', 'category'));
     }
 
+    public function travel(Request $request): View
+    {
+        $request->merge(['category' => Post::CATEGORY_TRAVEL]);
+
+        return $this->index($request);
+    }
+
     public function show(Post $post): View
     {
         abort_unless(Post::publiclyVisible()->whereKey($post->getKey())->exists(), 404);
