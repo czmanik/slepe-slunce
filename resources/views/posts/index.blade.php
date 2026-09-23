@@ -15,6 +15,23 @@
 <section class="section light-section">
     <div class="shell">
         @if(session('message'))<div class="journal-message" role="status">{{ session('message') }}</div>@endif
+
+        @if($expeditions->isNotEmpty())
+        <nav class="journal-expedition-switcher" aria-label="Vybrat expedici">
+            <a href="{{ route('posts.index', $selectedDay ? ['day' => $selectedDay] : []) }}"
+               @if(!isset($expedition)) aria-current="page" @endif>
+                Všechny expedice
+            </a>
+            @foreach($expeditions as $journalExpedition)
+                <a href="{{ route('expeditions.posts', array_filter([$journalExpedition, 'day' => $selectedDay])) }}"
+                   @if(isset($expedition) && $expedition->is($journalExpedition)) aria-current="page" @endif>
+                    <span>{{ $journalExpedition->name }}</span>
+                    <small>{{ $journalExpedition->posts_count }} {{ $journalExpedition->posts_count === 1 ? 'zápis' : ($journalExpedition->posts_count < 5 ? 'zápisy' : 'zápisů') }}</small>
+                </a>
+            @endforeach
+        </nav>
+        @endif
+
         @if($days->isNotEmpty())
         <nav class="journal-timeline" aria-label="Den expedice">
             <a href="{{ route($journalRoute, isset($expedition) ? [$expedition] : []) }}" @if(!$selectedDay) aria-current="page" @endif>Vše</a>
@@ -25,6 +42,7 @@
             @endforeach
         </nav>
         @endif
+
         @if($posts->isEmpty())<div class="empty-state dark-empty"><h2>První zápisy připravujeme</h2><p>Brzy tady najdete přípravy cesty i praktické zkušenosti s asistencí.</p></div>
         @else
             <div class="journal-days">
