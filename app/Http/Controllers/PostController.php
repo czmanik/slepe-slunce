@@ -10,7 +10,11 @@ class PostController extends Controller
 {
     public function index(Request $request): View
     {
+        $category = $request->string('category')->toString();
+        $category = array_key_exists($category, Post::categoryOptions()) ? $category : null;
+
         $days = Post::publiclyVisible()
+            ->when($category, fn ($query) => $query->inCategory($category))
             ->chronological()
             ->get(['event_date', 'published_at'])
             ->map(fn (Post $post): ?string => $post->journalDateKey())
@@ -22,6 +26,7 @@ class PostController extends Controller
         $selectedDay = $days->contains($selectedDay) ? $selectedDay : null;
 
         $posts = Post::publiclyVisible()
+            ->when($category, fn ($query) => $query->inCategory($category))
             ->with('authors')
             ->when($selectedDay, fn ($query) => $query->where(function ($query) use ($selectedDay): void {
                 $query->whereDate('event_date', $selectedDay)
@@ -32,7 +37,7 @@ class PostController extends Controller
             ->chronological()
             ->get();
 
-        return view('posts.index', compact('posts', 'days', 'selectedDay'));
+        return view('posts.index', compact('posts', 'days', 'selectedDay', 'category'));
     }
 
     public function show(Post $post): View
