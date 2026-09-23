@@ -48,6 +48,7 @@ class PostResource extends Resource
 
             Section::make('Autorství a zařazení')->schema([
                 Select::make('authors')->label('Autor nebo spoluautoři')->relationship('authors', 'name')->multiple()->preload()->searchable()->required(),
+                Select::make('category')->label('Rubrika')->options(Post::categoryOptions())->required()->default(Post::CATEGORY_JOURNAL),
                 Grid::make(2)->schema([
                     DatePicker::make('event_date')->label('Datum události')->native(false),
                     TextInput::make('location')->label('Místo')->maxLength(160),
@@ -99,6 +100,7 @@ class PostResource extends Resource
             TextColumn::make('updated_at')->label('Upraveno')->since()->sortable()->toggleable(),
         ])->filters([
             SelectFilter::make('status')->label('Stav')->options(PostStatus::options()),
+            SelectFilter::make('category')->label('Rubrika')->options(Post::categoryOptions()),
         ])->recordActions([EditAction::make()])->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 
