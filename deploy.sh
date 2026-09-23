@@ -78,15 +78,24 @@ echo "Slepé Slunce deploy — $(date '+%Y-%m-%d %H:%M:%S %Z')"
 echo "Projekt: ${APP_DIR}"
 
 if [[ -d .git ]]; then
-    if [[ -n $(git status --porcelain) ]]; then
-        echo "Pracovní kopie obsahuje lokální změny. Deploy je z bezpečnostních důvodů zastaven." >&2
+    [[ -n ${BRANCH} ]] || BRANCH=$(git branch --show-current)
+    if [[ -z ${BRANCH} ]]; then
+        echo "Nelze určit cílovou větev. Zadejte ji jako argument deploy.sh." >&2
         exit 1
     fi
-    [[ -n ${BRANCH} ]] || BRANCH=$(git branch --show-current)
     echo "Aktualizuji větev ${BRANCH}…"
     git fetch origin "${BRANCH}"
-    git checkout "${BRANCH}"
-    git pull --ff-only origin "${BRANCH}"
+
+    # Nasazení vždy odpovídá vzdálené větvi. Lokální změny sledovaných
+    # souborů i lokální commity se zahodí; ignorovaná a nesledovaná data
+    # (.env, storage, uploady) se nemažou.
+    if [[ -n $(git status --porcelain --untracked-files=no) ]]; then
+        echo "Zahazuji lokální změny sledovaných souborů:"
+        git status --short --untracked-files=no
+    fi
+    git reset --hard HEAD
+    git checkout -B "${BRANCH}" FETCH_HEAD
+    echo "Nasazovaná revize: $(git rev-parse --short HEAD)"
 fi
 
 if [[ ! -f .env ]]; then
