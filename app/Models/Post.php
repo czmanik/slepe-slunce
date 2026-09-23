@@ -15,10 +15,17 @@ use Illuminate\Support\Str;
 
 class Post extends Model
 {
+    public const CATEGORY_JOURNAL = 'denik';
+    public const CATEGORY_TRAVEL = 'cestovani-bez-barier';
+
+    public static function categoryOptions(): array
+    {
+        return [self::CATEGORY_JOURNAL => 'Deník expedice', self::CATEGORY_TRAVEL => 'Cestování bez bariér'];
+    }
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'created_by', 'title', 'slug', 'excerpt', 'body', 'status', 'published_at',
+        'created_by', 'category', 'title', 'slug', 'excerpt', 'body', 'status', 'published_at',
         'event_date', 'location', 'cover_image', 'cover_alt', 'gallery', 'videos',
         'seo_title', 'seo_description',
     ];
@@ -68,6 +75,11 @@ class Post extends Model
         return $query->where('status', PostStatus::Published)
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now());
+    }
+
+    public function scopeInCategory(Builder $query, string $category): Builder
+    {
+        return $query->where('category', $category);
     }
 
     public function scopeChronological(Builder $query): Builder
