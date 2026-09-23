@@ -38,7 +38,6 @@
             <nav aria-label="Hlavní navigace">
                 <a href="{{ route('expeditions.index') }}" @if(request()->routeIs('expeditions.index')) aria-current="page" @endif>Expedice</a>
                 <a href="{{ route('posts.index') }}" @if(request()->routeIs('posts.*')) aria-current="page" @endif>Články</a>
-                <a href="{{ route('shop.index') }}" @if(request()->routeIs('shop.*')) aria-current="page" @endif>Obchod</a>
                 <a href="{{ route('home') }}#smysl">O projektu</a>
                 <a href="{{ route('home') }}#odber">Odběr</a>
             </nav>
@@ -48,7 +47,6 @@
                 <div class="shell">
                     <strong>{{ $expedition->name }}</strong>
                     <a href="{{ route('expeditions.show', $expedition) }}" @if(request()->routeIs('expeditions.show')) aria-current="page" @endif>Přehled</a>
-                    <a href="{{ route('expeditions.route', $expedition) }}" @if(request()->routeIs('expeditions.route')) aria-current="page" @endif>Program a trasa</a>
                     <a href="{{ route('expeditions.posts', $expedition) }}" @if(request()->routeIs('expeditions.posts')) aria-current="page" @endif>Deník</a>
                     <a href="{{ route('expeditions.members', $expedition) }}" @if(request()->routeIs('expeditions.members')) aria-current="page" @endif>Členové</a>
                 </div>
