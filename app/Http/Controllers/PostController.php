@@ -11,6 +11,13 @@ class PostController extends Controller
 {
     public function index(Request $request, ?Expedition $expedition = null): View
     {
+        $expeditions = Expedition::query()
+            ->published()
+            ->whereHas('posts', fn ($query) => $query->publiclyVisible())
+            ->withCount(['posts' => fn ($query) => $query->publiclyVisible()])
+            ->orderByDesc('start_at')
+            ->get();
+
         $days = Post::publiclyVisible()
             ->when($expedition, fn ($query) => $query->whereBelongsTo($expedition))
             ->chronological()
@@ -25,7 +32,7 @@ class PostController extends Controller
 
         $posts = Post::publiclyVisible()
             ->when($expedition, fn ($query) => $query->whereBelongsTo($expedition))
-            ->with('authors')
+            ->with(['authors', 'expedition'])
             ->when($selectedDay, fn ($query) => $query->where(function ($query) use ($selectedDay): void {
                 $query->whereDate('event_date', $selectedDay)
                     ->orWhere(function ($query) use ($selectedDay): void {
@@ -35,7 +42,7 @@ class PostController extends Controller
             ->chronological()
             ->get();
 
-        return view('posts.index', compact('posts', 'days', 'selectedDay', 'expedition'));
+        return view('posts.index', compact('posts', 'days', 'selectedDay', 'expedition', 'expeditions'));
     }
 
     public function show(Post $post): View
