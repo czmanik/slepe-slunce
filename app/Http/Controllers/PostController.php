@@ -39,7 +39,7 @@ class PostController extends Controller
                         $query->whereNull('event_date')->whereDate('published_at', $selectedDay);
                     });
             }))
-            ->chronological()
+            ->when($expedition, fn ($query) => $query->chronological(), fn ($query) => $query->orderByRaw('COALESCE(event_date, published_at) desc')->orderByDesc('published_at')->orderByDesc('id'))
             ->get();
 
         return view('posts.index', compact('posts', 'days', 'selectedDay', 'expedition', 'expeditions'));
