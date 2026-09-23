@@ -174,7 +174,19 @@ fi
 
 mkdir -p storage/app/public storage/framework/{cache/data,sessions,testing,views} storage/logs bootstrap/cache
 "${PHP_BIN}" artisan migrate --force
-"${PHP_BIN}" artisan storage:link || true
+# Existing public/storage symlink is normal on repeat deployments.
+# Never replace an existing directory or link: it may contain uploaded media.
+if [[ -L public/storage ]]; then
+    if [[ -d public/storage ]]; then
+        echo "Storage link already exists and resolves correctly."
+    else
+        echo "Warning: public/storage is a broken symlink; leaving it untouched." >&2
+    fi
+elif [[ -e public/storage ]]; then
+    echo "Warning: public/storage exists but is not a symlink; leaving it untouched." >&2
+else
+    "${PHP_BIN}" artisan storage:link
+fi
 "${PHP_BIN}" artisan app:generate-post-thumbnails
 "${PHP_BIN}" artisan optimize:clear
 "${PHP_BIN}" artisan optimize
