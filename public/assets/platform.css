@@ -31,6 +31,11 @@
 .dark-prose { color: #48433b; }
 .article-reader { margin-top: 22px; background: transparent; color: #17150f; border-color: #17150f; cursor: pointer; }
 .program-list { display: grid; gap: 18px; padding-left: 1.5rem; margin-top: 40px; }.program-list article { padding: 24px; background: #fff; border: 1px solid var(--line); }.program-list h3 { font-family: Georgia,'Times New Roman',serif; font-size: 1.7rem; margin: .45em 0; }
+.journal-expedition-switcher { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 28px; }
+.journal-expedition-switcher a { display: inline-flex; flex-direction: column; gap: 2px; min-width: 170px; padding: 13px 16px; border: 1px solid var(--line); background: #fff; color: var(--ink); text-decoration: none; }
+.journal-expedition-switcher a:hover, .journal-expedition-switcher a:focus-visible { border-color: var(--ink); }
+.journal-expedition-switcher a[aria-current="page"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.journal-expedition-switcher small { font-size: .75rem; opacity: .72; }
 .shop-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }.wine-card { background: #fff; border: 1px solid var(--line); }.wine-card img { aspect-ratio: 4/3; object-fit: cover; width: 100%; }.wine-card>div { padding: 24px; }.wine-card h2 { font-size: 1.7rem; }.variant-row,.cart-line { display: flex; justify-content: space-between; gap: 30px; padding: 25px 0; border-bottom: 1px solid var(--line); }.inline-cart { margin: 0; min-width: 240px; }.cart-total { font-size: 1.4rem; margin-top: 30px; }
 .invoice { background: #fff; color: #17150f; padding: 45px; }.invoice table { width: 100%; border-collapse: collapse; margin-block: 35px; }.invoice th,.invoice td { padding: 12px; text-align: left; border: 1px solid #777; }
-@media (max-width: 700px) { .expedition-cards, .form-grid, .info-grid, .shop-grid { grid-template-columns: 1fr; }.variant-row,.cart-line { display: block; } }
+@media (max-width: 700px) { .expedition-cards, .form-grid, .info-grid, .shop-grid { grid-template-columns: 1fr; }.variant-row,.cart-line { display: block; }.journal-expedition-switcher { display: grid; grid-template-columns: 1fr; }.journal-expedition-switcher a { min-width: 0; } }
