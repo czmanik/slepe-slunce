@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/denik', [PostController::class, 'index'])->name('posts.index');
+Route::get('/cestovani-bez-barier', fn () => redirect()->route('posts.index', ['category' => \App\Models\Post::CATEGORY_TRAVEL]))->name('travel.index');
 Route::get('/trasa', RouteController::class)->name('route.index');
 Route::get('/clenove', [MemberController::class, 'index'])->name('members.index');
 Route::middleware('auth')->group(function (): void {
