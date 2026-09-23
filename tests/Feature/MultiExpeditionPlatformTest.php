@@ -28,6 +28,43 @@ class MultiExpeditionPlatformTest extends TestCase
         $this->get(route('expeditions.route', $mikulov))->assertOk()->assertSee('Mikulov')->assertDontSee('Praha');
     }
 
+    public function test_journal_can_switch_between_all_and_single_expedition(): void
+    {
+        $first = Expedition::query()->create([
+            'name' => 'První expedice', 'slug' => 'prvni-expedice', 'publication_status' => 'published',
+            'start_at' => now()->subDays(10), 'end_at' => now()->subDays(5),
+        ]);
+        $second = Expedition::query()->create([
+            'name' => 'Druhá expedice', 'slug' => 'druha-expedice', 'publication_status' => 'published',
+            'start_at' => now()->subDays(4), 'end_at' => now()->subDay(),
+        ]);
+
+        Post::query()->create([
+            'expedition_id' => $first->id, 'title' => 'Zápis první', 'slug' => 'zapis-prvni',
+            'excerpt' => 'První expedice.', 'body' => '<p>První expedice.</p>',
+            'status' => 'published', 'published_at' => now()->subDays(6),
+        ]);
+        Post::query()->create([
+            'expedition_id' => $second->id, 'title' => 'Zápis druhý', 'slug' => 'zapis-druhy',
+            'excerpt' => 'Druhá expedice.', 'body' => '<p>Druhá expedice.</p>',
+            'status' => 'published', 'published_at' => now()->subDays(2),
+        ]);
+
+        $this->get(route('posts.index'))
+            ->assertOk()
+            ->assertSee('Všechny expedice')
+            ->assertSee('První expedice')
+            ->assertSee('Druhá expedice')
+            ->assertSee('Zápis první')
+            ->assertSee('Zápis druhý');
+
+        $this->get(route('expeditions.posts', $first))
+            ->assertOk()
+            ->assertSee('Všechny expedice')
+            ->assertSee('Zápis první')
+            ->assertDontSee('Zápis druhý');
+    }
+
     public function test_registration_uses_per_expedition_modes_and_capacity(): void
     {
         $expedition = Expedition::query()->create([
