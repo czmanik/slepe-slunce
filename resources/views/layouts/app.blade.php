@@ -15,8 +15,8 @@
     <link rel="stylesheet" href="{{ asset('assets/route.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/expedition.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/map-photo.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/journal.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/platform.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/journal.css') }}?v={{ filemtime(public_path('assets/journal.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/platform.css') }}?v={{ filemtime(public_path('assets/platform.css')) }}">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-REWW639R3N"></script>
     <script>
