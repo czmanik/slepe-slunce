@@ -4,7 +4,7 @@
 @section('description', 'Proběhlé i připravované přístupné expedice projektu Slepé Slunce.')
 
 @section('content')
-<header class="page-header"><div class="shell"><p class="eyebrow">Cestujeme spolu</p><h1>Expedice</h1><p>Každá cesta má vlastní program, tým, trasu, deník a podle nastavení také přihlášku.</p></div></header>
+<header class="page-header"><div class="shell"><p class="eyebrow">Cestujeme spolu</p><h1>Expedice</h1><p>Každá cesta má vlastní příběh, tým, deník a podle nastavení také přihlášku.</p></div></header>
 <section class="section light-section"><div class="shell expedition-cards">
     @forelse($expeditions as $expedition)
         <article class="expedition-card">
