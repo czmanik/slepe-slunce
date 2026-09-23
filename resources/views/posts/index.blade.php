@@ -1,9 +1,9 @@
 @extends('layouts.app')
-@section('title', 'Deník expedice — Slepé Slunce')
-@section('description', 'Přípravy, cesta Španělskem, zatmění a praktické zkušenosti s asistencí pro lidi se zrakovým postižením.')
+@section('title', ($category === \\App\\Models\\Post::CATEGORY_TRAVEL ? 'Cestování bez bariér' : 'Deník expedice').' — Slepé Slunce')
+@section('description', $category === \\App\\Models\\Post::CATEGORY_TRAVEL ? 'Praktické zkušenosti, nároky a návody pro asistované cestování nevidomých lidí.' : 'Přípravy, cesta Španělskem, zatmění a praktické zkušenosti s asistencí pro lidi se zrakovým postižením.')
 
 @section('content')
-<header class="page-header"><div class="shell"><p class="eyebrow">Slepé Slunce</p><h1>Deník expedice</h1><p>Od prvního nápadu přes cestu Španělskem až po chvíli, kdy zhasne Slunce.</p>
+<header class="page-header"><div class="shell"><p class="eyebrow">Slepé slunce</p><h1>{{ $category === \\App\\Models\\Post::CATEGORY_TRAVEL ? 'Cestování bez bariér' : 'Deník expedice' }}</h1><p>{{ $category === \\App\\Models\\Post::CATEGORY_TRAVEL ? 'Praktické návody, práva cestujících a zkušenosti s asistovaným cestováním.' : 'Od prvního nápadu přes cestu Španělskem až po chvíli, kdy zhasne Slunce.' }}</p>
 @auth
 <nav class="journal-actions" aria-label="Rychlé zápisy z cesty">
     <a class="button button-primary" href="{{ route('tracking.location.create', ['from' => 'journal']) }}">Oznámit polohu</a>
