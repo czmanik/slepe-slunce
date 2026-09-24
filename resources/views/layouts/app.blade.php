@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{{ asset('assets/expedition.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/map-photo.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/journal.css') }}?v={{ filemtime(public_path('assets/journal.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/guides.css') }}?v={{ filemtime(public_path('assets/guides.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/platform.css') }}?v={{ filemtime(public_path('assets/platform.css')) }}">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-REWW639R3N"></script>
@@ -37,7 +38,8 @@
             </a>
             <nav aria-label="Hlavní navigace">
                 <a href="{{ route('expeditions.index') }}" @if(request()->routeIs('expeditions.index')) aria-current="page" @endif>Expedice</a>
-                <a href="{{ route('posts.index') }}" @if(request()->routeIs('posts.*')) aria-current="page" @endif>Články</a>
+                <a href="{{ route('posts.index') }}" @if(request()->routeIs('posts.*') || request()->routeIs('expeditions.posts')) aria-current="page" @endif>Deník</a>
+                <a href="{{ route('guides.index') }}" @if(request()->routeIs('guides.*')) aria-current="page" @endif>Návody</a>
                 <a href="{{ route('home') }}#smysl">O projektu</a>
                 <a href="{{ route('home') }}#odber">Odběr</a>
             </nav>

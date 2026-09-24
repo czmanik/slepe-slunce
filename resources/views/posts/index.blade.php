@@ -1,19 +1,21 @@
 @extends('layouts.app')
-@section('title', isset($expedition) ? 'Deník — '.$expedition->name : 'Deník — Slepé Slunce')
-@section('description', 'Příběhy našich expedic, setkání a zkušenosti z cest.')
+@section('title', $category === \App\Models\Post::CATEGORY_TRAVEL ? 'Cestování bez bariér — Slepé Slunce' : (isset($expedition) ? 'Deník — '.$expedition->name : 'Deník — Slepé Slunce'))
+@section('description', $category === \App\Models\Post::CATEGORY_TRAVEL ? 'Praktické zkušenosti, nároky a návody pro asistované cestování nevidomých lidí.' : 'Příběhy našich expedic, setkání a zkušenosti z cest.')
 
 @section('content')
 @php($journalRoute = isset($expedition) ? 'expeditions.posts' : 'posts.index')
+@php($isTravelCategory = $category === \App\Models\Post::CATEGORY_TRAVEL)
 <header class="page-header journal-hero">
     <div class="shell">
-        <p class="eyebrow">Příběhy z cest</p>
-        <h1>Deník Slepého slunce</h1>
-        <p>{{ isset($expedition) ? 'Zápisy z expedice '.$expedition->name.'. Čtěte náš společný příběh od začátku.' : 'Cesty, setkání a chvíle, které stojí za zaznamenání.' }}</p>
+        <p class="eyebrow">{{ $isTravelCategory ? 'Prakticky na cestách' : 'Příběhy z cest' }}</p>
+        <h1>{{ $isTravelCategory ? 'Cestování bez bariér' : 'Deník Slepého slunce' }}</h1>
+        <p>{{ $isTravelCategory ? 'Praktické návody, práva cestujících a zkušenosti s asistovaným cestováním.' : (isset($expedition) ? 'Zápisy z expedice '.$expedition->name.'. Čtěte náš společný příběh od začátku.' : 'Cesty, setkání a chvíle, které stojí za zaznamenání.') }}</p>
     </div>
 </header>
 <section class="section light-section journal-page">
     <div class="shell">
         @if(session('message'))<div class="journal-message" role="status">{{ session('message') }}</div>@endif
+        @unless($isTravelCategory)
         <div class="journal-filter-panel">
             <p class="journal-kicker">Vyberte si příběh</p>
             <nav class="journal-expedition-switcher" aria-label="Filtrovat deník podle expedice">
@@ -37,9 +39,10 @@
                 </div>
             @endif
         </div>
+        @endunless
 
         @if($posts->isEmpty())
-            <div class="empty-state dark-empty"><h2>První zápisy připravujeme</h2><p>Brzy tu najdete příběhy z cesty.</p></div>
+            <div class="empty-state dark-empty"><h2>{{ $isTravelCategory ? 'První články připravujeme' : 'První zápisy připravujeme' }}</h2><p>{{ $isTravelCategory ? 'Brzy tu najdete praktické rady pro asistované cestování.' : 'Brzy tu najdete příběhy z cesty.' }}</p></div>
         @else
             @if(!isset($expedition) && !$selectedDay)
                 @php($featuredPost = $posts->first())
@@ -53,10 +56,10 @@
                     </div>
                     <div class="journal-featured-copy">
                         <p class="journal-kicker">Nejnovější zápis @if($featuredPost->expedition) · {{ $featuredPost->expedition->name }} @endif</p>
-                        <h2 id="journal-featured-title"><a href="{{ route('posts.show', $featuredPost) }}">{{ $featuredPost->title }}</a></h2>
+                        <h2 id="journal-featured-title"><a href="{{ route($isTravelCategory ? 'guides.show' : 'posts.show', $featuredPost) }}">{{ $featuredPost->title }}</a></h2>
                         <p class="journal-featured-date"><time datetime="{{ $featuredPost->journalDateKey() }}">{{ $featuredPost->journalDate()?->translatedFormat('j. F Y') }}</time></p>
                         @if($featuredPost->excerpt)<p>{{ $featuredPost->excerpt }}</p>@endif
-                        <a class="journal-read-link" href="{{ route('posts.show', $featuredPost) }}">Přečíst zápis <span aria-hidden="true">→</span></a>
+                        <a class="journal-read-link" href="{{ route($isTravelCategory ? 'guides.show' : 'posts.show', $featuredPost) }}">Přečíst zápis <span aria-hidden="true">→</span></a>
                     </div>
                 </section>
                 @php($listingPosts = $posts->skip(1))
@@ -66,8 +69,8 @@
 
             @if($listingPosts->isNotEmpty())
                 <div class="journal-list-heading">
-                    <h2>{{ isset($expedition) ? 'Zápisy z cesty' : 'Další zápisy' }}</h2>
-                    <p>{{ isset($expedition) ? 'Od prvního zápisu po poslední' : 'Od nejnovějších příběhů' }}</p>
+                    <h2>{{ $isTravelCategory ? 'Další články' : (isset($expedition) ? 'Zápisy z cesty' : 'Další zápisy') }}</h2>
+                    <p>{{ $isTravelCategory ? 'Praktické informace pro cestu' : (isset($expedition) ? 'Od prvního zápisu po poslední' : 'Od nejnovějších příběhů') }}</p>
                 </div>
                 <div class="journal-days">
                     @foreach($listingPosts->groupBy(fn ($post) => $post->journalDateKey()) as $day => $dayPosts)
@@ -79,15 +82,15 @@
                             <div class="journal-entry-list">
                                 @foreach($dayPosts as $post)
                                     <article class="journal-entry">
-                                        <a class="journal-entry-image" href="{{ route('posts.show', $post) }}" tabindex="-1" aria-hidden="true">
+                                        <a class="journal-entry-image" href="{{ route($isTravelCategory ? 'guides.show' : 'posts.show', $post) }}" tabindex="-1" aria-hidden="true">
                                             @if($post->cover_image)<img src="{{ app(\App\Services\ImageThumbnail::class)->url($post->cover_image, 'small') }}" alt="" loading="lazy" width="480" height="320">@else<span class="card-placeholder"></span>@endif
                                         </a>
                                         <div class="journal-entry-copy">
                                             @if(!isset($expedition) && $post->expedition)<p class="journal-kicker">{{ $post->expedition->name }}</p>@endif
-                                            <h3><a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a></h3>
+                                            <h3><a href="{{ route($isTravelCategory ? 'guides.show' : 'posts.show', $post) }}">{{ $post->title }}</a></h3>
                                             @if($post->excerpt)<p>{{ $post->excerpt }}</p>@endif
                                             @if($post->location)<p class="journal-entry-location">{{ $post->location }}</p>@endif
-                                            <a class="journal-read-link" href="{{ route('posts.show', $post) }}">Přečíst zápis <span aria-hidden="true">→</span></a>
+                                            <a class="journal-read-link" href="{{ route($isTravelCategory ? 'guides.show' : 'posts.show', $post) }}">Přečíst zápis <span aria-hidden="true">→</span></a>
                                         </div>
                                     </article>
                                 @endforeach

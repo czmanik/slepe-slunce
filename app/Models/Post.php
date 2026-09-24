@@ -19,8 +19,35 @@ class Post extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public const CATEGORY_JOURNAL = 'denik';
+
+    public const CATEGORY_TRAVEL = 'cestovani-bez-barier';
+
+    public const GUIDE_TOPIC_PREPARATION = 'pred-cestou';
+
+    public const GUIDE_TOPIC_TRANSPORT = 'doprava';
+
+    public const GUIDE_TOPIC_COMPANION = 's-partakem';
+
+    public static function guideTopicOptions(): array
+    {
+        return [
+            self::GUIDE_TOPIC_PREPARATION => 'Před cestou',
+            self::GUIDE_TOPIC_TRANSPORT => 'Doprava',
+            self::GUIDE_TOPIC_COMPANION => 'S parťákem',
+        ];
+    }
+
+    public static function categoryOptions(): array
+    {
+        return [
+            self::CATEGORY_JOURNAL => 'Deník expedice',
+            self::CATEGORY_TRAVEL => 'Návody',
+        ];
+    }
+
     protected $fillable = [
-        'created_by', 'expedition_id', 'title', 'slug', 'excerpt', 'body', 'status', 'published_at',
+        'created_by', 'expedition_id', 'category', 'guide_topic', 'title', 'slug', 'excerpt', 'body', 'status', 'published_at',
         'notification_frequency', 'notification_sent_at',
         'event_date', 'location', 'cover_image', 'cover_alt', 'gallery', 'videos',
         'seo_title', 'seo_description',
@@ -78,6 +105,11 @@ class Post extends Model
         return $query->where('status', PostStatus::Published)
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now());
+    }
+
+    public function scopeInCategory(Builder $query, string $category): Builder
+    {
+        return $query->where('category', $category);
     }
 
     public function scopeChronological(Builder $query): Builder

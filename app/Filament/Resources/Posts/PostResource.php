@@ -40,6 +40,21 @@ class PostResource extends Resource
 
     protected static ?string $navigationLabel = 'Deník';
 
+    protected static function contentCategory(): string
+    {
+        return Post::CATEGORY_JOURNAL;
+    }
+
+    protected static function editorCategoryOptions(): array
+    {
+        return [static::contentCategory() => Post::categoryOptions()[static::contentCategory()]];
+    }
+
+    protected static function usesGuideTopics(): bool
+    {
+        return false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -53,6 +68,8 @@ class PostResource extends Resource
 
             Section::make('Autorství a zařazení')->schema([
                 Select::make('expedition_id')->label('Expedice')->relationship('expedition', 'name')->searchable()->preload()->placeholder('Obecný článek projektu'),
+                Select::make('category')->label('Rubrika')->options(static::editorCategoryOptions())->required()->default(static::contentCategory())->disabled()->dehydrated(),
+                Select::make('guide_topic')->label('Téma návodu')->options(Post::guideTopicOptions())->default(Post::GUIDE_TOPIC_PREPARATION)->required(static::usesGuideTopics())->visible(static::usesGuideTopics()),
                 Select::make('authors')->label('Autor nebo spoluautoři')->relationship('authors', 'name')->multiple()->preload()->searchable()->required(),
                 Grid::make(2)->schema([
                     DatePicker::make('event_date')->label('Datum události')->native(false),
@@ -101,6 +118,7 @@ class PostResource extends Resource
             TextColumn::make('title')->label('Název')->searchable()->sortable()->wrap(),
             TextColumn::make('authors.name')->label('Autoři')->badge(),
             TextColumn::make('expedition.name')->label('Expedice')->placeholder('Obecný článek'),
+            TextColumn::make('guide_topic')->label('Téma')->formatStateUsing(fn (?string $state): string => Post::guideTopicOptions()[$state] ?? '—')->visible(static::usesGuideTopics()),
             TextColumn::make('status')->label('Stav')->badge()->formatStateUsing(fn (PostStatus $state): string => $state->label())
                 ->color(fn (PostStatus $state): string => match ($state) {
                     PostStatus::Published => 'success', PostStatus::Scheduled => 'warning', PostStatus::Archived => 'gray', default => 'info'
@@ -117,6 +135,8 @@ class PostResource extends Resource
     {
         $query = parent::getEloquentQuery();
         $user = auth()->user();
+
+        $query->inCategory(static::contentCategory());
 
         return $user && ! $user->canPublish() ? $query->where('created_by', $user->id) : $query;
     }
