@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Expedition;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class MemberLocationController extends Controller
 {
-    public function create(): View { return view('tracking.location'); }
+    public function create(): View
+    {
+        return view('tracking.location');
+    }
 
     public function store(Request $request): RedirectResponse
     {
@@ -19,8 +23,13 @@ class MemberLocationController extends Controller
             'return_to' => ['nullable', 'in:journal'],
         ]);
         unset($data['return_to']);
-        $request->user()->location()->updateOrCreate([], [...$data, 'reported_at' => now()]);
+        $expedition = Expedition::default();
+        $request->user()->locations()->updateOrCreate(
+            ['expedition_id' => $expedition->getKey()],
+            [...$data, 'reported_at' => now()],
+        );
         $message = 'Poloha byla odeslána. Na mapě je nyní vidět pouze toto poslední hlášení.';
+
         return $request->input('return_to') === 'journal'
             ? redirect()->route('posts.index')->with('message', $message)
             : back()->with('message', $message);

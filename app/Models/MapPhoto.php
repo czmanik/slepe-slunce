@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class MapPhoto extends Model
 {
-    protected $fillable = ['user_id', 'route_point_id', 'route_segment_id', 'image', 'alt', 'caption', 'latitude', 'longitude', 'taken_at'];
+    protected $fillable = ['expedition_id', 'user_id', 'route_point_id', 'route_segment_id', 'image', 'alt', 'caption', 'latitude', 'longitude', 'taken_at'];
 
     protected function casts(): array
     {
@@ -20,7 +20,23 @@ class MapPhoto extends Model
         static::deleted(fn (MapPhoto $photo) => Storage::disk('public')->delete($photo->image));
     }
 
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
-    public function routePoint(): BelongsTo { return $this->belongsTo(RoutePoint::class); }
-    public function routeSegment(): BelongsTo { return $this->belongsTo(RouteSegment::class); }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function expedition(): BelongsTo
+    {
+        return $this->belongsTo(Expedition::class);
+    }
+
+    public function routePoint(): BelongsTo
+    {
+        return $this->belongsTo(RoutePoint::class);
+    }
+
+    public function routeSegment(): BelongsTo
+    {
+        return $this->belongsTo(RouteSegment::class);
+    }
 }

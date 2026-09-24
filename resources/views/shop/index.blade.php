@@ -1,0 +1,8 @@
+@extends('layouts.app')
+@section('title','Archivní vína — obchod Slepé Slunce')
+@section('description','Výběr luxusních archivních vín českých vinařů. Část výtěžku podporuje pomoc lidem s handicapem a přístupné expedice.')
+@section('content')
+<header class="page-header"><div class="shell"><p class="eyebrow">Archiv českých vinařů</p><h1>Vína s příběhem</h1><p>Pečlivě evidované archivní lahve. Část výtěžku podpoří Nadaci Viktorie Mužíkové a část umožní financovat asistenty na našich expedicích.</p><p><strong>Prodej alkoholu pouze osobám starším 18 let.</strong></p><p><a href="{{ route('shop.cart') }}">Košík ({{ array_sum($cart->quantities()) }} lahví)</a></p>
+<nav aria-label="Měna"><a href="{{ route('shop.index',['currency'=>'CZK']) }}" @if($cart->currency()==='CZK') aria-current="page" @endif>CZK</a> · <a href="{{ route('shop.index',['currency'=>'EUR']) }}" @if($cart->currency()==='EUR') aria-current="page" @endif>EUR</a></nav></div></header>
+<section class="section light-section"><div class="shell shop-grid">@forelse($products as $product)<article class="wine-card">@if($product->image)<img src="{{ asset('storage/'.$product->image) }}" alt="{{ $product->image_alt ?: '' }}">@endif<div><p>{{ $product->winery }}</p><h2><a href="{{ route('shop.show',$product) }}">{{ $product->name }}</a></h2><p>{{ $product->variants->count() }} dostupných ročníků či variant</p><a class="text-link dark-link" href="{{ route('shop.show',$product) }}">Vybrat láhev</a></div></article>@empty<div class="empty-state dark-empty"><h2>Vína právě připravujeme k prodeji</h2><p>Nejdřív ověřujeme sklad, posudky a údaje jednotlivých lahví.</p></div>@endforelse</div><div class="shell pagination">{{ $products->links() }}</div></section>
+@endsection

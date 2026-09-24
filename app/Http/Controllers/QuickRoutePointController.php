@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\RoutePointStatus;
+use App\Models\Expedition;
 use App\Models\RoutePoint;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,9 +33,10 @@ class QuickRoutePointController extends Controller
 
         $point = RoutePoint::query()->create([
             ...$data,
+            'expedition_id' => Expedition::default()->getKey(),
             'is_goal' => $request->boolean('is_goal'),
             'occurred_at' => now(),
-            'route_order' => ((int) RoutePoint::query()->max('route_order')) + 10,
+            'route_order' => ((int) RoutePoint::query()->where('expedition_id', Expedition::default()->getKey())->max('route_order')) + 10,
         ]);
 
         return redirect()

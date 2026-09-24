@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Author;
+use App\Models\Expedition;
 use Illuminate\View\View;
 
 class MemberController extends Controller
 {
-    public function index(): View
+    public function index(?Expedition $expedition = null): View
     {
-        $members = Author::query()->where('is_expedition_member', true)->orderBy('sort_order')->orderBy('name')->get();
-        return view('members.index', compact('members'));
+        $expedition ??= Expedition::default();
+        $members = $expedition->members()->get();
+
+        return view('members.index', compact('members', 'expedition'));
     }
 }

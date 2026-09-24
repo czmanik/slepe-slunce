@@ -8,13 +8,25 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ExpeditionState extends Model
 {
-    protected $fillable = ['active_type', 'active_id', 'is_manual', 'changed_by'];
+    protected $fillable = ['expedition_id', 'active_type', 'active_id', 'is_manual', 'changed_by'];
 
     protected function casts(): array
     {
         return ['is_manual' => 'boolean'];
     }
 
-    public function active(): MorphTo { return $this->morphTo(); }
-    public function changedBy(): BelongsTo { return $this->belongsTo(User::class, 'changed_by'); }
+    public function active(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function expedition(): BelongsTo
+    {
+        return $this->belongsTo(Expedition::class);
+    }
+
+    public function changedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'changed_by');
+    }
 }

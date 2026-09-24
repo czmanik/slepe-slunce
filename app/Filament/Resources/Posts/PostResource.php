@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Posts;
 
+use App\Enums\NotificationFrequency;
 use App\Enums\PostStatus;
 use App\Filament\Resources\Posts\Pages\CreatePost;
 use App\Filament\Resources\Posts\Pages\EditPost;
@@ -30,9 +31,13 @@ use Illuminate\Database\Eloquent\Builder;
 class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
+
     protected static ?string $recordTitleAttribute = 'title';
+
     protected static ?string $modelLabel = 'příspěvek';
+
     protected static ?string $pluralModelLabel = 'příspěvky';
+
     protected static ?string $navigationLabel = 'Deník';
 
     public static function form(Schema $schema): Schema
@@ -47,6 +52,7 @@ class PostResource extends Resource
             ])->columns(2),
 
             Section::make('Autorství a zařazení')->schema([
+                Select::make('expedition_id')->label('Expedice')->relationship('expedition', 'name')->searchable()->preload()->placeholder('Obecný článek projektu'),
                 Select::make('authors')->label('Autor nebo spoluautoři')->relationship('authors', 'name')->multiple()->preload()->searchable()->required(),
                 Grid::make(2)->schema([
                     DatePicker::make('event_date')->label('Datum události')->native(false),
@@ -57,6 +63,7 @@ class PostResource extends Resource
             Section::make('Publikace')->schema([
                 Select::make('status')->label('Stav')->options(fn (): array => auth()->user()?->canPublish() ? PostStatus::options() : [PostStatus::Draft->value => PostStatus::Draft->label()])->required()->default(PostStatus::Draft->value),
                 DateTimePicker::make('published_at')->label('Datum a čas zveřejnění')->seconds(false)->native(false)->helperText('Pro naplánovaný nebo publikovaný příspěvek je datum povinné.'),
+                Select::make('notification_frequency')->label('Rozeslání odběratelům')->options(NotificationFrequency::options())->required()->default(NotificationFrequency::None->value),
             ])->columns(2),
 
             Section::make('Hlavní fotografie')->description('Alternativní text popisuje smysl fotografie člověku, který ji nevidí.')->schema([
@@ -93,12 +100,16 @@ class PostResource extends Resource
         return $table->columns([
             TextColumn::make('title')->label('Název')->searchable()->sortable()->wrap(),
             TextColumn::make('authors.name')->label('Autoři')->badge(),
+            TextColumn::make('expedition.name')->label('Expedice')->placeholder('Obecný článek'),
             TextColumn::make('status')->label('Stav')->badge()->formatStateUsing(fn (PostStatus $state): string => $state->label())
-                ->color(fn (PostStatus $state): string => match ($state) { PostStatus::Published => 'success', PostStatus::Scheduled => 'warning', PostStatus::Archived => 'gray', default => 'info' }),
+                ->color(fn (PostStatus $state): string => match ($state) {
+                    PostStatus::Published => 'success', PostStatus::Scheduled => 'warning', PostStatus::Archived => 'gray', default => 'info'
+                }),
             TextColumn::make('published_at')->label('Zveřejnění')->dateTime('j. n. Y H:i')->sortable(),
             TextColumn::make('updated_at')->label('Upraveno')->since()->sortable()->toggleable(),
         ])->filters([
             SelectFilter::make('status')->label('Stav')->options(PostStatus::options()),
+            SelectFilter::make('expedition_id')->label('Expedice')->relationship('expedition', 'name'),
         ])->recordActions([EditAction::make()])->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 
@@ -106,6 +117,7 @@ class PostResource extends Resource
     {
         $query = parent::getEloquentQuery();
         $user = auth()->user();
+
         return $user && ! $user->canPublish() ? $query->where('created_by', $user->id) : $query;
     }
 

@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
         $middleware->redirectGuestsTo('/admin/login');
+        $middleware->validateCsrfTokens(except: ['obchod/platba/comgate/callback', 'platba/comgate/callback']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Výchozí Laravel reporting a rendering.

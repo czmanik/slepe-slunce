@@ -6,15 +6,16 @@ use App\Enums\UserRole;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable;
 
     protected $fillable = ['name', 'email', 'password', 'role', 'is_active'];
+
     protected $hidden = ['password', 'remember_token'];
 
     protected function casts(): array
@@ -37,8 +38,8 @@ class User extends Authenticatable implements FilamentUser
         return in_array($this->role, [UserRole::Admin, UserRole::Editor], true);
     }
 
-    public function location(): HasOne
+    public function locations(): HasMany
     {
-        return $this->hasOne(MemberLocation::class);
+        return $this->hasMany(MemberLocation::class);
     }
 }

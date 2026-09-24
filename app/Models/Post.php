@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\NotificationFrequency;
 use App\Enums\PostStatus;
 use App\Services\ImageThumbnail;
 use App\Support\HtmlSanitizer;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class Post extends Model
@@ -18,7 +20,8 @@ class Post extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'created_by', 'title', 'slug', 'excerpt', 'body', 'status', 'published_at',
+        'created_by', 'expedition_id', 'title', 'slug', 'excerpt', 'body', 'status', 'published_at',
+        'notification_frequency', 'notification_sent_at',
         'event_date', 'location', 'cover_image', 'cover_alt', 'gallery', 'videos',
         'seo_title', 'seo_description',
     ];
@@ -42,6 +45,8 @@ class Post extends Model
         return [
             'status' => PostStatus::class,
             'published_at' => 'datetime',
+            'notification_frequency' => NotificationFrequency::class,
+            'notification_sent_at' => 'datetime',
             'event_date' => 'date',
             'gallery' => 'array',
             'videos' => 'array',
@@ -56,6 +61,11 @@ class Post extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function expedition(): BelongsTo
+    {
+        return $this->belongsTo(Expedition::class);
     }
 
     public function authors(): BelongsToMany
@@ -78,7 +88,7 @@ class Post extends Model
             ->orderBy('id');
     }
 
-    public function journalDate(): ?\Illuminate\Support\Carbon
+    public function journalDate(): ?Carbon
     {
         return $this->event_date ?? $this->published_at;
     }
