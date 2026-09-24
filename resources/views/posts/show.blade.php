@@ -34,6 +34,10 @@
 
     <div id="article-text" class="article-shell article-body">{!! $post->body !!}</div>
 
+    @if($post->category === \App\Models\Post::CATEGORY_TRAVEL)
+        @include('guides._assistance-cta')
+    @endif
+
     @if($photoCount)
     <section id="fotografie" class="article-shell article-gallery anchored-section" aria-labelledby="gallery-title"><h2 id="gallery-title">Fotografie z cesty <small>{{ $post->photoCountLabel() }}</small></h2><div class="gallery-grid">
         @foreach($post->galleryPhotos() as $photo)<figure><a class="full-image-link" href="{{ $thumbnails->originalUrl($photo['path']) }}" data-full-image data-alt="{{ $photo['alt'] ?? '' }}" data-caption="{{ $photo['caption'] ?? '' }}"><img src="{{ $thumbnails->url($photo['path'], 'medium') }}" alt="{{ $photo['alt'] ?? '' }}" loading="lazy" width="1440" height="1080"><span>Zobrazit v plné velikosti</span></a>@if(!empty($photo['caption']))<figcaption>{{ $photo['caption'] }}</figcaption>@endif</figure>@endforeach
