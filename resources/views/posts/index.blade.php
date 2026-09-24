@@ -1,19 +1,21 @@
 @extends('layouts.app')
-@section('title', isset($expedition) ? 'Deník — '.$expedition->name : 'Deník — Slepé Slunce')
-@section('description', 'Příběhy našich expedic, setkání a zkušenosti z cest.')
+@section('title', $category === \App\Models\Post::CATEGORY_TRAVEL ? 'Cestování bez bariér — Slepé Slunce' : (isset($expedition) ? 'Deník — '.$expedition->name : 'Deník — Slepé Slunce'))
+@section('description', $category === \App\Models\Post::CATEGORY_TRAVEL ? 'Praktické zkušenosti, nároky a návody pro asistované cestování nevidomých lidí.' : 'Příběhy našich expedic, setkání a zkušenosti z cest.')
 
 @section('content')
 @php($journalRoute = isset($expedition) ? 'expeditions.posts' : 'posts.index')
+@php($isTravelCategory = $category === \App\Models\Post::CATEGORY_TRAVEL)
 <header class="page-header journal-hero">
     <div class="shell">
-        <p class="eyebrow">Příběhy z cest</p>
-        <h1>Deník Slepého slunce</h1>
-        <p>{{ isset($expedition) ? 'Zápisy z expedice '.$expedition->name.'. Čtěte náš společný příběh od začátku.' : 'Cesty, setkání a chvíle, které stojí za zaznamenání.' }}</p>
+        <p class="eyebrow">{{ $isTravelCategory ? 'Prakticky na cestách' : 'Příběhy z cest' }}</p>
+        <h1>{{ $isTravelCategory ? 'Cestování bez bariér' : 'Deník Slepého slunce' }}</h1>
+        <p>{{ $isTravelCategory ? 'Praktické návody, práva cestujících a zkušenosti s asistovaným cestováním.' : (isset($expedition) ? 'Zápisy z expedice '.$expedition->name.'. Čtěte náš společný příběh od začátku.' : 'Cesty, setkání a chvíle, které stojí za zaznamenání.') }}</p>
     </div>
 </header>
 <section class="section light-section journal-page">
     <div class="shell">
         @if(session('message'))<div class="journal-message" role="status">{{ session('message') }}</div>@endif
+        @unless($isTravelCategory)
         <div class="journal-filter-panel">
             <p class="journal-kicker">Vyberte si příběh</p>
             <nav class="journal-expedition-switcher" aria-label="Filtrovat deník podle expedice">
@@ -37,9 +39,10 @@
                 </div>
             @endif
         </div>
+        @endunless
 
         @if($posts->isEmpty())
-            <div class="empty-state dark-empty"><h2>První zápisy připravujeme</h2><p>Brzy tu najdete příběhy z cesty.</p></div>
+            <div class="empty-state dark-empty"><h2>{{ $isTravelCategory ? 'První články připravujeme' : 'První zápisy připravujeme' }}</h2><p>{{ $isTravelCategory ? 'Brzy tu najdete praktické rady pro asistované cestování.' : 'Brzy tu najdete příběhy z cesty.' }}</p></div>
         @else
             @if(!isset($expedition) && !$selectedDay)
                 @php($featuredPost = $posts->first())
@@ -66,8 +69,8 @@
 
             @if($listingPosts->isNotEmpty())
                 <div class="journal-list-heading">
-                    <h2>{{ isset($expedition) ? 'Zápisy z cesty' : 'Další zápisy' }}</h2>
-                    <p>{{ isset($expedition) ? 'Od prvního zápisu po poslední' : 'Od nejnovějších příběhů' }}</p>
+                    <h2>{{ $isTravelCategory ? 'Další články' : (isset($expedition) ? 'Zápisy z cesty' : 'Další zápisy') }}</h2>
+                    <p>{{ $isTravelCategory ? 'Praktické informace pro cestu' : (isset($expedition) ? 'Od prvního zápisu po poslední' : 'Od nejnovějších příběhů') }}</p>
                 </div>
                 <div class="journal-days">
                     @foreach($listingPosts->groupBy(fn ($post) => $post->journalDateKey()) as $day => $dayPosts)

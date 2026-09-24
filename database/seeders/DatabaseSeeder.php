@@ -16,5 +16,7 @@ class DatabaseSeeder extends Seeder
         if (env('ADMIN_EMAIL') && env('ADMIN_PASSWORD')) {
             User::updateOrCreate(['email' => env('ADMIN_EMAIL')], ['name' => env('ADMIN_NAME', 'Správce'), 'password' => env('ADMIN_PASSWORD'), 'role' => UserRole::Admin, 'is_active' => true]);
         }
+
+        $this->call(TravelWithoutBarriersSeeder::class);
     }
 }

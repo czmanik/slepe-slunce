@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/denik', [PostController::class, 'index'])->name('posts.index');
+Route::get('/cestovani-bez-barier', [PostController::class, 'travel'])->name('travel.index');
 Route::get('/trasa', [RouteController::class, 'legacy'])->name('route.index');
 Route::get('/clenove', [MemberController::class, 'index'])->name('members.index');
 Route::get('/expedice', [ExpeditionController::class, 'index'])->name('expeditions.index');
