@@ -27,7 +27,7 @@ class Post extends Model
     {
         return [
             self::CATEGORY_JOURNAL => 'Deník expedice',
-            self::CATEGORY_TRAVEL => 'Cestování bez bariér',
+            self::CATEGORY_TRAVEL => 'Návody',
         ];
     }
 
