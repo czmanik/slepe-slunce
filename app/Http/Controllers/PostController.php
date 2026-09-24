@@ -52,11 +52,18 @@ class PostController extends Controller
         return view('posts.index', compact('posts', 'days', 'selectedDay', 'expedition', 'expeditions', 'category'));
     }
 
-    public function travel(Request $request): View
+    public function travel(): View
     {
-        $request->merge(['category' => Post::CATEGORY_TRAVEL]);
+        $guideTopics = Post::guideTopicOptions();
 
-        return $this->index($request);
+        $posts = Post::publiclyVisible()
+            ->inCategory(Post::CATEGORY_TRAVEL)
+            ->with('authors')
+            ->orderByRaw("CASE guide_topic WHEN 'pred-cestou' THEN 1 WHEN 'doprava' THEN 2 WHEN 's-partakem' THEN 3 ELSE 4 END")
+            ->orderBy('title')
+            ->get();
+
+        return view('guides.index', compact('posts', 'guideTopics'));
     }
 
     public function show(Post $post): View|\Illuminate\Http\RedirectResponse
