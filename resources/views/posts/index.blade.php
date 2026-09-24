@@ -56,10 +56,10 @@
                     </div>
                     <div class="journal-featured-copy">
                         <p class="journal-kicker">Nejnovější zápis @if($featuredPost->expedition) · {{ $featuredPost->expedition->name }} @endif</p>
-                        <h2 id="journal-featured-title"><a href="{{ route('posts.show', $featuredPost) }}">{{ $featuredPost->title }}</a></h2>
+                        <h2 id="journal-featured-title"><a href="{{ route($isTravelCategory ? 'guides.show' : 'posts.show', $featuredPost) }}">{{ $featuredPost->title }}</a></h2>
                         <p class="journal-featured-date"><time datetime="{{ $featuredPost->journalDateKey() }}">{{ $featuredPost->journalDate()?->translatedFormat('j. F Y') }}</time></p>
                         @if($featuredPost->excerpt)<p>{{ $featuredPost->excerpt }}</p>@endif
-                        <a class="journal-read-link" href="{{ route('posts.show', $featuredPost) }}">Přečíst zápis <span aria-hidden="true">→</span></a>
+                        <a class="journal-read-link" href="{{ route($isTravelCategory ? 'guides.show' : 'posts.show', $featuredPost) }}">Přečíst zápis <span aria-hidden="true">→</span></a>
                     </div>
                 </section>
                 @php($listingPosts = $posts->skip(1))
@@ -82,15 +82,15 @@
                             <div class="journal-entry-list">
                                 @foreach($dayPosts as $post)
                                     <article class="journal-entry">
-                                        <a class="journal-entry-image" href="{{ route('posts.show', $post) }}" tabindex="-1" aria-hidden="true">
+                                        <a class="journal-entry-image" href="{{ route($isTravelCategory ? 'guides.show' : 'posts.show', $post) }}" tabindex="-1" aria-hidden="true">
                                             @if($post->cover_image)<img src="{{ app(\App\Services\ImageThumbnail::class)->url($post->cover_image, 'small') }}" alt="" loading="lazy" width="480" height="320">@else<span class="card-placeholder"></span>@endif
                                         </a>
                                         <div class="journal-entry-copy">
                                             @if(!isset($expedition) && $post->expedition)<p class="journal-kicker">{{ $post->expedition->name }}</p>@endif
-                                            <h3><a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a></h3>
+                                            <h3><a href="{{ route($isTravelCategory ? 'guides.show' : 'posts.show', $post) }}">{{ $post->title }}</a></h3>
                                             @if($post->excerpt)<p>{{ $post->excerpt }}</p>@endif
                                             @if($post->location)<p class="journal-entry-location">{{ $post->location }}</p>@endif
-                                            <a class="journal-read-link" href="{{ route('posts.show', $post) }}">Přečíst zápis <span aria-hidden="true">→</span></a>
+                                            <a class="journal-read-link" href="{{ route($isTravelCategory ? 'guides.show' : 'posts.show', $post) }}">Přečíst zápis <span aria-hidden="true">→</span></a>
                                         </div>
                                     </article>
                                 @endforeach
