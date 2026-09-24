@@ -2,19 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Expedition;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PostController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, ?Expedition $expedition = null): View
     {
-        $category = $request->string('category')->toString();
-        $category = array_key_exists($category, Post::categoryOptions()) ? $category : null;
+        $requestedCategory = $request->string('category')->toString();
+        $category = array_key_exists($requestedCategory, Post::categoryOptions())
+            ? $requestedCategory
+            : Post::CATEGORY_JOURNAL;
+
+        $expeditions = Expedition::query()
+            ->published()
+            ->whereHas('posts', fn ($query) => $query->publiclyVisible()->inCategory(Post::CATEGORY_JOURNAL))
+            ->withCount(['posts' => fn ($query) => $query->publiclyVisible()->inCategory(Post::CATEGORY_JOURNAL)])
+            ->orderByDesc('start_at')
+            ->get();
 
         $days = Post::publiclyVisible()
-            ->when($category, fn ($query) => $query->inCategory($category))
+            ->inCategory($category)
+            ->when($expedition, fn ($query) => $query->whereBelongsTo($expedition))
             ->chronological()
             ->get(['event_date', 'published_at'])
             ->map(fn (Post $post): ?string => $post->journalDateKey())
@@ -26,18 +37,19 @@ class PostController extends Controller
         $selectedDay = $days->contains($selectedDay) ? $selectedDay : null;
 
         $posts = Post::publiclyVisible()
-            ->when($category, fn ($query) => $query->inCategory($category))
-            ->with('authors')
+            ->inCategory($category)
+            ->when($expedition, fn ($query) => $query->whereBelongsTo($expedition))
+            ->with(['authors', 'expedition'])
             ->when($selectedDay, fn ($query) => $query->where(function ($query) use ($selectedDay): void {
                 $query->whereDate('event_date', $selectedDay)
                     ->orWhere(function ($query) use ($selectedDay): void {
                         $query->whereNull('event_date')->whereDate('published_at', $selectedDay);
                     });
             }))
-            ->chronological()
+            ->when($expedition, fn ($query) => $query->chronological(), fn ($query) => $query->orderByRaw('COALESCE(event_date, published_at) desc')->orderByDesc('published_at')->orderByDesc('id'))
             ->get();
 
-        return view('posts.index', compact('posts', 'days', 'selectedDay', 'category'));
+        return view('posts.index', compact('posts', 'days', 'selectedDay', 'expedition', 'expeditions', 'category'));
     }
 
     public function travel(Request $request): View
