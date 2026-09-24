@@ -62,7 +62,7 @@ class PostController extends Controller
     public function show(Post $post): View|\Illuminate\Http\RedirectResponse
     {
         if ($post->category === Post::CATEGORY_TRAVEL) {
-            return redirect()->route('guides.show', $post);
+            return redirect()->route('guides.show', $post, 301);
         }
 
         abort_unless(Post::publiclyVisible()->whereKey($post->getKey())->exists(), 404);
