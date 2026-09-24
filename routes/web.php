@@ -17,7 +17,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/denik', [PostController::class, 'index'])->name('posts.index');
-Route::get('/cestovani-bez-barier', [PostController::class, 'travel'])->name('travel.index');
+Route::get('/navody', [PostController::class, 'travel'])->name('guides.index');
+Route::redirect('/cestovani-bez-barier', '/navody', 301)->name('travel.index');
 Route::get('/trasa', [RouteController::class, 'legacy'])->name('route.index');
 Route::get('/clenove', [MemberController::class, 'index'])->name('members.index');
 Route::get('/expedice', [ExpeditionController::class, 'index'])->name('expeditions.index');
@@ -56,5 +57,6 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/admin/fotka-na-mapu', [MapPhotoController::class, 'store'])->name('tracking.photo.store');
 });
 Route::get('/denik/{post}', [PostController::class, 'show'])->name('posts.show');
+Route::get('/navody/{post}', [PostController::class, 'guide'])->name('guides.show');
 Route::get('/nahled/{post}', [PostController::class, 'preview'])->middleware('auth')->name('posts.preview');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
