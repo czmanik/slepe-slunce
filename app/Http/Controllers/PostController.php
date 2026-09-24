@@ -59,8 +59,23 @@ class PostController extends Controller
         return $this->index($request);
     }
 
-    public function show(Post $post): View
+    public function show(Post $post): View|\Illuminate\Http\RedirectResponse
     {
+        if ($post->category === Post::CATEGORY_TRAVEL) {
+            return redirect()->route('guides.show', $post);
+        }
+
+        abort_unless(Post::publiclyVisible()->whereKey($post->getKey())->exists(), 404);
+
+        return view('posts.show', ['post' => $post->load('authors'), 'preview' => false]);
+    }
+
+    public function guide(Post $post): View|\Illuminate\Http\RedirectResponse
+    {
+        if ($post->category !== Post::CATEGORY_TRAVEL) {
+            return redirect()->route('posts.show', $post);
+        }
+
         abort_unless(Post::publiclyVisible()->whereKey($post->getKey())->exists(), 404);
 
         return view('posts.show', ['post' => $post->load('authors'), 'preview' => false]);
