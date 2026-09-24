@@ -19,6 +19,11 @@ class GuideResource extends PostResource
         return Post::CATEGORY_TRAVEL;
     }
 
+    protected static function usesGuideTopics(): bool
+    {
+        return true;
+    }
+
     public static function getPages(): array
     {
         return [
