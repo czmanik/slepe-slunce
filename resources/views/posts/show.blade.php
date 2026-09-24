@@ -14,7 +14,7 @@
 <article>
     <header class="article-header">
         <div class="article-shell">
-            <a class="back-link" href="{{ $post->expedition ? route('expeditions.posts', $post->expedition) : route('posts.index') }}"><span aria-hidden="true">←</span> {{ $post->expedition ? 'Deník expedice' : 'Všechny články' }}</a>
+            <a class="back-link" href="{{ $post->category === \App\Models\Post::CATEGORY_TRAVEL ? route('guides.index') : ($post->expedition ? route('expeditions.posts', $post->expedition) : route('posts.index')) }}"><span aria-hidden="true">←</span> {{ $post->category === \App\Models\Post::CATEGORY_TRAVEL ? 'Všechny návody' : ($post->expedition ? 'Deník expedice' : 'Všechny zápisy') }}</a>
             <p class="article-meta">@if($post->journalDate())<time datetime="{{ $post->journalDateKey() }}">{{ $post->journalDate()->translatedFormat('j. F Y') }}</time>@endif @if($post->location)<span>·</span> {{ $post->location }}@endif</p>
             <h1>{{ $post->title }}</h1>
             <p class="article-lead">{{ $post->excerpt }}</p>
