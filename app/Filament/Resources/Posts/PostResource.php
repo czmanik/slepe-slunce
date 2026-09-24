@@ -40,6 +40,16 @@ class PostResource extends Resource
 
     protected static ?string $navigationLabel = 'Deník';
 
+    protected static function contentCategory(): string
+    {
+        return Post::CATEGORY_JOURNAL;
+    }
+
+    protected static function editorCategoryOptions(): array
+    {
+        return [static::contentCategory() => Post::categoryOptions()[static::contentCategory()]];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -53,7 +63,7 @@ class PostResource extends Resource
 
             Section::make('Autorství a zařazení')->schema([
                 Select::make('expedition_id')->label('Expedice')->relationship('expedition', 'name')->searchable()->preload()->placeholder('Obecný článek projektu'),
-                Select::make('category')->label('Rubrika')->options(Post::categoryOptions())->required()->default(Post::CATEGORY_JOURNAL),
+                Select::make('category')->label('Rubrika')->options(static::editorCategoryOptions())->required()->default(static::contentCategory())->disabled()->dehydrated(),
                 Select::make('authors')->label('Autor nebo spoluautoři')->relationship('authors', 'name')->multiple()->preload()->searchable()->required(),
                 Grid::make(2)->schema([
                     DatePicker::make('event_date')->label('Datum události')->native(false),
@@ -110,7 +120,6 @@ class PostResource extends Resource
             TextColumn::make('updated_at')->label('Upraveno')->since()->sortable()->toggleable(),
         ])->filters([
             SelectFilter::make('status')->label('Stav')->options(PostStatus::options()),
-            SelectFilter::make('category')->label('Rubrika')->options(Post::categoryOptions()),
             SelectFilter::make('expedition_id')->label('Expedice')->relationship('expedition', 'name'),
         ])->recordActions([EditAction::make()])->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
@@ -119,6 +128,8 @@ class PostResource extends Resource
     {
         $query = parent::getEloquentQuery();
         $user = auth()->user();
+
+        $query->inCategory(static::contentCategory());
 
         return $user && ! $user->canPublish() ? $query->where('created_by', $user->id) : $query;
     }
