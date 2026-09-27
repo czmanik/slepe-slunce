@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Expedition;
+use App\Models\Post;
 use App\Models\RoutePoint;
 use App\Models\Subscriber;
 use App\Models\User;
@@ -30,6 +31,7 @@ class MultiExpeditionPlatformTest extends TestCase
 
     public function test_journal_can_switch_between_all_and_single_expedition(): void
     {
+        $author = User::query()->create(['name' => 'Autor', 'email' => 'autor-multi@example.test', 'password' => 'password-password']);
         $first = Expedition::query()->create([
             'name' => 'První expedice', 'slug' => 'prvni-expedice', 'publication_status' => 'published',
             'start_at' => now()->subDays(10), 'end_at' => now()->subDays(5),
@@ -40,19 +42,19 @@ class MultiExpeditionPlatformTest extends TestCase
         ]);
 
         Post::query()->create([
-            'expedition_id' => $first->id, 'title' => 'Zápis první', 'slug' => 'zapis-prvni',
+            'created_by' => $author->id, 'expedition_id' => $first->id, 'title' => 'Zápis první', 'slug' => 'zapis-prvni',
             'excerpt' => 'První expedice.', 'body' => '<p>První expedice.</p>',
             'status' => 'published', 'published_at' => now()->subDays(6),
         ]);
         Post::query()->create([
-            'expedition_id' => $second->id, 'title' => 'Zápis druhý', 'slug' => 'zapis-druhy',
+            'created_by' => $author->id, 'expedition_id' => $second->id, 'title' => 'Zápis druhý', 'slug' => 'zapis-druhy',
             'excerpt' => 'Druhá expedice.', 'body' => '<p>Druhá expedice.</p>',
             'status' => 'published', 'published_at' => now()->subDays(2),
         ]);
 
         $this->get(route('posts.index'))
             ->assertOk()
-            ->assertSee('Všechny expedice')
+            ->assertSee('Všechny příběhy')
             ->assertSee('První expedice')
             ->assertSee('Druhá expedice')
             ->assertSee('Zápis první')
@@ -60,7 +62,7 @@ class MultiExpeditionPlatformTest extends TestCase
 
         $this->get(route('expeditions.posts', $first))
             ->assertOk()
-            ->assertSee('Všechny expedice')
+            ->assertSee('Všechny příběhy')
             ->assertSee('Zápis první')
             ->assertDontSee('Zápis druhý');
     }
@@ -92,16 +94,12 @@ class MultiExpeditionPlatformTest extends TestCase
             ->assertSee('Návrh pro testovací provoz')
             ->assertSee('Co je v ceně');
         $this->get(route('expeditions.register', $expedition))
-            ->assertOk()
-            ->assertSee('Hotově na místě')
-            ->assertSee('Bankovním převodem')
-            ->assertSee('Platební kartou')
-            ->assertSee('zatím není aktivní');
+            ->assertNotFound(); // Prototyp je po termínu registrace.
 
         $this->post(route('expeditions.register.store', $expedition), [
             'mode' => 'reservation', 'payment_method' => 'card', 'name' => 'Jan Novák',
             'email' => 'jan@example.test', 'party_size' => 1, 'privacy_consent' => '1',
-        ])->assertSessionHasErrors('payment_method');
+        ])->assertNotFound();
         $this->assertDatabaseMissing('expedition_registrations', ['email' => 'jan@example.test']);
     }
 

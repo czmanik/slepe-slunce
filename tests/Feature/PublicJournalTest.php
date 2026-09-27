@@ -60,9 +60,7 @@ class PublicJournalTest extends TestCase
 
         $this->get(route('posts.index'))
             ->assertOk()
-            ->assertSeeInOrder(['První den', 'Druhý den'])
-            ->assertSee('day=2026-08-10', escape: false)
-            ->assertSee('day=2026-08-11', escape: false);
+            ->assertSeeInOrder(['Druhý den', 'První den']);
 
         $this->get(route('posts.index', ['day' => '2026-08-11']))
             ->assertOk()

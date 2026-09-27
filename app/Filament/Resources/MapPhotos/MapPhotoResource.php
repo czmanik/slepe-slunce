@@ -42,6 +42,7 @@ class MapPhotoResource extends Resource
             FileUpload::make('image')->label('Fotografie')->image()->disk('public')->directory('map/photos')->required()->maxSize(15360),
             Textarea::make('alt')->label('Alternativní text')->required()->maxLength(300),
             Textarea::make('caption')->label('Popisek')->maxLength(500),
+            Textarea::make('short_story')->label('Krátký příběh / tweet')->helperText('Nepovinné, maximálně 280 znaků.')->maxLength(280),
             TextInput::make('latitude')->label('Zeměpisná šířka')->numeric()->required()->minValue(-90)->maxValue(90),
             TextInput::make('longitude')->label('Zeměpisná délka')->numeric()->required()->minValue(-180)->maxValue(180),
             DateTimePicker::make('taken_at')->label('Pořízeno')->seconds(false),

@@ -11,7 +11,7 @@ class MemberLocationController extends Controller
 {
     public function create(): View
     {
-        return view('tracking.location');
+        return view('tracking.location', ['expeditions' => Expedition::query()->published()->orderByDesc('start_at')->get()]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -20,18 +20,17 @@ class MemberLocationController extends Controller
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'accuracy_meters' => ['nullable', 'integer', 'min:0', 'max:100000'],
+            'expedition_id' => ['nullable', 'exists:expeditions,id'],
             'return_to' => ['nullable', 'in:journal'],
         ]);
         unset($data['return_to']);
-        $expedition = Expedition::default();
-        $request->user()->locations()->updateOrCreate(
-            ['expedition_id' => $expedition->getKey()],
-            [...$data, 'reported_at' => now()],
-        );
-        $message = 'Poloha byla odeslána. Na mapě je nyní vidět pouze toto poslední hlášení.';
+        $expedition = isset($data['expedition_id']) ? Expedition::query()->published()->findOrFail($data['expedition_id']) : Expedition::default();
+        $request->user()->locations()->create([...$data, 'expedition_id' => $expedition->getKey(), 'reported_at' => now()]);
+        $message = 'Poloha byla uložena k expedici '.$expedition->name.'.';
 
         return $request->input('return_to') === 'journal'
-            ? redirect()->route('posts.index')->with('message', $message)
+            ? redirect()->route($request->boolean('journal_expedition') ? 'expeditions.posts' : 'posts.index',
+                $request->boolean('journal_expedition') ? [$expedition] : [])->with('message', $message)
             : back()->with('message', $message);
     }
 }

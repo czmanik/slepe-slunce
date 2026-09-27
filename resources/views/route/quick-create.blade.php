@@ -25,6 +25,7 @@
 
         <form id="formular" class="quick-route-form" method="post" action="{{ route('route.quick.store') }}">
             @csrf
+            <div><label for="expedition_id">Expedice</label><select id="expedition_id" name="expedition_id" required>@foreach($expeditions as $expedition)<option value="{{ $expedition->id }}" @selected(old('expedition_id', request('expedition_id', \App\Models\Expedition::default()->id)) == $expedition->id)>{{ $expedition->name }}</option>@endforeach</select></div>
             <div><label for="name">Název místa</label><input id="name" name="name" value="{{ old('name') }}" required maxlength="160" autocomplete="off"></div>
             <div><label for="description">Krátký popis <span>(nepovinné)</span></label><textarea id="description" name="description" rows="3" maxlength="700">{{ old('description') }}</textarea></div>
 
