@@ -42,7 +42,7 @@ class QuickRoutePointController extends Controller
         ]);
 
         return redirect()
-            ->route('route.quick.create')
+            ->route('route.quick.create', ['expedition_id' => $expedition->getKey()])
             ->with('status', "Bod {$point->name} je uložený. Média a článek můžete doplnit v administraci.");
     }
 }
