@@ -13,7 +13,7 @@ jobs:
       - run: composer update sentry/sentry-laravel --no-interaction --prefer-dist --no-scripts
       - run: composer install --no-interaction --prefer-dist
       - run: cp .env.example .env && php artisan key:generate
-      - run: php artisan sentry:publish --dsn=https://examplePublicKey@o0.ingest.sentry.io/0
+      - run: php artisan sentry:publish --dsn=https://a2fed10f408a8171cf8609f13b145597@o4511187073695744.ingest.de.sentry.io/4512157486809168
       - uses: actions/upload-artifact@v4
         with:
           name: sentry-dependencies
