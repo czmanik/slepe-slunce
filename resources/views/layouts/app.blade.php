@@ -17,6 +17,20 @@
     <link rel="stylesheet" href="{{ asset('assets/map-photo.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/journal.css') }}?v={{ filemtime(public_path('assets/journal.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/platform.css') }}?v={{ filemtime(public_path('assets/platform.css')) }}">
+    @php($sentryLoader = config('services.sentry.browser_loader_url'))
+    @if(is_string($sentryLoader) && preg_match('~^https://js\.sentry-cdn\.com/[A-Za-z0-9_-]+\.min\.js$~', $sentryLoader))
+        <script>
+            window.sentryOnLoad = function () {
+                Sentry.init({
+                    tracesSampleRate: {{ max(0, min(1, (float) config('services.sentry.browser_traces_sample_rate', 0.1))) }},
+                    sendDefaultPii: false,
+                    replaysSessionSampleRate: 0,
+                    replaysOnErrorSampleRate: 0
+                });
+            };
+        </script>
+        <script src="{{ $sentryLoader }}" crossorigin="anonymous"></script>
+    @endif
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-REWW639R3N"></script>
     <script>

@@ -1,8 +1,9 @@
 <x-filament-widgets::widget>
     <x-filament::section>
         <x-slot name="heading">Expediční dispečink · {{ $expedition->name }}</x-slot>
-        <x-slot name="description">Aktivní etapa hlavní expedice, poslední hlášení polohy a rychlé ovládání z telefonu.</x-slot>
+        <x-slot name="description">Aktivní etapa vybrané expedice, poslední hlášení polohy a rychlé ovládání z telefonu.</x-slot>
         <div class="space-y-5">
+            <div><label for="dispatch-expedition" class="block text-sm font-bold">Aktuální expedice</label><select id="dispatch-expedition" wire:model.live="selectedExpeditionId" class="mt-2 w-full rounded-lg border border-gray-300 bg-white p-2 text-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white">@foreach($expeditions as $choice)<option value="{{ $choice->id }}">{{ $choice->name }}</option>@endforeach</select></div>
             @if($active)
                 <div class="rounded-xl bg-primary-50 p-5 ring-1 ring-primary-200 dark:bg-primary-950/30 dark:ring-primary-800">
                     <p class="text-xs font-bold uppercase tracking-wider text-primary-700 dark:text-primary-300">Právě teď · {{ $state->is_manual ? 'ručně potvrzeno' : 'odhad podle času' }}</p>
@@ -19,8 +20,8 @@
                 </div>
             @endif
             <div class="grid gap-3 sm:grid-cols-3">
-                <x-filament::button tag="a" :href="route('tracking.location.create')" icon="heroicon-o-map-pin">Oznámit moji polohu</x-filament::button>
-                <x-filament::button tag="a" :href="route('tracking.photo.create')" color="success" icon="heroicon-o-camera">Přidat fotku na mapu</x-filament::button>
+                <x-filament::button tag="a" :href="route('tracking.location.create', ['expedition_id' => $expedition->id])" icon="heroicon-o-map-pin">Oznámit moji polohu</x-filament::button>
+                <x-filament::button tag="a" :href="route('tracking.photo.create', ['expedition_id' => $expedition->id])" color="success" icon="heroicon-o-camera">Přidat fotku na mapu</x-filament::button>
                 <x-filament::button wire:click="useAutomatic" color="gray" icon="heroicon-o-clock">Řídit podle času</x-filament::button>
             </div>
             <div class="overflow-x-auto rounded-xl ring-1 ring-gray-200 dark:ring-white/10"><table class="w-full text-sm">

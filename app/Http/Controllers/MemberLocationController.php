@@ -29,7 +29,8 @@ class MemberLocationController extends Controller
         $message = 'Poloha byla uložena k expedici '.$expedition->name.'.';
 
         return $request->input('return_to') === 'journal'
-            ? redirect()->route('posts.index')->with('message', $message)
+            ? redirect()->route($request->boolean('journal_expedition') ? 'expeditions.posts' : 'posts.index',
+                $request->boolean('journal_expedition') ? [$expedition] : [])->with('message', $message)
             : back()->with('message', $message);
     }
 }

@@ -43,6 +43,12 @@ class ExpeditionTrackingTest extends TestCase
         ])->assertRedirect();
         $this->assertDatabaseHas('map_photos', ['expedition_id' => $other->id, 'alt' => 'Výhled z cesty']);
         $this->get(route('expeditions.route', $other))->assertOk()->assertSee('Výhled z cesty');
+        $this->actingAs($user)->get(route('tracking.location.create', ['expedition_id' => $other->id]))
+            ->assertOk()->assertSee('value="'.$other->id.'" selected', false);
+        $this->actingAs($user)->get(route('tracking.photo.create', ['expedition_id' => $other->id]))
+            ->assertOk()->assertSee('value="'.$other->id.'" selected', false);
+        $this->actingAs($user)->get(route('expeditions.posts', $other))
+            ->assertOk()->assertSee('expedition_id='.$other->id, false);
     }
 
     public function test_signed_in_member_can_open_journal_actions_and_return_after_reporting_location(): void
