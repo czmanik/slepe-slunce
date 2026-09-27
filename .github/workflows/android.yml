@@ -1,13 +1,5 @@
 name: Android APK
-on:
-  push:
-    paths:
-      - 'android-app/**'
-      - '.github/workflows/android.yml'
-  pull_request:
-    paths:
-      - 'android-app/**'
-      - '.github/workflows/android.yml'
+on: [push, pull_request]
 jobs:
   assemble:
     runs-on: ubuntu-latest
