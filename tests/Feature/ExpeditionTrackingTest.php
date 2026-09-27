@@ -42,7 +42,7 @@ class ExpeditionTrackingTest extends TestCase
             'alt' => 'Výhled z cesty', 'latitude' => 48.1, 'longitude' => 16.2,
         ])->assertRedirect();
         $this->assertDatabaseHas('map_photos', ['expedition_id' => $other->id, 'alt' => 'Výhled z cesty']);
-        $this->get(route('expeditions.route', $other))->assertOk()->assertSee('Výhled z cesty');
+        $this->get(route('map.index', ['expedition' => $other->slug]))->assertOk()->assertSee('Výhled z cesty');
         $this->actingAs($user)->get(route('tracking.location.create', ['expedition_id' => $other->id]))
             ->assertOk()->assertSee('value="'.$other->id.'" selected', false);
         $this->actingAs($user)->get(route('tracking.photo.create', ['expedition_id' => $other->id]))
