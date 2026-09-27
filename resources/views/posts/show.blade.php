@@ -14,7 +14,7 @@
 <article>
     <header class="article-header">
         <div class="article-shell">
-            <a class="back-link" href="{{ $post->expedition ? route('expeditions.posts', $post->expedition) : route('posts.index') }}"><span aria-hidden="true">←</span> {{ $post->expedition ? 'Deník expedice' : 'Všechny články' }}</a>
+            <a class="back-link" href="{{ $post->category === \App\Models\Post::CATEGORY_TRAVEL ? route('guides.index') : ($post->expedition ? route('expeditions.posts', $post->expedition) : route('posts.index')) }}"><span aria-hidden="true">←</span> {{ $post->category === \App\Models\Post::CATEGORY_TRAVEL ? 'Všechny návody' : ($post->expedition ? 'Deník expedice' : 'Všechny zápisy') }}</a>
             <p class="article-meta">@if($post->journalDate())<time datetime="{{ $post->journalDateKey() }}">{{ $post->journalDate()->translatedFormat('j. F Y') }}</time>@endif @if($post->location)<span>·</span> {{ $post->location }}@endif</p>
             <h1>{{ $post->title }}</h1>
             <p class="article-lead">{{ $post->excerpt }}</p>
@@ -33,6 +33,10 @@
     @if($post->cover_image)<figure class="cover-figure"><a class="full-image-link" href="{{ $thumbnails->originalUrl($post->cover_image) }}" data-full-image data-alt="{{ $post->cover_alt }}"><img src="{{ $thumbnails->url($post->cover_image, 'medium') }}" alt="{{ $post->cover_alt }}" width="1440" height="1080"><span>Zobrazit v plné velikosti</span></a></figure>@endif
 
     <div id="article-text" class="article-shell article-body">{!! $post->body !!}</div>
+
+    @if($post->category === \App\Models\Post::CATEGORY_TRAVEL)
+        @include('guides._assistance-cta')
+    @endif
 
     @if($photoCount)
     <section id="fotografie" class="article-shell article-gallery anchored-section" aria-labelledby="gallery-title"><h2 id="gallery-title">Fotografie z cesty <small>{{ $post->photoCountLabel() }}</small></h2><div class="gallery-grid">

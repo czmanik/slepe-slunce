@@ -4,7 +4,7 @@ Samostatný Android projekt. První verze používá zabezpečený WebView nad `
 
 ## Sestavení
 
-Otevřete složku `android-app/` v Android Studiu s JDK 17 a Android SDK 36. Projekt používá Android Gradle Plugin 8.13.2 a Gradle 8.13. CI sestavuje debug APK příkazem `gradle :app:assembleDebug` a přikládá jej jako artefakt workflow `Android APK`.
+Otevřete složku `android-app/` v Android Studiu s JDK 17 a Android SDK 36. Projekt používá Android Gradle Plugin 8.13.2 a Gradle 8.13. CI sestavuje debug APK příkazem `gradle :app:assembleDebug` a přikládá jej jako artefakt workflow `Tests`.
 
 ## Použití
 
