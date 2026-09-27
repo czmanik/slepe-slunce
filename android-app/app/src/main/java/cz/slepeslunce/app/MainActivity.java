@@ -3,6 +3,7 @@ package cz.slepeslunce.app;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -163,6 +164,7 @@ public final class MainActivity extends Activity {
                         cameraPhoto = FileProvider.getUriForFile(MainActivity.this, getPackageName() + ".files", image);
                         Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         camera.putExtra(MediaStore.EXTRA_OUTPUT, cameraPhoto);
+                        camera.setClipData(ClipData.newRawUri("expedition-photo", cameraPhoto));
                         camera.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                         chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{camera});
                     }
