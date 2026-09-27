@@ -75,6 +75,10 @@ class PostResource extends Resource
                     DatePicker::make('event_date')->label('Datum události')->native(false),
                     TextInput::make('location')->label('Místo')->maxLength(160),
                 ]),
+                Grid::make(2)->schema([
+                    TextInput::make('latitude')->label('GPS šířka pro mapu')->numeric()->minValue(-90)->maxValue(90)->step('0.0000001'),
+                    TextInput::make('longitude')->label('GPS délka pro mapu')->numeric()->minValue(-180)->maxValue(180)->step('0.0000001'),
+                ]),
             ]),
 
             Section::make('Publikace')->schema([

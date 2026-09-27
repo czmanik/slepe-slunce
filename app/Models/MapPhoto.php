@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class MapPhoto extends Model
 {
-    protected $fillable = ['expedition_id', 'user_id', 'route_point_id', 'route_segment_id', 'image', 'alt', 'caption', 'latitude', 'longitude', 'taken_at'];
+    protected $fillable = ['expedition_id', 'user_id', 'route_point_id', 'route_segment_id', 'image', 'alt', 'caption', 'short_story', 'latitude', 'longitude', 'taken_at'];
 
     protected function casts(): array
     {

@@ -12,6 +12,18 @@ use Filament\Widgets\Widget;
 
 class ExpeditionDashboard extends Widget
 {
+    public ?int $selectedExpeditionId = null;
+
+    public function mount(): void
+    {
+        $this->selectedExpeditionId = Expedition::default()->getKey();
+    }
+
+    private function selectedExpedition(): Expedition
+    {
+        return Expedition::query()->find($this->selectedExpeditionId) ?? Expedition::default();
+    }
+
     protected string $view = 'filament.widgets.expedition-dashboard';
 
     protected int|string|array $columnSpan = 'full';
@@ -20,24 +32,24 @@ class ExpeditionDashboard extends Widget
 
     public function activatePoint(int $id): void
     {
-        $this->activate(RoutePoint::query()->findOrFail($id));
+        $this->activate(RoutePoint::query()->whereBelongsTo($this->selectedExpedition())->findOrFail($id));
     }
 
     public function activateSegment(int $id): void
     {
-        $this->activate(RouteSegment::query()->findOrFail($id));
+        $this->activate(RouteSegment::query()->whereBelongsTo($this->selectedExpedition())->findOrFail($id));
     }
 
     public function useAutomatic(): void
     {
-        app(ExpeditionTracker::class)->automatic(Expedition::default());
+        app(ExpeditionTracker::class)->automatic($this->selectedExpedition());
         Notification::make()->success()->title('Aktivní etapa se nyní určuje podle času')->send();
     }
 
     protected function getViewData(): array
     {
         $tracker = app(ExpeditionTracker::class);
-        $expedition = Expedition::default();
+        $expedition = $this->selectedExpedition();
         $active = $tracker->active(null, $expedition);
         $points = RoutePoint::query()->whereBelongsTo($expedition)->ordered()->get();
         $segments = RouteSegment::query()->whereBelongsTo($expedition)->with(['fromPoint', 'toPoint'])->ordered()->get();
@@ -50,8 +62,9 @@ class ExpeditionDashboard extends Widget
             }
         }
 
-        return ['expedition' => $expedition, 'active' => $active, 'position' => $tracker->position($active, null, $expedition), 'items' => $items, 'state' => $tracker->state($expedition),
-            'locations' => MemberLocation::query()->whereBelongsTo($expedition)->with('user')->latest('reported_at')->get()];
+        return ['expedition' => $expedition, 'expeditions' => Expedition::query()->published()->orderByDesc('start_at')->get(),
+            'active' => $active, 'position' => $tracker->position($active, null, $expedition), 'items' => $items, 'state' => $tracker->state($expedition),
+            'locations' => MemberLocation::query()->whereBelongsTo($expedition)->with('user')->latest('reported_at')->latest('id')->limit(8)->get()];
     }
 
     private function activate(RoutePoint|RouteSegment $record): void

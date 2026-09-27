@@ -18,6 +18,20 @@
     <link rel="stylesheet" href="{{ asset('assets/journal.css') }}?v={{ filemtime(public_path('assets/journal.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/guides.css') }}?v={{ filemtime(public_path('assets/guides.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/platform.css') }}?v={{ filemtime(public_path('assets/platform.css')) }}">
+    @php($sentryLoader = config('services.sentry.browser_loader_url'))
+    @if(is_string($sentryLoader) && preg_match('~^https://js\.sentry-cdn\.com/[A-Za-z0-9_-]+\.min\.js$~', $sentryLoader))
+        <script>
+            window.sentryOnLoad = function () {
+                Sentry.init({
+                    tracesSampleRate: {{ max(0, min(1, (float) config('services.sentry.browser_traces_sample_rate', 0.1))) }},
+                    sendDefaultPii: false,
+                    replaysSessionSampleRate: 0,
+                    replaysOnErrorSampleRate: 0
+                });
+            };
+        </script>
+        <script src="{{ $sentryLoader }}" crossorigin="anonymous"></script>
+    @endif
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-REWW639R3N"></script>
     <script>
@@ -38,6 +52,7 @@
             </a>
             <nav aria-label="Hlavní navigace">
                 <a href="{{ route('expeditions.index') }}" @if(request()->routeIs('expeditions.index')) aria-current="page" @endif>Expedice</a>
+                <a href="{{ route('map.index') }}" @if(request()->routeIs('map.index')) aria-current="page" @endif>Mapa</a>
                 <a href="{{ route('posts.index') }}" @if(request()->routeIs('posts.*') || request()->routeIs('expeditions.posts')) aria-current="page" @endif>Deník</a>
                 <a href="{{ route('guides.index') }}" @if(request()->routeIs('guides.*')) aria-current="page" @endif>Návody</a>
                 <a href="{{ route('home') }}#smysl">O projektu</a>
@@ -50,6 +65,7 @@
                     <strong>{{ $expedition->name }}</strong>
                     <a href="{{ route('expeditions.show', $expedition) }}" @if(request()->routeIs('expeditions.show')) aria-current="page" @endif>Přehled</a>
                     <a href="{{ route('expeditions.posts', $expedition) }}" @if(request()->routeIs('expeditions.posts')) aria-current="page" @endif>Deník</a>
+                    <a href="{{ route('map.index', ['expedition' => $expedition->slug]) }}" @if(request()->routeIs('map.index') && request('expedition') === $expedition->slug) aria-current="page" @endif>Mapa</a>
                     <a href="{{ route('expeditions.members', $expedition) }}" @if(request()->routeIs('expeditions.members')) aria-current="page" @endif>Členové</a>
                 </div>
             </nav>
@@ -63,7 +79,7 @@
 
     <footer class="site-footer">
         <div class="shell footer-grid">
-            <div><strong>Slepé Slunce</strong><p>Parta kamarádů, která pořádá přístupné expedice a sdílí život bez zbytečných bariér.</p></div>
+            <div><strong>Slepé Slunce</strong><p>Parta kamarádů, která pořádá přístupné expedice a sdílí život bez zbytečných bariér.</p><p><a href="https://www.instagram.com/slepeslunce/" target="_blank" rel="noopener noreferrer">Instagram @slepeslunce</a></p></div>
             <div><p>Projekt vzniká ve spolupráci s Mirkem Mužíkem, členem <a href="https://www.sons.cz/">SONS ČR</a> a spoluzakladatelem spolku <a href="https://odskodnenizauraz.cz/">Odškodnění za úraz</a>.</p></div>
         </div>
     </footer>

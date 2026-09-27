@@ -75,7 +75,7 @@ class ExpeditionTracker
         $expedition ??= $active?->expedition ?? Expedition::default();
         $active ??= $this->active($now, $expedition);
         $now ??= now();
-        $fresh = MemberLocation::query()->where('expedition_id', $expedition->getKey())->latest('reported_at')->first();
+        $fresh = MemberLocation::query()->where('expedition_id', $expedition->getKey())->latest('reported_at')->latest('id')->first();
         if ($fresh && $fresh->reported_at->gte($now->copy()->subHours(6))) {
             return ['latitude' => (float) $fresh->latitude, 'longitude' => (float) $fresh->longitude, 'source' => 'gps', 'reportedAt' => $fresh->reported_at];
         }

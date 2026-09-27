@@ -49,7 +49,7 @@ class Post extends Model
     protected $fillable = [
         'created_by', 'expedition_id', 'category', 'guide_topic', 'title', 'slug', 'excerpt', 'body', 'status', 'published_at',
         'notification_frequency', 'notification_sent_at',
-        'event_date', 'location', 'cover_image', 'cover_alt', 'gallery', 'videos',
+        'event_date', 'location', 'latitude', 'longitude', 'cover_image', 'cover_alt', 'gallery', 'videos',
         'seo_title', 'seo_description',
     ];
 
@@ -75,6 +75,7 @@ class Post extends Model
             'notification_frequency' => NotificationFrequency::class,
             'notification_sent_at' => 'datetime',
             'event_date' => 'date',
+            'latitude' => 'decimal:7', 'longitude' => 'decimal:7',
             'gallery' => 'array',
             'videos' => 'array',
         ];

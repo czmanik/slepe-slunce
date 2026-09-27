@@ -105,8 +105,8 @@
                 <h2>Zápisy z cesty</h2>
                 <p>Rychlé nástroje pro přihlášené členy.</p>
                 <div class="journal-actions">
-                    <a class="button button-primary" href="{{ route('tracking.location.create', ['from' => 'journal']) }}">Oznámit polohu</a>
-                    <a class="button button-quiet" href="{{ route('tracking.photo.create', ['from' => 'journal']) }}">Přidat fotku na mapu</a>
+                    <a class="button button-primary" href="{{ route('tracking.location.create', ['from' => 'journal', 'expedition_id' => $expedition?->id]) }}">Oznámit polohu</a>
+                    <a class="button button-quiet" href="{{ route('tracking.photo.create', ['from' => 'journal', 'expedition_id' => $expedition?->id]) }}">Přidat fotku na mapu</a>
                 </div>
             </aside>
         @endauth

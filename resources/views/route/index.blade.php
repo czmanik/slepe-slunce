@@ -139,6 +139,8 @@
 
             const transportColors = { flight: '#2c5d9b', bus: '#8a4d0f', car: '#17150f', train: '#7b2f72', walk: '#347442', bicycle: '#217477', ferry: '#246e99', other: '#655f54' };
             const allCoordinates = [];
+            photos.forEach(photo => allCoordinates.push([photo.latitude, photo.longitude]));
+            members.forEach(member => allCoordinates.push([member.latitude, member.longitude]));
 
             segments.forEach(segment => {
                 if (!Array.isArray(segment.geometry) || segment.geometry.length < 2) return;
@@ -200,7 +202,7 @@
                 title.textContent = point.name;
                 popup.append(title);
                 const state = document.createElement('span');
-                state.textContent = point.statusLabel + (point.isGoal ? ' · Cíl expedice' : '');
+                state.textContent = point.statusLabel + (point.isGoal ? ' · Cíl expedice' : '') + (point.occurredAt ? ' · ' + point.occurredAt : '');
                 popup.append(state);
                 if (point.image) {
                     const image = document.createElement('img');
@@ -230,6 +232,7 @@
                     const popup = document.createElement('div'); popup.className='map-popup map-photo-popup';
                     const image=document.createElement('img'); image.src=photo.image; image.alt=photo.alt; image.loading='lazy'; popup.append(image);
                     if(photo.caption){const caption=document.createElement('p');caption.textContent=photo.caption;popup.append(caption)}
+                    if(photo.shortStory){const story=document.createElement('p');story.textContent=photo.shortStory;popup.append(story)}
                     const meta=document.createElement('span');meta.textContent=[photo.author,photo.takenAt].filter(Boolean).join(' · ');popup.append(meta);marker.bindPopup(popup);photoLayer.addLayer(marker);
                 }); map.addLayer(photoLayer);
             }
@@ -243,9 +246,10 @@
                 current.bindTooltip(activePosition.source==='gps'?'Poslední potvrzená poloha':'Odhadovaná poloha podle itineráře');
             }
 
-            if (activePosition) map.setView([activePosition.latitude, activePosition.longitude], activePosition.source === 'point' ? 11 : 8);
+            if (activePosition && allCoordinates.length === 0) map.setView([activePosition.latitude, activePosition.longitude], activePosition.source === 'point' ? 11 : 8);
             else if (allCoordinates.length === 1) map.setView(allCoordinates[0], 10);
-            else map.fitBounds(L.latLngBounds(allCoordinates), { padding: [35, 35], maxZoom: 12 });
+            else if (allCoordinates.length > 1) map.fitBounds(L.latLngBounds(allCoordinates), { padding: [35, 35], maxZoom: 12 });
+            else map.setView([49.8, 15.5], 7);
         })();
     </script>
 @endpush
