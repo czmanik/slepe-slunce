@@ -10,6 +10,7 @@ return [
     'channels' => [
         'stack' => ['driver' => 'stack', 'channels' => explode(',', (string) env('LOG_STACK', 'single')), 'ignore_exceptions' => false],
         'single' => ['driver' => 'single', 'path' => storage_path('logs/laravel.log'), 'level' => env('LOG_LEVEL', 'debug'), 'replace_placeholders' => true],
+        'sentry_logs' => ['driver' => 'sentry_logs', 'level' => env('SENTRY_LOG_LEVEL', 'warning')],
         'stderr' => ['driver' => 'monolog', 'level' => env('LOG_LEVEL', 'debug'), 'handler' => StreamHandler::class, 'handler_with' => ['stream' => 'php://stderr'], 'processors' => [PsrLogMessageProcessor::class]],
         'syslog' => ['driver' => 'syslog', 'level' => env('LOG_LEVEL', 'debug'), 'facility' => env('LOG_SYSLOG_FACILITY', LOG_USER), 'replace_placeholders' => true],
         'errorlog' => ['driver' => 'errorlog', 'level' => env('LOG_LEVEL', 'debug'), 'replace_placeholders' => true],

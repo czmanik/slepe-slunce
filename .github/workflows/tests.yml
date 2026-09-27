@@ -10,6 +10,14 @@ jobs:
           php-version: '8.5'
           extensions: mbstring, dom, fileinfo, pdo_sqlite
           coverage: none
+      - run: composer update sentry/sentry-laravel --no-interaction --prefer-dist --no-scripts
       - run: composer install --no-interaction --prefer-dist
+      - run: php artisan sentry:publish --dsn=https://examplePublicKey@o0.ingest.sentry.io/0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sentry-dependencies
+          path: |
+            composer.lock
+            config/sentry.php
       - run: cp .env.example .env && php artisan key:generate
       - run: php artisan test

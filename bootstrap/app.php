@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Sentry\Laravel\Integration;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,5 +17,5 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: ['obchod/platba/comgate/callback', 'platba/comgate/callback']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Výchozí Laravel reporting a rendering.
+        Integration::handles($exceptions);
     })->create();
