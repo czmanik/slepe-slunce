@@ -62,6 +62,7 @@ class RouteController extends Controller
             'status' => $point->status->value,
             'statusLabel' => $point->status->label(),
             'isGoal' => $point->is_goal,
+            'occurredAt' => $point->occurred_at?->translatedFormat('j. n. Y H:i'),
             'image' => $point->cover_image ? asset('storage/'.$point->cover_image) : null,
             'imageAlt' => $point->cover_alt,
             'postUrl' => $point->post ? route('posts.show', $point->post) : null,
@@ -91,10 +92,10 @@ class RouteController extends Controller
         ])->values();
         $mapPhotos = MapPhoto::query()->whereBelongsTo($expedition)->with('user')->latest('taken_at')->get()->map(fn (MapPhoto $photo): array => [
             'latitude' => (float) $photo->latitude, 'longitude' => (float) $photo->longitude,
-            'image' => asset('storage/'.$photo->image), 'alt' => $photo->alt, 'caption' => $photo->caption,
+            'image' => asset('storage/'.$photo->image), 'alt' => $photo->alt, 'caption' => $photo->caption, 'shortStory' => $photo->short_story,
             'author' => $photo->user?->name, 'takenAt' => $photo->taken_at?->translatedFormat('j. n. Y H:i'),
         ])->values();
-        $memberLocations = MemberLocation::query()->whereBelongsTo($expedition)->with('user')->get()->map(fn (MemberLocation $location): array => [
+        $memberLocations = MemberLocation::query()->whereBelongsTo($expedition)->with('user')->orderBy('reported_at')->orderBy('id')->get()->map(fn (MemberLocation $location): array => [
             'name' => str((string) $location->user?->name)->before(' ')->toString(),
             'latitude' => round((float) $location->latitude, 3), 'longitude' => round((float) $location->longitude, 3),
             'reportedAt' => $location->reported_at->translatedFormat('j. n. Y H:i'), 'age' => $location->reported_at->diffForHumans(),

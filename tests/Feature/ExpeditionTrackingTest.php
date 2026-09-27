@@ -6,6 +6,7 @@ use App\Enums\RoutePointStatus;
 use App\Enums\RouteSegmentStatus;
 use App\Enums\TransportMode;
 use App\Models\Author;
+use App\Models\Expedition;
 use App\Models\MapPhoto;
 use App\Models\RoutePoint;
 use App\Models\RouteSegment;
@@ -20,13 +21,28 @@ class ExpeditionTrackingTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_location_report_replaces_previous_location_of_member(): void
+    public function test_location_reports_are_preserved_per_expedition(): void
     {
         $user = $this->user();
         $this->actingAs($user)->post(route('tracking.location.store'), ['latitude' => 50.1, 'longitude' => 14.2, 'accuracy_meters' => 12])->assertRedirect();
         $this->actingAs($user)->post(route('tracking.location.store'), ['latitude' => 41.3, 'longitude' => 2.1, 'accuracy_meters' => 20])->assertRedirect();
-        $this->assertDatabaseCount('member_locations', 1);
+        $this->assertDatabaseCount('member_locations', 2);
         $this->assertDatabaseHas('member_locations', ['user_id' => $user->id, 'latitude' => 41.3]);
+    }
+
+    public function test_reports_and_photos_follow_selected_expedition(): void
+    {
+        Storage::fake('public');
+        $user = $this->user();
+        $other = Expedition::query()->create(['name' => 'Druhá cesta', 'slug' => 'druha-cesta', 'publication_status' => 'published']);
+        $this->actingAs($user)->post(route('tracking.location.store'), ['expedition_id' => $other->id, 'latitude' => 48.1, 'longitude' => 16.2])->assertRedirect();
+        $this->assertDatabaseHas('member_locations', ['expedition_id' => $other->id, 'latitude' => 48.1]);
+        $this->actingAs($user)->post(route('tracking.photo.store'), [
+            'expedition_id' => $other->id, 'image' => UploadedFile::fake()->image('cesta.jpg'),
+            'alt' => 'Výhled z cesty', 'latitude' => 48.1, 'longitude' => 16.2,
+        ])->assertRedirect();
+        $this->assertDatabaseHas('map_photos', ['expedition_id' => $other->id, 'alt' => 'Výhled z cesty']);
+        $this->get(route('expeditions.route', $other))->assertOk()->assertSee('Výhled z cesty');
     }
 
     public function test_signed_in_member_can_open_journal_actions_and_return_after_reporting_location(): void

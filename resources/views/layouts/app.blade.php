@@ -37,6 +37,7 @@
             </a>
             <nav aria-label="Hlavní navigace">
                 <a href="{{ route('expeditions.index') }}" @if(request()->routeIs('expeditions.index')) aria-current="page" @endif>Expedice</a>
+                <a href="{{ route('map.index') }}" @if(request()->routeIs('map.index')) aria-current="page" @endif>Mapa</a>
                 <a href="{{ route('posts.index') }}" @if(request()->routeIs('posts.*')) aria-current="page" @endif>Články</a>
                 <a href="{{ route('home') }}#smysl">O projektu</a>
                 <a href="{{ route('home') }}#odber">Odběr</a>
@@ -48,6 +49,7 @@
                     <strong>{{ $expedition->name }}</strong>
                     <a href="{{ route('expeditions.show', $expedition) }}" @if(request()->routeIs('expeditions.show')) aria-current="page" @endif>Přehled</a>
                     <a href="{{ route('expeditions.posts', $expedition) }}" @if(request()->routeIs('expeditions.posts')) aria-current="page" @endif>Deník</a>
+                    <a href="{{ route('map.index', ['expedition' => $expedition->slug]) }}" @if(request()->routeIs('map.index') && request('expedition') === $expedition->slug) aria-current="page" @endif>Mapa</a>
                     <a href="{{ route('expeditions.members', $expedition) }}" @if(request()->routeIs('expeditions.members')) aria-current="page" @endif>Členové</a>
                 </div>
             </nav>
@@ -61,7 +63,7 @@
 
     <footer class="site-footer">
         <div class="shell footer-grid">
-            <div><strong>Slepé Slunce</strong><p>Parta kamarádů, která pořádá přístupné expedice a sdílí život bez zbytečných bariér.</p></div>
+            <div><strong>Slepé Slunce</strong><p>Parta kamarádů, která pořádá přístupné expedice a sdílí život bez zbytečných bariér.</p><p><a href="https://www.instagram.com/slepeslunce/" target="_blank" rel="noopener noreferrer">Instagram @slepeslunce</a></p></div>
             <div><p>Projekt vzniká ve spolupráci s Mirkem Mužíkem, členem <a href="https://www.sons.cz/">SONS ČR</a> a spoluzakladatelem spolku <a href="https://odskodnenizauraz.cz/">Odškodnění za úraz</a>.</p></div>
         </div>
     </footer>

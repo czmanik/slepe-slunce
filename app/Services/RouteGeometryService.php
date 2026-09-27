@@ -17,6 +17,9 @@ class RouteGeometryService
         if (! $segment->fromPoint || ! $segment->toPoint) {
             throw new RuntimeException('Úsek musí mít výchozí i cílový bod.');
         }
+        if ($segment->fromPoint->expedition_id !== $segment->expedition_id || $segment->toPoint->expedition_id !== $segment->expedition_id) {
+            throw new RuntimeException('Oba body úseku musí patřit ke stejné expedici jako úsek.');
+        }
 
         if ($segment->geometry_mode === 'manual') {
             return;
@@ -31,7 +34,10 @@ class RouteGeometryService
         }
 
         if ($segment->transport_mode === TransportMode::Flight) {
-            $arc = $this->greatCircle($points[0], $points[array_key_last($points)]);
+            $arc = [];
+            for ($i = 1; $i < count($points); $i++) {
+                $arc = array_merge($arc, array_slice($this->greatCircle($points[$i - 1], $points[$i]), $i === 1 ? 0 : 1));
+            }
             $this->store($segment, $arc, $this->polylineDistance($arc), null, $overwriteDistance, $overwriteDuration);
 
             return;

@@ -65,6 +65,20 @@ class RouteGeometryServiceTest extends TestCase
         Http::assertSentCount(1);
     }
 
+    public function test_flight_respects_intermediate_waypoint(): void
+    {
+        Http::fake();
+        [$from, $to] = $this->points();
+        $segment = RouteSegment::query()->create([
+            'from_point_id' => $from->id, 'to_point_id' => $to->id,
+            'transport_mode' => TransportMode::Flight, 'status' => RouteSegmentStatus::Planned,
+            'geometry_mode' => 'automatic', 'waypoints' => [['latitude' => 48.1, 'longitude' => 16.2]],
+        ]);
+        app(RouteGeometryService::class)->refresh($segment);
+        $this->assertCount(129, $segment->fresh()->geometry);
+        $this->assertEqualsWithDelta(48.1, $segment->fresh()->geometry[64][0], 0.00001);
+    }
+
     private function points(): array
     {
         return [
