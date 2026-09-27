@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\PostStatus;
+use App\Enums\UserRole;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,7 +15,7 @@ class GuideIndexTest extends TestCase
 
     public function test_guides_are_grouped_by_topic_without_a_timeline(): void
     {
-        $user = User::factory()->create();
+        $user = User::create(['name' => 'Editor', 'email' => 'guides@example.test', 'password' => 'password-password', 'role' => UserRole::Editor]);
 
         Post::query()->create([
             'created_by' => $user->id,
