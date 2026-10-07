@@ -42,7 +42,7 @@
                             @if($item['dateLabel'])<time datetime="{{ $item['date'] }}">{{ $item['dateLabel'] }}</time>@endif
                         </button>
                         @if($item['type'] === 'photos' && $item['description'])<p class="atlas-entry-story">{{ $item['description'] }}</p>@endif
-                        @if($item['url'])<a href="{{ $item['url'] }}" class="atlas-entry-link">Otevřít článek →</a>@endif
+                        @if($item['url'])<a href="{{ $item['url'] }}" class="atlas-entry-link">{{ $item['type'] === 'photos' ? 'Zobrazit fotografii' : ($item['type'] === 'articles' ? 'Otevřít článek' : 'Otevřít místo') }} →</a>@endif
                     </li>
                 @empty
                     <li class="atlas-empty">Zatím tu nejsou žádné body. Jakmile přidáme polohu či fotku, uvidíš ji tady.</li>
@@ -81,7 +81,7 @@
         popup.append(text('strong', item.name));
         if (item.image) { const image = document.createElement('img'); image.src = item.image; image.alt = item.alt || ''; image.loading = 'lazy'; popup.append(image); }
         if (item.description && item.description !== item.name) popup.append(text('p', item.description));
-        if (item.url) { const link = text('a', 'Přečíst článek →'); link.href = item.url; popup.append(link); }
+        if (item.url) { const link = text('a', item.type === 'photos' ? 'Zobrazit fotografii ve velkém →' : 'Otevřít →'); link.href = item.url; popup.append(link); }
         marker.bindPopup(popup); markers.set(index, marker); bounds.push([item.latitude, item.longitude]);
     });
     segments.forEach(segment => {

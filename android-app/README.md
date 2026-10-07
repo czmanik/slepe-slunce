@@ -1,6 +1,6 @@
 # Slepé Slunce pro Android
 
-Samostatný Android projekt. První verze používá zabezpečený WebView nad `https://slepeslunce.cz`, takže přihlášení, oprávnění a ukládání míst, poloh a fotografií jsou stejné jako na webu. V aplikaci jsou rychlé záložky Nástěnka, Místo, Fotka, Poloha a Mapa.
+Samostatný Android projekt. Aplikace používá zabezpečený WebView nad `https://slepeslunce.cz`, takže přihlášení, oprávnění a ukládání míst, poloh a fotografií jsou stejné jako na webu. V aplikaci jsou rychlé záložky Nástěnka, Místo, Fotka, Správa, Poloha a Mapa.
 
 ## Sestavení
 
@@ -12,6 +12,19 @@ Otevřete složku `android-app/` v Android Studiu s JDK 17 a Android SDK 36. Pro
 2. **Místo:** vyberte expedici, pojmenujte místo a načtěte GPS nebo souřadnice vyplňte. Pro přidávání bodů musí účet mít oprávnění publikovat (`admin` nebo `editor`).
 3. **Fotka:** vyberte expedici, pořiďte snímek kamerou nebo vyberte z galerie, zadejte alternativní popis a případný krátký příběh. Povolte polohu, zadejte souřadnice nebo vyberte bod v mapě.
 4. **Poloha:** odešlete GPS hlášení pro vybranou expedici. Systém uchovává historii podle nastavení archivace a retenční doby expedice.
+5. **Správa:** upravte fotografii nebo místo, datum, popis, souřadnice a expedici. Přesun místa s navázanými úseky trasy vyžaduje nejprve úpravu těchto úseků v administraci.
+
+## Aktualizace přes web
+
+Aplikace při spuštění a nejvýše jednou za 24 hodin po návratu do popředí kontroluje `https://slepeslunce.cz/app/version.json`. Když server nabídne vyšší `version_code`, zobrazí výzvu k otevření `/app`. Instalaci APK potvrdí uživatel v Androidu. Při nedostupnosti sítě aplikace funguje dál a kontrolu zopakuje příště.
+
+Po sestavení podepsané verze zkopírujte APK na server a zveřejněte je příkazem:
+
+```bash
+php artisan app:publish-android /cesta/k/slepe-slunce.apk --version-code=2 --version-name=0.2.0
+```
+
+Hodnoty musí odpovídat `versionCode` a `versionName` v `app/build.gradle.kts`. Nové APK musí být podepsané stejným klíčem jako instalovaná aplikace. Debug APK z CI používá podpis pro testování; pro stabilní distribuci nastavte trvalý release podpis a zvyšujte `versionCode`. Soubor APK se ukládá do sdíleného `storage/app/public/app/`, který deploy nemaže; manifest verze do soukromého storage. `/app` je veřejná stránka pro stažení.
 
 Aplikace nepotřebuje oprávnění pro přístup k celé galerii; systémový výběr zpřístupní pouze vybranou fotografii. GPS oprávnění žádá až při otevření webové geolokace. WebView načítá pouze HTTPS doménu `slepeslunce.cz`; cizí odkazy otevírá v běžném prohlížeči. Kamera ukládá do interního prostoru aplikace pro následný upload. Zařízení musí být připojené k internetu, protože formuláře používají současný server.
 

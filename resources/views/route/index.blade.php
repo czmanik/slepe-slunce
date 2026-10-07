@@ -233,7 +233,9 @@
                     const image=document.createElement('img'); image.src=photo.image; image.alt=photo.alt; image.loading='lazy'; popup.append(image);
                     if(photo.caption){const caption=document.createElement('p');caption.textContent=photo.caption;popup.append(caption)}
                     if(photo.shortStory){const story=document.createElement('p');story.textContent=photo.shortStory;popup.append(story)}
-                    const meta=document.createElement('span');meta.textContent=[photo.author,photo.takenAt].filter(Boolean).join(' · ');popup.append(meta);marker.bindPopup(popup);photoLayer.addLayer(marker);
+                    const meta=document.createElement('span');meta.textContent=[photo.author,photo.takenAt].filter(Boolean).join(' · ');popup.append(meta);
+                    const link=document.createElement('a');link.href=photo.url;link.textContent='Zobrazit fotografii ve velkém →';popup.append(link);
+                    marker.bindPopup(popup);photoLayer.addLayer(marker);
                 }); map.addLayer(photoLayer);
             }
             members.forEach(member => {

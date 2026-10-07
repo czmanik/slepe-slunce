@@ -2,6 +2,7 @@ package cz.slepeslunce.app;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.ValueCallback;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -34,6 +36,12 @@ import androidx.core.content.FileProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import org.json.JSONObject;
 
 /** Mobile companion for the existing Slepé Slunce account and expedition forms. */
 public final class MainActivity extends Activity {
@@ -47,6 +55,8 @@ public final class MainActivity extends Activity {
     private Uri cameraPhoto;
     private GeolocationPermissions.Callback pendingLocation;
     private String pendingOrigin;
+    private long lastVersionCheck;
+    private int offeredVersion;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -56,6 +66,7 @@ public final class MainActivity extends Activity {
         configureWebView();
         if (state == null) webView.loadUrl(BASE + "/admin");
         else webView.restoreState(state);
+        checkVersion();
     }
 
     private void createScreen() {
@@ -84,9 +95,13 @@ public final class MainActivity extends Activity {
         nav.addView(navButton("Nástěnka", "/admin"));
         nav.addView(navButton("Místo", "/admin/trasa/rychle-pridat"));
         nav.addView(navButton("Fotka", "/admin/fotka-na-mapu"));
+        nav.addView(navButton("Správa", "/admin/moje-zaznamy"));
         nav.addView(navButton("Poloha", "/admin/poloha"));
         nav.addView(navButton("Mapa", "/mapa"));
-        root.addView(nav);
+        HorizontalScrollView navScroll = new HorizontalScrollView(this);
+        navScroll.setHorizontalScrollBarEnabled(false);
+        navScroll.addView(nav);
+        root.addView(navScroll);
 
         progress = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
         progress.setMax(100);
@@ -104,7 +119,7 @@ public final class MainActivity extends Activity {
         button.setTextSize(12);
         button.setTextColor(Color.WHITE);
         button.setOnClickListener(view -> webView.loadUrl(BASE + path));
-        button.setLayoutParams(new LinearLayout.LayoutParams(0, dp(46), 1));
+        button.setLayoutParams(new LinearLayout.LayoutParams(dp(94), dp(46)));
         return button;
     }
 
@@ -178,6 +193,47 @@ public final class MainActivity extends Activity {
 
     private boolean isTrusted(Uri url) {
         return "https".equalsIgnoreCase(url.getScheme()) && "slepeslunce.cz".equalsIgnoreCase(url.getHost());
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        if (webView != null && System.currentTimeMillis() - lastVersionCheck > 24 * 60 * 60 * 1000L) checkVersion();
+    }
+
+    private void checkVersion() {
+        lastVersionCheck = System.currentTimeMillis();
+        new Thread(() -> {
+            HttpURLConnection connection = null;
+            try {
+                connection = (HttpURLConnection) new URL(BASE + "/app/version.json").openConnection();
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
+                connection.setRequestProperty("Accept", "application/json");
+                if (connection.getResponseCode() != 200) return;
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                try (InputStream input = connection.getInputStream()) {
+                    byte[] buffer = new byte[4096];
+                    int count;
+                    while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
+                }
+                byte[] bytes = output.toByteArray();
+                JSONObject release = new JSONObject(new String(bytes, StandardCharsets.UTF_8));
+                int latest = release.optInt("version_code", 0);
+                int installed = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+                if (latest <= installed || latest <= offeredVersion || !isTrusted(Uri.parse(release.optString("download_url")))) return;
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    offeredVersion = latest;
+                    new AlertDialog.Builder(this)
+                        .setTitle("Nová verze aplikace")
+                        .setMessage("Je dostupná verze " + release.optString("version_name") + ". Chcete otevřít stránku pro stažení?")
+                        .setPositiveButton("Otevřít /app", (dialog, which) -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BASE + "/app"))))
+                        .setNegativeButton("Později", null)
+                        .show();
+                });
+            } catch (Exception ignored) { /* Offline mode: try again on the next launch. */ }
+            finally { if (connection != null) connection.disconnect(); }
+        }).start();
     }
 
     @Override protected void onActivityResult(int request, int result, Intent data) {

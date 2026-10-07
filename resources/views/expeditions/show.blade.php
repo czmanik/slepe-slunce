@@ -44,6 +44,8 @@
 </div></section>
 @endif
 
+@include('expeditions._latest')
+
 @if($expedition->posts->isNotEmpty())
 <section class="section journal-section"><div class="shell"><div class="section-heading"><div><p class="eyebrow">Deník expedice</p><h2>Poslední články</h2></div><a class="text-link" href="{{ route('expeditions.posts', $expedition) }}">Celý deník</a></div><div class="card-grid">@foreach($expedition->posts as $post) @include('posts._card', ['post' => $post]) @endforeach</div></div></section>
 @endif

@@ -57,6 +57,8 @@
     </div>
 </section>
 
+@include('expeditions._latest')
+
 <section id="odber" class="section light-section" aria-labelledby="odber-title">
     <div class="shell narrow-section">
         <p class="eyebrow ink">Novinky bez zahlcení</p>

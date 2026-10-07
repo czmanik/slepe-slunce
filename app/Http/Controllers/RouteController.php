@@ -93,7 +93,7 @@ class RouteController extends Controller
         $mapPhotos = MapPhoto::query()->whereBelongsTo($expedition)->with('user')->latest('taken_at')->get()->map(fn (MapPhoto $photo): array => [
             'latitude' => (float) $photo->latitude, 'longitude' => (float) $photo->longitude,
             'image' => asset('storage/'.$photo->image), 'alt' => $photo->alt, 'caption' => $photo->caption, 'shortStory' => $photo->short_story,
-            'author' => $photo->user?->name, 'takenAt' => $photo->taken_at?->translatedFormat('j. n. Y H:i'),
+            'author' => $photo->user?->name, 'takenAt' => $photo->taken_at?->translatedFormat('j. n. Y H:i'), 'url' => route('map.photos.show', $photo),
         ])->values();
         $memberLocations = MemberLocation::query()->whereBelongsTo($expedition)->with('user')->orderBy('reported_at')->orderBy('id')->get()->map(fn (MemberLocation $location): array => [
             'name' => str((string) $location->user?->name)->before(' ')->toString(),

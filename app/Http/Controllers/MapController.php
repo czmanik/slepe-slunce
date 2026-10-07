@@ -48,7 +48,7 @@ class MapController extends Controller
                 'type' => 'photos', 'name' => $photo->caption ?: $photo->alt, 'expedition' => $names[$photo->expedition_id] ?? '',
                 'date' => $photo->taken_at?->toIso8601String(), 'dateLabel' => $photo->taken_at?->translatedFormat('j. n. Y H:i'),
                 'latitude' => (float) $photo->latitude, 'longitude' => (float) $photo->longitude,
-                'description' => $photo->short_story ?: $photo->caption, 'image' => asset('storage/'.$photo->image), 'alt' => $photo->alt, 'url' => null,
+                'description' => $photo->short_story ?: $photo->caption, 'image' => asset('storage/'.$photo->image), 'alt' => $photo->alt, 'url' => route('map.photos.show', $photo),
             ]);
         });
         $segments = RouteSegment::query()->whereIn('expedition_id', $ids)->with(['fromPoint', 'toPoint'])->ordered()->get()
