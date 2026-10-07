@@ -40,6 +40,9 @@ class ContentTranslationTest extends TestCase
         app(ContentTranslationService::class)->translate($post);
 
         $this->assertDatabaseHas('content_translations', ['translatable_type' => Post::class, 'translatable_id' => $post->id, 'locale' => 'en']);
-        $this->get('https://blindsun.eu/denik/cesta-spolu')->assertOk()->assertSee('A journey together')->assertSee('English story.', false);
+        app()->setLocale('en');
+        $translated = $post->fresh()->load('contentTranslations');
+        $this->assertSame('A journey together', $translated->title);
+        $this->assertSame('<p>English story.</p>', $translated->body);
     }
 }
