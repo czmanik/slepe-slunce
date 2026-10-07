@@ -58,7 +58,8 @@ class MobileContentTest extends TestCase
         $this->get(route('app.version'))->assertOk()->assertJsonPath('version_code', 0);
         Storage::disk('local')->put('android-release.json', json_encode(['version_code' => 2, 'version_name' => '0.2.0', 'file' => 'app/slepe-slunce-v2.apk']));
         Storage::disk('public')->put('app/slepe-slunce-v2.apk', 'apk');
-        $this->get(route('app.version'))->assertOk()->assertJsonPath('version_code', 2)->assertSee('/storage/app/slepe-slunce-v2.apk');
+        $this->get(route('app.version'))->assertOk()->assertJsonPath('version_code', 2)
+            ->assertJsonPath('download_url', secure_url('storage/app/slepe-slunce-v2.apk'));
     }
 
     private function expedition(string $slug): Expedition

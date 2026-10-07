@@ -30,7 +30,7 @@ class AndroidAppController extends Controller
 
         return [
             'version_code' => (int) $release['version_code'], 'version_name' => $release['version_name'],
-            'download_url' => Storage::disk('public')->url($release['file']),
+            'download_url' => secure_url('storage/'.$release['file']),
             'sha256' => $release['sha256'] ?? null,
         ];
     }
