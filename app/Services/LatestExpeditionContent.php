@@ -9,6 +9,8 @@ use Illuminate\Support\Collection;
 
 class LatestExpeditionContent
 {
+    public function __construct(private readonly ImageThumbnail $thumbnails) {}
+
     public function forExpedition(?int $expeditionId = null, int $limit = 6): Collection
     {
         $scope = fn ($query) => $expeditionId
@@ -18,7 +20,7 @@ class LatestExpeditionContent
         $photos = $scope(MapPhoto::query())->with('expedition')->latest('taken_at')->limit($limit)->get()->map(fn (MapPhoto $photo) => [
             'type' => 'Fotografie', 'title' => $photo->caption ?: $photo->alt,
             'description' => $photo->short_story, 'date' => $photo->taken_at ?? $photo->created_at,
-            'image' => asset('storage/'.$photo->image), 'alt' => $photo->alt,
+            'image' => $this->thumbnails->url($photo->image, 'small'), 'alt' => $photo->alt,
             'url' => route('map.photos.show', $photo), 'expedition' => $photo->expedition?->name,
         ]);
         $points = $scope(RoutePoint::query())->with('expedition')->latest('occurred_at')->limit($limit)->get()->map(fn (RoutePoint $point) => [

@@ -2,6 +2,8 @@
 
 Samostatný Android projekt. Aplikace používá zabezpečený WebView nad `https://slepeslunce.cz`, takže přihlášení, oprávnění a ukládání míst, poloh a fotografií jsou stejné jako na webu. V aplikaci jsou rychlé záložky Nástěnka, Místo, Fotka, Správa, Poloha a Mapa.
 
+Při výběru fotografie z galerie i fotoaparátu aplikace opraví natočení, zmenší delší stranu nejvýše na 2560 px a upraví JPEG tak, aby měl méně než 5 MB. Fotografie s GPS v EXIF předvyplní polohu v mapě; uživatel ji může změnit. Souřadnice zůstanou v upraveném souboru pouze pro přečtení při nahrání a server metadata následně odstraní. Server vytváří malé a střední náhledy a udržuje je i při výměně či odstranění fotografie.
+
 ## Sestavení
 
 Otevřete složku `android-app/` v Android Studiu s JDK 17 a Android SDK 36. Projekt používá Android Gradle Plugin 8.13.2 a Gradle 8.13. CI sestavuje debug APK příkazem `gradle :app:assembleDebug` a přikládá jej jako artefakt workflow `Tests`.
@@ -21,15 +23,15 @@ Aplikace při spuštění a nejvýše jednou za 24 hodin po návratu do popřed�
 Po sestavení podepsané verze zkopírujte APK na server. Například z počítače s Windows v PowerShellu (nahraďte adresu serveru a cestu ke staženému souboru):
 
 ```powershell
-scp "$env:USERPROFILE\Downloads\slepe-slunce-0.2.0-debug.apk" root@ADRESA_SERVERU:/tmp/slepe-slunce-0.2.0.apk
+scp "$env:USERPROFILE\Downloads\slepe-slunce-0.3.0-debug.apk" root@ADRESA_SERVERU:/tmp/slepe-slunce-0.3.0.apk
 ```
 
 Na serveru ověřte soubor a zveřejněte jej:
 
 ```bash
-ls -lh /tmp/slepe-slunce-0.2.0.apk
+ls -lh /tmp/slepe-slunce-0.3.0.apk
 cd /opt/notm/apps/slepeslunce
-php artisan app:publish-android /tmp/slepe-slunce-0.2.0.apk --version-code=2 --version-name=0.2.0
+php artisan app:publish-android /tmp/slepe-slunce-0.3.0.apk --version-code=3 --version-name=0.3.0
 ```
 
 Hodnoty musí odpovídat `versionCode` a `versionName` v `app/build.gradle.kts`. Nové APK musí být podepsané stejným klíčem jako instalovaná aplikace. Debug APK z CI používá podpis pro testování, který se mezi běhy může lišit. Při přechodu z první testovací verze ji případně odinstalujte a nainstalujte novou; serverová data zůstanou v účtu. Pro trvalou distribuci uchovejte privátní keystore mimo git a sestavujte `gradle :app:assembleRelease` s proměnnými `ANDROID_KEYSTORE_PATH`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` a `ANDROID_KEY_PASSWORD`. Tentýž klíč použijte pro všechny další verze a zvyšujte `versionCode`. Soubor APK se ukládá do sdíleného `storage/app/public/app/`, který deploy nemaže; manifest verze do soukromého storage. `/app` je veřejná stránka pro stažení.

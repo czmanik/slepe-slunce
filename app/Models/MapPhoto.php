@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
+use App\Services\ImageThumbnail;
 
 class MapPhoto extends Model
 {
@@ -17,7 +18,11 @@ class MapPhoto extends Model
 
     protected static function booted(): void
     {
-        static::deleted(fn (MapPhoto $photo) => Storage::disk('public')->delete($photo->image));
+        static::saved(fn (MapPhoto $photo) => app(ImageThumbnail::class)->generate($photo->image));
+        static::deleted(function (MapPhoto $photo): void {
+            app(ImageThumbnail::class)->delete($photo->image);
+            Storage::disk('public')->delete($photo->image);
+        });
     }
 
     public function user(): BelongsTo

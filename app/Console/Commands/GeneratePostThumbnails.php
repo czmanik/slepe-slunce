@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Post;
+use App\Models\MapPhoto;
 use App\Services\ImageThumbnail;
 use Illuminate\Console\Command;
 
@@ -10,7 +11,7 @@ class GeneratePostThumbnails extends Command
 {
     protected $signature = 'app:generate-post-thumbnails {--force : Přegenerovat i existující náhledy}';
 
-    protected $description = 'Vytvoří malé a střední náhledy fotografií v deníku';
+    protected $description = 'Vytvoří malé a střední náhledy fotografií v deníku a na mapě';
 
     public function handle(ImageThumbnail $thumbnails): int
     {
@@ -27,6 +28,11 @@ class GeneratePostThumbnails extends Command
                 if ($thumbnails->generate($path, (bool) $this->option('force'))) {
                     $generated++;
                 }
+            }
+        });
+        MapPhoto::query()->eachById(function (MapPhoto $photo) use ($thumbnails, &$generated): void {
+            if ($thumbnails->generate($photo->image, (bool) $this->option('force'))) {
+                $generated++;
             }
         });
 

@@ -4,7 +4,7 @@
 <section class="section light-section"><div class="shell narrow-section">
 <p class="eyebrow ink">{{ $photo->expedition->name }} · {{ $photo->taken_at?->translatedFormat('j. n. Y H:i') }}</p>
 <h1>{{ $photo->caption ?: $photo->alt }}</h1>
-<a href="{{ asset('storage/'.$photo->image) }}" target="_blank" rel="noopener" aria-label="Otevřít fotografii v plné velikosti"><img src="{{ asset('storage/'.$photo->image) }}" alt="{{ $photo->alt }}" style="display:block;width:100%;height:auto;max-height:80vh;object-fit:contain"></a>
+<a href="{{ asset('storage/'.$photo->image) }}" target="_blank" rel="noopener" aria-label="Otevřít fotografii v plné velikosti"><img src="{{ $displayImage }}" alt="{{ $photo->alt }}" style="display:block;width:100%;height:auto;max-height:80vh;object-fit:contain"></a>
 @if($photo->short_story)<p>{{ $photo->short_story }}</p>@endif
 <p><a href="{{ asset('storage/'.$photo->image) }}" target="_blank" rel="noopener">Otevřít originál fotografie</a> · <a href="{{ route('map.index', ['expedition' => $photo->expedition->slug]) }}">Zpět na mapu expedice</a></p>
 </div></section>

@@ -7,6 +7,7 @@ use App\Models\Expedition;
 use App\Models\MapPhoto;
 use App\Models\RoutePoint;
 use App\Services\PhotoMetadata;
+use App\Services\ImageThumbnail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,11 +35,11 @@ class MobileContentController extends Controller
         return view('tracking.edit-photo', ['photo' => $photo, 'expeditions' => Expedition::published()->orderByDesc('start_at')->get()]);
     }
 
-    public function updatePhoto(Request $request, MapPhoto $photo, PhotoMetadata $metadata): RedirectResponse
+    public function updatePhoto(Request $request, MapPhoto $photo, PhotoMetadata $metadata, ImageThumbnail $thumbnails): RedirectResponse
     {
         abort_unless($request->user()->can('update', $photo), 403);
         $data = $request->validate([
-            'expedition_id' => ['required', 'exists:expeditions,id'], 'image' => ['nullable', 'image', 'max:15360'],
+            'expedition_id' => ['required', 'exists:expeditions,id'], 'image' => ['nullable', 'image', 'max:5120'],
             'alt' => ['required', 'string', 'max:300'], 'caption' => ['nullable', 'string', 'max:500'],
             'short_story' => ['nullable', 'string', 'max:280'], 'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'], 'taken_at' => ['required', 'date'],
@@ -56,10 +57,16 @@ class MobileContentController extends Controller
         try {
             $photo->update($data);
         } catch (\Throwable $error) {
-            if (isset($data['image'])) Storage::disk('public')->delete($data['image']);
+            if (isset($data['image'])) {
+                $thumbnails->delete($data['image']);
+                Storage::disk('public')->delete($data['image']);
+            }
             throw $error;
         }
-        if (isset($data['image'])) Storage::disk('public')->delete($oldImage);
+        if (isset($data['image'])) {
+            $thumbnails->delete($oldImage);
+            Storage::disk('public')->delete($oldImage);
+        }
 
         return redirect()->route('mobile.content.index')->with('message', 'Fotografie byla upravena.');
     }

@@ -26,7 +26,7 @@ class MapPhotoController extends Controller
     public function store(Request $request, ExpeditionTracker $tracker, PhotoMetadata $metadata): RedirectResponse
     {
         $data = $request->validate([
-            'image' => ['required', 'image', 'max:15360'], 'alt' => ['required', 'string', 'max:300'],
+            'image' => ['required', 'image', 'max:5120'], 'alt' => ['required', 'string', 'max:300'],
             'caption' => ['nullable', 'string', 'max:500'], 'short_story' => ['nullable', 'string', 'max:280'], 'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'], 'taken_at' => ['nullable', 'date'],
             'return_to' => ['nullable', 'in:journal'],
@@ -35,8 +35,8 @@ class MapPhotoController extends Controller
         $expedition = isset($data['expedition_id']) ? Expedition::query()->published()->findOrFail($data['expedition_id']) : Expedition::default();
         $embedded = $metadata->location($request->file('image')->getRealPath());
         $fallback = $tracker->position(expedition: $expedition);
-        $latitude = $embedded['latitude'] ?? $data['latitude'] ?? $fallback['latitude'] ?? null;
-        $longitude = $embedded['longitude'] ?? $data['longitude'] ?? $fallback['longitude'] ?? null;
+        $latitude = $data['latitude'] ?? $embedded['latitude'] ?? $fallback['latitude'] ?? null;
+        $longitude = $data['longitude'] ?? $embedded['longitude'] ?? $fallback['longitude'] ?? null;
         if ($latitude === null || $longitude === null) {
             return back()->withErrors(['latitude' => 'Nejdřív určete polohu telefonu nebo vyplňte souřadnice.'])->withInput();
         }

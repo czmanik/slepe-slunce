@@ -41,6 +41,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import org.json.JSONObject;
 
 /** Mobile companion for the existing Slepé Slunce account and expedition forms. */
@@ -239,15 +240,44 @@ public final class MainActivity extends Activity {
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
         if (request != SELECT_IMAGE || pendingPhoto == null) return;
-        Uri[] uris = null;
+        Uri selected = null;
         if (result == RESULT_OK) {
-            if (data != null && data.getData() != null) uris = new Uri[]{data.getData()};
+            if (data != null && data.getData() != null) selected = data.getData();
             else if (data != null && data.getClipData() != null && data.getClipData().getItemCount() > 0)
-                uris = new Uri[]{data.getClipData().getItemAt(0).getUri()};
-            else if (cameraPhoto != null) uris = new Uri[]{cameraPhoto};
+                selected = data.getClipData().getItemAt(0).getUri();
+            else selected = cameraPhoto;
         }
-        pendingPhoto.complete(uris);
-        pendingPhoto = null;
+        if (selected == null) {
+            pendingPhoto.complete(null);
+            pendingPhoto = null;
+            cameraPhoto = null;
+            return;
+        }
+        final Uri source = selected;
+        final ValueCallbackHolder callback = pendingPhoto;
+        Toast.makeText(this, "Připravuji fotografii pro odeslání…", Toast.LENGTH_SHORT).show();
+        new Thread(() -> {
+            PhotoPreprocessor.Result processed = null;
+            String failure = null;
+            try { processed = PhotoPreprocessor.process(getApplicationContext(), source); }
+            catch (Exception error) { failure = error.getMessage(); }
+            final PhotoPreprocessor.Result resultPhoto = processed;
+            final String errorMessage = failure;
+            runOnUiThread(() -> {
+                if (pendingPhoto != callback || isFinishing() || isDestroyed()) return;
+                if (resultPhoto == null) {
+                    Toast.makeText(this, errorMessage == null ? "Fotografii se nepodařilo zmenšit." : errorMessage, Toast.LENGTH_LONG).show();
+                    callback.complete(null);
+                } else {
+                    if (resultPhoto.gps != null) {
+                        String script = String.format(Locale.US, "window.applyPhotoExifLocation?.(%.7f,%.7f);", resultPhoto.gps[0], resultPhoto.gps[1]);
+                        webView.evaluateJavascript(script, null);
+                    }
+                    callback.complete(new Uri[]{resultPhoto.uri});
+                }
+                pendingPhoto = null;
+            });
+        }).start();
         cameraPhoto = null;
     }
 

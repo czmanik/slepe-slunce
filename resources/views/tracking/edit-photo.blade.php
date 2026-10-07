@@ -15,3 +15,15 @@
 <button class="button button-primary" type="submit">Uložit změny</button></form><p class="quick-back"><a href="{{ route('mobile.content.index') }}">← Zpět na záznamy</a></p>
 </div></div>
 @endsection
+@push('scripts')<script>
+(() => {
+    const lat = document.querySelector('[name="latitude"]'), lon = document.querySelector('[name="longitude"]');
+    let edited = false;
+    [lat, lon].forEach(input => input.addEventListener('input', () => edited = true));
+    window.applyPhotoExifLocation = (latitude, longitude) => {
+        if (edited) return;
+        lat.value = Number(latitude).toFixed(7);
+        lon.value = Number(longitude).toFixed(7);
+    };
+})();
+</script>@endpush
