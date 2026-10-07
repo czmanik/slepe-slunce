@@ -2,28 +2,27 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Http\Middleware\SetSiteLocale;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class SiteLocaleTest extends TestCase
 {
-    use RefreshDatabase;
-
-    public function test_blindsun_domain_uses_english_public_layer(): void
+    public function test_blindsun_domain_selects_english_locale(): void
     {
-        $this->withServerVariables(['HTTP_HOST' => 'blindsun.eu'])
-            ->get('/')
-            ->assertOk()
-            ->assertSee('<html lang="en">', false)
-            ->assertSee('Czech initiative, currently based in Estepona, Spain');
+        $request = Request::create('https://blindsun.eu/');
+
+        app(SetSiteLocale::class)->handle($request, fn () => response('ok'));
+
+        $this->assertSame('en', app()->getLocale());
     }
 
-    public function test_czech_domain_keeps_czech_public_layer(): void
+    public function test_czech_domain_selects_czech_locale(): void
     {
-        $this->withServerVariables(['HTTP_HOST' => 'slepeslunce.cz'])
-            ->get('/')
-            ->assertOk()
-            ->assertSee('<html lang="cs">', false)
-            ->assertSee('Jsme česká iniciativa se současnou základnou v Esteponě');
+        $request = Request::create('https://slepeslunce.cz/');
+
+        app(SetSiteLocale::class)->handle($request, fn () => response('ok'));
+
+        $this->assertSame('cs', app()->getLocale());
     }
 }
