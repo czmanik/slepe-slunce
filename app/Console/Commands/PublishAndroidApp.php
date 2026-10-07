@@ -16,9 +16,13 @@ class PublishAndroidApp extends Command
         $path = realpath($this->argument('apk'));
         $code = filter_var($this->option('version-code'), FILTER_VALIDATE_INT);
         $name = (string) $this->option('version-name');
-        if (! $path || ! is_file($path) || strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'apk'
-            || $code === false || $code < 1 || ! preg_match('/^[0-9]+(?:\.[0-9]+){1,3}$/', $name)) {
-            $this->error('Zadejte existující APK, kladný --version-code a --version-name (např. 0.2.0).');
+        if (! $path || ! is_file($path) || strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'apk') {
+            $this->error('APK na zadané cestě neexistuje: '.$this->argument('apk'));
+            $this->line('Nejprve zkopírujte skutečný .apk soubor na server a ověřte cestu příkazem ls -lh.');
+            return self::FAILURE;
+        }
+        if ($code === false || $code < 1 || ! preg_match('/^[0-9]+(?:\.[0-9]+){1,3}$/', $name)) {
+            $this->error('Zadejte kladný --version-code a --version-name (např. 0.2.0).');
             return self::FAILURE;
         }
         $previous = json_decode(Storage::disk('local')->get('android-release.json') ?: '{}', true);
