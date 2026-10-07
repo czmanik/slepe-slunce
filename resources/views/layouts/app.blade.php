@@ -83,7 +83,7 @@
             </nav>
         </div>
         @if($isEnglish)
-            <div class="translation-notice"><div class="shell">Some stories are currently available in Czech. <a href="{{ $googleTranslateUrl }}" target="_blank" rel="noopener noreferrer">Translate this page automatically with Google Translate</a>.</div></div>
+            <div class="translation-notice"><div class="shell"><strong>Blind Sun is a Czech initiative, currently based in Estepona, Spain.</strong> Some stories are currently available in Czech. <a href="{{ $googleTranslateUrl }}" target="_blank" rel="noopener noreferrer">Translate this page automatically with Google Translate</a>.</div></div>
         @endif
         @isset($expedition)
             <nav class="expedition-nav" aria-label="{{ $isEnglish ? 'Expedition navigation' : 'Navigace expedice' }} {{ $expedition->name }}">
