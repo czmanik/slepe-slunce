@@ -1,26 +1,27 @@
 @extends('layouts.app')
+@php($isEnglish = $isEnglishSite ?? app()->isLocale('en'))
 
-@section('title', $expedition->name.' — Slepé Slunce')
-@section('description', $expedition->short_description ?: 'Podrobnosti expedice '.$expedition->name)
+@section('title', $expedition->name.' — '.($isEnglish ? 'Blind Sun' : 'Slepé Slunce'))
+@section('description', $isEnglish ? 'Details of a Blind Sun expedition by a Czech initiative based in Estepona, Spain.' : ($expedition->short_description ?: 'Podrobnosti expedice '.$expedition->name))
 
 @section('content')
 <header class="page-header"><div class="shell">
-    <p class="eyebrow">{{ $expedition->status()->label() }}</p>
+    <p class="eyebrow">{{ $isEnglish ? ucfirst(str_replace('_', ' ', $expedition->status()->value)) : $expedition->status()->label() }}</p>
     <h1>{{ $expedition->name }}</h1>
     @if($expedition->short_description)<p>{{ $expedition->short_description }}</p>@endif
     <div class="expedition-facts">
-        @if($expedition->start_at)<p><strong>Termín:</strong> <time datetime="{{ $expedition->start_at->toDateString() }}">{{ $expedition->start_at->translatedFormat('j. n. Y') }}</time>@if($expedition->end_at)–<time datetime="{{ $expedition->end_at->toDateString() }}">{{ $expedition->end_at->translatedFormat('j. n. Y') }}</time>@endif</p>@endif
-        @if($expedition->leader_name)<p><strong>Vedoucí expedice:</strong> {{ $expedition->leader_name }}</p>@endif
-        @if($expedition->price_czk)<p><strong>Orientační cena:</strong> {{ number_format((float) $expedition->price_czk, 0, ',', ' ') }} Kč za osobu</p>@endif
-        @if($expedition->acceptsRegistrations())<p><strong>Volná místa:</strong> {{ $expedition->availablePlaces() ?? 'kapacita není omezena' }}</p>@endif
+        @if($expedition->start_at)<p><strong>{{ $isEnglish ? 'Dates:' : 'Termín:' }}</strong> <time datetime="{{ $expedition->start_at->toDateString() }}">{{ $expedition->start_at->translatedFormat('j. n. Y') }}</time>@if($expedition->end_at)–<time datetime="{{ $expedition->end_at->toDateString() }}">{{ $expedition->end_at->translatedFormat('j. n. Y') }}</time>@endif</p>@endif
+        @if($expedition->leader_name)<p><strong>{{ $isEnglish ? 'Expedition lead:' : 'Vedoucí expedice:' }}</strong> {{ $expedition->leader_name }}</p>@endif
+        @if($expedition->price_czk)<p><strong>{{ $isEnglish ? 'Indicative price:' : 'Orientační cena:' }}</strong> {{ number_format((float) $expedition->price_czk, 0, ',', ' ') }} {{ $isEnglish ? 'CZK per person' : 'Kč za osobu' }}</p>@endif
+        @if($expedition->acceptsRegistrations())<p><strong>{{ $isEnglish ? 'Places available:' : 'Volná místa:' }}</strong> {{ $expedition->availablePlaces() ?? ($isEnglish ? 'not limited' : 'kapacita není omezena') }}</p>@endif
     </div>
     <div class="button-row">
-        @if($expedition->acceptsRegistrations())<a class="button button-quiet" href="{{ route('expeditions.register', $expedition) }}">Přihlásit se</a>@endif
+        @if($expedition->acceptsRegistrations())<a class="button button-quiet" href="{{ route('expeditions.register', $expedition) }}">{{ $isEnglish ? 'Apply' : 'Přihlásit se' }}</a>@endif
     </div>
 </div></header>
 
 <section class="section light-section"><div class="shell split">
-    <div><p class="eyebrow ink">O expedici</p><h2>Co společně zažijeme</h2></div>
+    <div><p class="eyebrow ink">{{ $isEnglish ? 'About the expedition' : 'O expedici' }}</p><h2>{{ $isEnglish ? 'What we will experience together' : 'Co společně zažijeme' }}</h2></div>
     <div class="prose-intro dark-prose"><p>{!! nl2br(e($expedition->description ?: 'Podrobný popis právě připravujeme.')) !!}</p></div>
 </div></section>
 
