@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\NotificationFrequency;
+use App\Models\Concerns\HasContentTranslations;
 use App\Enums\PostStatus;
 use App\Services\ImageThumbnail;
 use App\Support\HtmlSanitizer;
@@ -17,7 +18,7 @@ use Illuminate\Support\Str;
 
 class Post extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasContentTranslations;
 
     public const CATEGORY_JOURNAL = 'denik';
 
@@ -28,6 +29,11 @@ class Post extends Model
     public const GUIDE_TOPIC_TRANSPORT = 'doprava';
 
     public const GUIDE_TOPIC_COMPANION = 's-partakem';
+
+    public static function translatableFields(): array
+    {
+        return ['title', 'excerpt', 'body', 'location', 'cover_alt', 'seo_title', 'seo_description'];
+    }
 
     public static function guideTopicOptions(): array
     {
