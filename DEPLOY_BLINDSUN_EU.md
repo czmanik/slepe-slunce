@@ -37,7 +37,7 @@ ENGLISH_SITE_HOSTS=blindsun.eu,www.blindsun.eu
 Poté obnovte cache konfigurace:
 
 ```bash
-cd /opt/notm/apps/slepe-slunce
+cd /opt/notm/apps/slepeslunce
 php artisan optimize:clear
 php artisan optimize
 ```
