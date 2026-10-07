@@ -79,7 +79,9 @@
         const popup = document.createElement('div'); popup.className = 'atlas-popup';
         popup.append(text('small', `${kinds[item.type]} · ${item.expedition}${item.dateLabel ? ' · '+item.dateLabel : ''}`));
         popup.append(text('strong', item.name));
-        if (item.image) { const image = document.createElement('img'); image.src = item.image; image.alt = item.alt || ''; image.loading = 'lazy'; popup.append(image); }
+        if (item.image) { const image = document.createElement('img'); image.src = item.image; image.alt = item.alt || ''; image.loading = 'lazy';
+            if (item.type === 'photos' && item.url) { const imageLink = document.createElement('a'); imageLink.href = item.url; imageLink.setAttribute('aria-label', 'Zobrazit fotografii ve velkém'); imageLink.append(image); popup.append(imageLink); }
+            else popup.append(image); }
         if (item.description && item.description !== item.name) popup.append(text('p', item.description));
         if (item.url) { const link = text('a', item.type === 'photos' ? 'Zobrazit fotografii ve velkém →' : 'Otevřít →'); link.href = item.url; popup.append(link); }
         marker.bindPopup(popup); markers.set(index, marker); bounds.push([item.latitude, item.longitude]);

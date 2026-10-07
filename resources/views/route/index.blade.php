@@ -230,7 +230,8 @@
                 photos.forEach(photo => {
                     const marker = L.marker([photo.latitude, photo.longitude], {title: photo.alt});
                     const popup = document.createElement('div'); popup.className='map-popup map-photo-popup';
-                    const image=document.createElement('img'); image.src=photo.image; image.alt=photo.alt; image.loading='lazy'; popup.append(image);
+                    const image=document.createElement('img'); image.src=photo.image; image.alt=photo.alt; image.loading='lazy';
+                    const imageLink=document.createElement('a'); imageLink.href=photo.url; imageLink.setAttribute('aria-label','Zobrazit fotografii ve velkém'); imageLink.append(image); popup.append(imageLink);
                     if(photo.caption){const caption=document.createElement('p');caption.textContent=photo.caption;popup.append(caption)}
                     if(photo.shortStory){const story=document.createElement('p');story.textContent=photo.shortStory;popup.append(story)}
                     const meta=document.createElement('span');meta.textContent=[photo.author,photo.takenAt].filter(Boolean).join(' · ');popup.append(meta);
