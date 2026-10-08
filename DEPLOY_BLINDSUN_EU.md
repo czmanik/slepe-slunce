@@ -12,14 +12,16 @@ sudo certbot certificates
 
 ## 2. Nginx
 
-1. Zkopírujte [deploy/nginx.blindsun.eu.conf.example](deploy/nginx.blindsun.eu.conf.example) do `/etc/nginx/sites-available/blindsun.eu`.
-2. Zkontrolujte zejména PHP socket. Tento server používá `/run/php/php8.5-fpm.sock`.
-3. Aktivujte konfiguraci a ověřte syntaxi:
+1. Najděte a vypněte staré bloky pro stejné domény. V aktuálním výpisu existuje i blok s `root /opt/notm/sites/migration/public`; jeho nadřazený název souboru zjistíte příkazem `sudo nginx -T 2>/dev/null | sed -n '540,610p'`. Pokud je to samostatný symlink v `sites-enabled`, odstraňte pouze tento symlink; pokud soubor sdílí další domény, odeberte jen konfliktní bloky. Nevypínejte konfiguraci jiné služby.
+2. Zkopírujte [deploy/nginx.blindsun.eu.conf.example](deploy/nginx.blindsun.eu.conf.example) do `/etc/nginx/sites-available/blindsun.eu`.
+3. Zkontrolujte zejména PHP socket. Tento server používá `/run/php/php8.5-fpm.sock`.
+4. Aktivujte konfiguraci a ověřte syntaxi:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/blindsun.eu /etc/nginx/sites-enabled/blindsun.eu
+test -e /etc/nginx/sites-enabled/blindsun.eu || sudo ln -s /etc/nginx/sites-available/blindsun.eu /etc/nginx/sites-enabled/blindsun.eu
 sudo nginx -t
 sudo systemctl reload nginx
+sudo nginx -T 2>&1 | grep -i 'conflicting server name' || true
 ```
 
 Konfiguraci pro `slepeslunce.cz` neměňte a domény nespojujte do jednoho `server_name`: samostatný blok zaručí, že se holá doména vždy kanonicky přesměruje na `https://www.blindsun.eu`.
