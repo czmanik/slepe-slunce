@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Program a trasa — '.$expedition->name)
-@section('description', 'Sledujte cestu expedice Slepé Slunce: zastávky, lety, jízdy autem a autobusem, fotografie, videa a aktuální polohu.')
+@section('title', (app()->isLocale('en') ? 'Route and programme' : 'Program a trasa').' — '.$expedition->name)
+@section('description', app()->isLocale('en') ? 'Follow expedition stops, transfers, photos and stories on an accessible timeline.' : 'Sledujte cestu expedice Slepé Slunce: zastávky, lety, jízdy autem a autobusem, fotografie, videa a aktuální polohu.')
 
 @push('head')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
@@ -10,19 +10,20 @@
 @endpush
 
 @section('content')
+@php($isEnglish = app()->isLocale('en'))
     <header class="page-header route-header">
         <div class="shell">
             <p class="eyebrow">{{ $expedition->name }}</p>
-            <h1>Trasa a program</h1>
-            <p>Zastávky, aktivity a jednotlivé přesuny expedice. Mapa je doplněná plně přístupnou časovou osou.</p>
+            <h1>{{ $isEnglish ? 'Route and programme' : 'Trasa a program' }}</h1>
+            <p>{{ $isEnglish ? 'Stops, activities and transfers. An accessible timeline accompanies the map.' : 'Zastávky, aktivity a jednotlivé přesuny expedice. Mapa je doplněná plně přístupnou časovou osou.' }}</p>
         </div>
     </header>
 
     @if($activities->isNotEmpty())
         <section class="section light-section" aria-labelledby="program-title"><div class="shell route-shell">
-            <p class="eyebrow ink">Harmonogram</p><h2 id="program-title">Aktivity expedice</h2>
+            <p class="eyebrow ink">{{ $isEnglish ? 'Schedule' : 'Harmonogram' }}</p><h2 id="program-title">{{ $isEnglish ? 'Expedition activities' : 'Aktivity expedice' }}</h2>
             <ol class="program-list">@foreach($activities as $activity)<li><article>
-                <p class="status-pill">{{ $activity->kind->label() }}</p><h3>{{ $activity->title }}</h3>
+                <p class="status-pill">{{ $isEnglish ? (['stop' => 'Stop', 'transfer' => 'Transfer', 'activity' => 'Activity', 'accommodation' => 'Accommodation', 'tasting' => 'Tasting', 'meal' => 'Meal', 'free_time' => 'Free time'][$activity->kind->value] ?? $activity->kind->label()) : $activity->kind->label() }}</p><h3>{{ $activity->title }}</h3>
                 @if($activity->starts_at)<p><time datetime="{{ $activity->starts_at->toIso8601String() }}">{{ $activity->starts_at->translatedFormat('l j. n. Y H:i') }}</time>@if($activity->ends_at)–<time datetime="{{ $activity->ends_at->toIso8601String() }}">{{ $activity->ends_at->translatedFormat('H:i') }}</time>@endif</p>@endif
                 @if($activity->description)<p>{{ $activity->description }}</p>@endif
             </article></li>@endforeach</ol>
@@ -31,22 +32,22 @@
 
     <section class="route-section light-section" aria-labelledby="mapa-nadpis">
         <div class="shell">
-            <h2 id="mapa-nadpis" class="visually-hidden">Interaktivní mapa trasy</h2>
+            <h2 id="mapa-nadpis" class="visually-hidden">{{ $isEnglish ? 'Interactive route map' : 'Interaktivní mapa trasy' }}</h2>
             @if($points->isEmpty())
                 <div class="empty-state dark-empty">
-                    <h2>Trasu právě připravujeme</h2>
-                    <p>Jakmile přidáme první zastávky, objeví se tady mapa i jejich chronologický přehled. Naplánované aktivity jsou uvedené výše.</p>
+                    <h2>{{ $isEnglish ? 'The route is coming soon' : 'Trasu právě připravujeme' }}</h2>
+                    <p>{{ $isEnglish ? 'The map and chronological overview will appear when we add the first stops. Planned activities are listed above.' : 'Jakmile přidáme první zastávky, objeví se tady mapa i jejich chronologický přehled. Naplánované aktivity jsou uvedené výše.' }}</p>
                 </div>
             @else
-                <div id="route-map" class="route-map" role="region" aria-label="Interaktivní mapa zastávek a přesunů expedice" tabindex="0"></div>
-                <div class="route-legend" aria-label="Legenda mapy">
-                    <span><i class="legend-line legend-line--completed" aria-hidden="true"></i> Dokončeno</span>
-                    <span><i class="legend-line legend-line--progress" aria-hidden="true"></i> Právě cestujeme</span>
-                    <span><i class="legend-line legend-line--planned" aria-hidden="true"></i> Plánováno</span>
-                    <span>📍 Poloha člena</span><span>📷 Fotografie</span>
+                <div id="route-map" class="route-map" role="region" aria-label="{{ $isEnglish ? 'Interactive map of expedition stops and transfers' : 'Interaktivní mapa zastávek a přesunů expedice' }}" tabindex="0"></div>
+                <div class="route-legend" aria-label="{{ $isEnglish ? 'Map legend' : 'Legenda mapy' }}">
+                    <span><i class="legend-line legend-line--completed" aria-hidden="true"></i> {{ $isEnglish ? 'Completed' : 'Dokončeno' }}</span>
+                    <span><i class="legend-line legend-line--progress" aria-hidden="true"></i> {{ $isEnglish ? 'Travelling now' : 'Právě cestujeme' }}</span>
+                    <span><i class="legend-line legend-line--planned" aria-hidden="true"></i> {{ $isEnglish ? 'Planned' : 'Plánováno' }}</span>
+                    <span>📍 {{ $isEnglish ? 'Member location' : 'Poloha člena' }}</span><span>📷 {{ $isEnglish ? 'Photo' : 'Fotografie' }}</span>
                 </div>
-                <p class="map-note">Mapa je doplňková. Stejné informace včetně časů, dopravy a médií jsou v přístupné časové ose níže.</p>
-                <noscript><p class="map-warning">Interaktivní mapa vyžaduje JavaScript. Celou cestu najdete v časové ose níže.</p></noscript>
+                <p class="map-note">{{ $isEnglish ? 'The map is supplementary. The accessible timeline below includes the same times, transport and media.' : 'Mapa je doplňková. Stejné informace včetně časů, dopravy a médií jsou v přístupné časové ose níže.' }}</p>
+                <noscript><p class="map-warning">{{ $isEnglish ? 'The interactive map needs JavaScript. The entire journey is available in the timeline below.' : 'Interaktivní mapa vyžaduje JavaScript. Celou cestu najdete v časové ose níže.' }}</p></noscript>
             @endif
         </div>
     </section>
@@ -56,10 +57,10 @@
             <div class="shell route-shell">
                 <div class="section-heading">
                     <div>
-                        <p class="eyebrow">Chronologicky a bez mapy</p>
-                        <h2 id="casova-osa-nadpis">Časová osa cesty</h2>
+                        <p class="eyebrow">{{ $isEnglish ? 'Chronological view without the map' : 'Chronologicky a bez mapy' }}</p>
+                        <h2 id="casova-osa-nadpis">{{ $isEnglish ? 'Journey timeline' : 'Časová osa cesty' }}</h2>
                     </div>
-                    <p>{{ $points->count() }} zastávek · {{ $segments->count() }} přesunů</p>
+                    <p>{{ $points->count() }} {{ $isEnglish ? 'stops' : 'zastávek' }} · {{ $segments->count() }} {{ $isEnglish ? 'transfers' : 'přesunů' }}</p>
                 </div>
 
                 <ol class="route-timeline">
@@ -69,14 +70,14 @@
                             <li class="route-stop route-stop--{{ $record->status->value }} @if($record->is_goal) route-stop--goal @endif">
                                 <article>
                                     <div class="route-stop-meta">
-                                        <span class="status-label">{{ $record->status->label() }}</span>
-                                        @if($record->is_goal)<span class="goal-label">Cíl expedice</span>@endif
+                                        <span class="status-label">{{ $isEnglish ? ucfirst(str_replace('_', ' ', $record->status->value)) : $record->status->label() }}</span>
+                                        @if($record->is_goal)<span class="goal-label">{{ $isEnglish ? 'Expedition goal' : 'Cíl expedice' }}</span>@endif
                                         @if($record->occurred_at)<time datetime="{{ $record->occurred_at->toIso8601String() }}">{{ $record->occurred_at->translatedFormat('j. n. Y H:i') }}</time>@endif
                                     </div>
                                     <h3>{{ $record->name }}</h3>
                                     @if($record->description)<p>{{ $record->description }}</p>@endif
-                                    @include('route.partials.media', ['record' => $record, 'label' => 'zastávky '.$record->name])
-                                    @if($record->post)<p><a class="text-link" href="{{ route('posts.show', $record->post) }}">Přečíst zápis z tohoto místa</a></p>@endif
+                                    @include('route.partials.media', ['record' => $record, 'label' => ($isEnglish ? 'stop ' : 'zastávky ').$record->name])
+                                    @if($record->post)<p><a class="text-link" href="{{ route('posts.show', $record->post) }}">{{ $isEnglish ? 'Read the story from this place' : 'Přečíst zápis z tohoto místa' }}</a></p>@endif
                                 </article>
                             </li>
                         @else
@@ -85,28 +86,28 @@
                                     <div class="route-transfer-heading">
                                         <span class="transport-icon" aria-hidden="true">{{ $record->transport_mode->icon() }}</span>
                                         <div>
-                                            <p class="route-transfer-kicker">{{ $record->transport_mode->label() }} · {{ $record->status->label() }}</p>
+                                            <p class="route-transfer-kicker">{{ $isEnglish ? ucfirst($record->transport_mode->value) : $record->transport_mode->label() }} · {{ $isEnglish ? ucfirst(str_replace('_', ' ', $record->status->value)) : $record->status->label() }}</p>
                                             <h3>{{ $record->name ?: $record->fromPoint->name.' → '.$record->toPoint->name }}</h3>
                                         </div>
                                     </div>
                                     <dl class="route-transfer-facts">
                                         @if($record->displayDeparture())
-                                            <div><dt>Odjezd / odlet</dt><dd><time datetime="{{ $record->displayDeparture()->toIso8601String() }}">{{ $record->displayDeparture()->translatedFormat('j. n. Y H:i') }}</time>@if($record->departed_at) <span>(skutečnost)</span>@endif</dd></div>
+                                            <div><dt>{{ $isEnglish ? 'Departure' : 'Odjezd / odlet' }}</dt><dd><time datetime="{{ $record->displayDeparture()->toIso8601String() }}">{{ $record->displayDeparture()->translatedFormat('j. n. Y H:i') }}</time>@if($record->departed_at) <span>{{ $isEnglish ? '(actual)' : '(skutečnost)' }}</span>@endif</dd></div>
                                         @endif
                                         @if($record->displayArrival())
-                                            <div><dt>Příjezd / přílet</dt><dd><time datetime="{{ $record->displayArrival()->toIso8601String() }}">{{ $record->displayArrival()->translatedFormat('j. n. Y H:i') }}</time>@if($record->arrived_at) <span>(skutečnost)</span>@endif</dd></div>
+                                            <div><dt>{{ $isEnglish ? 'Arrival' : 'Příjezd / přílet' }}</dt><dd><time datetime="{{ $record->displayArrival()->toIso8601String() }}">{{ $record->displayArrival()->translatedFormat('j. n. Y H:i') }}</time>@if($record->arrived_at) <span>{{ $isEnglish ? '(actual)' : '(skutečnost)' }}</span>@endif</dd></div>
                                         @endif
-                                        @if($record->distance_km)<div><dt>Vzdálenost</dt><dd>{{ number_format((float) $record->distance_km, 1, ',', ' ') }} km</dd></div>@endif
+                                        @if($record->distance_km)<div><dt>{{ $isEnglish ? 'Distance' : 'Vzdálenost' }}</dt><dd>{{ number_format((float) $record->distance_km, 1, ',', ' ') }} km</dd></div>@endif
                                         @if($record->displayDuration())
                                             @php($duration = $record->displayDuration())
-                                            <div><dt>Doba cesty</dt><dd>@if($duration >= 60){{ intdiv($duration, 60) }} h @if($duration % 60){{ $duration % 60 }} min @endif @else {{ $duration }} min @endif</dd></div>
+                                            <div><dt>{{ $isEnglish ? 'Journey time' : 'Doba cesty' }}</dt><dd>@if($duration >= 60){{ intdiv($duration, 60) }} h @if($duration % 60){{ $duration % 60 }} min @endif @else {{ $duration }} min @endif</dd></div>
                                         @endif
-                                        @if($record->provider)<div><dt>Dopravce</dt><dd>{{ $record->provider }}</dd></div>@endif
-                                        @if($record->reference)<div><dt>Spoj</dt><dd>{{ $record->reference }}</dd></div>@endif
+                                        @if($record->provider)<div><dt>{{ $isEnglish ? 'Operator' : 'Dopravce' }}</dt><dd>{{ $record->provider }}</dd></div>@endif
+                                        @if($record->reference)<div><dt>{{ $isEnglish ? 'Connection' : 'Spoj' }}</dt><dd>{{ $record->reference }}</dd></div>@endif
                                     </dl>
                                     @if($record->description)<p>{{ $record->description }}</p>@endif
-                                    @include('route.partials.media', ['record' => $record, 'label' => 'přesunu '.$record->fromPoint->name.' do '.$record->toPoint->name])
-                                    @if($record->post)<p><a class="text-link" href="{{ route('posts.show', $record->post) }}">Přečíst zápis z tohoto přesunu</a></p>@endif
+                                    @include('route.partials.media', ['record' => $record, 'label' => ($isEnglish ? 'transfer ' : 'přesunu ').$record->fromPoint->name.($isEnglish ? ' to ' : ' do ').$record->toPoint->name])
+                                    @if($record->post)<p><a class="text-link" href="{{ route('posts.show', $record->post) }}">{{ $isEnglish ? 'Read the story from this transfer' : 'Přečíst zápis z tohoto přesunu' }}</a></p>@endif
                                 </article>
                             </li>
                         @endif
@@ -126,6 +127,7 @@
             const element = document.getElementById('route-map');
             if (!element || typeof L === 'undefined') return;
 
+            const labels = {{ Illuminate\Support\Js::from($isEnglish ? ['viewPhoto' => 'View full-size photo', 'position' => 'Location reported', 'approximate' => 'Only an approximate location is shown publicly.'] : ['viewPhoto' => 'Zobrazit fotografii ve velkém', 'position' => 'Poloha hlášena', 'approximate' => 'Veřejně je zobrazena pouze přibližně.']) }};
             const points = {{ Illuminate\Support\Js::from($mapPoints) }};
             const segments = {{ Illuminate\Support\Js::from($mapSegments) }};
             const photos = {{ Illuminate\Support\Js::from($mapPhotos) }};
@@ -231,17 +233,17 @@
                     const marker = L.marker([photo.latitude, photo.longitude], {title: photo.alt});
                     const popup = document.createElement('div'); popup.className='map-popup map-photo-popup';
                     const image=document.createElement('img'); image.src=photo.image; image.alt=photo.alt; image.loading='lazy';
-                    const imageLink=document.createElement('a'); imageLink.href=photo.url; imageLink.setAttribute('aria-label','Zobrazit fotografii ve velkém'); imageLink.append(image); popup.append(imageLink);
+                    const imageLink=document.createElement('a'); imageLink.href=photo.url; imageLink.setAttribute('aria-label',labels.viewPhoto); imageLink.append(image); popup.append(imageLink);
                     if(photo.caption){const caption=document.createElement('p');caption.textContent=photo.caption;popup.append(caption)}
                     if(photo.shortStory){const story=document.createElement('p');story.textContent=photo.shortStory;popup.append(story)}
                     const meta=document.createElement('span');meta.textContent=[photo.author,photo.takenAt].filter(Boolean).join(' · ');popup.append(meta);
-                    const link=document.createElement('a');link.href=photo.url;link.textContent='Zobrazit fotografii ve velkém →';popup.append(link);
+                    const link=document.createElement('a');link.href=photo.url;link.textContent=labels.viewPhoto+' →';popup.append(link);
                     marker.bindPopup(popup);photoLayer.addLayer(marker);
                 }); map.addLayer(photoLayer);
             }
             members.forEach(member => {
                 const marker=L.circleMarker([member.latitude,member.longitude],{radius:9,color:'#fff',weight:3,fillColor:member.stale?'#777':'#347442',fillOpacity:1}).addTo(map);
-                marker.bindTooltip(`${member.name} · ${member.age}`).bindPopup(`<strong>${member.name}</strong><p>Poloha hlášena ${member.reportedAt}. Veřejně je zobrazena pouze přibližně.</p>`);
+                marker.bindTooltip(`${member.name} · ${member.age}`).bindPopup(`<strong>${member.name}</strong><p>${labels.position} ${member.reportedAt}. ${labels.approximate}</p>`);
             });
 
             if (activePosition) {

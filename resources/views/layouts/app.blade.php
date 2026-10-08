@@ -73,7 +73,7 @@
                 <a href="{{ route('home') }}#odber">{{ $isEnglish ? 'Updates' : 'Odběr' }}</a>
             </nav>
             <nav class="language-switcher" aria-label="{{ $isEnglish ? 'Language selection' : 'Výběr jazyka' }}">
-                <a href="{{ $czechUrl }}" lang="cs" @if(!$isEnglish) aria-current="true" @endif>Česky</a>
+                <a href="{{ $czechUrl }}" lang="cs" @if(!$isEnglish) aria-current="true" @endif>{{ $isEnglish ? 'Czech' : 'Česky' }}</a>
                 <a href="{{ $englishUrl }}" lang="en" @if($isEnglish) aria-current="true" @endif>English</a>
             </nav>
         </div>
@@ -98,7 +98,7 @@
     <footer class="site-footer">
         <div class="shell footer-grid">
             <div><strong>{{ $isEnglish ? 'Blind Sun' : 'Slepé Slunce' }}</strong><p>{{ $isEnglish ? 'Friends organising accessible expeditions and sharing life without unnecessary barriers.' : 'Parta kamarádů, která pořádá přístupné expedice a sdílí život bez zbytečných bariér.' }}</p><p><a href="https://www.instagram.com/slepeslunce/" target="_blank" rel="noopener noreferrer">Instagram @slepeslunce</a></p></div>
-            <div><p>{{ $isEnglish ? 'The project is created with Mirek Mužík, a member of SONS Czech Republic and co-founder of the Odškodnění za úraz association.' : 'Projekt vzniká ve spolupráci s Mirkem Mužíkem, členem ' }}@if(!$isEnglish)<a href="https://www.sons.cz/">SONS ČR</a>{{ $isEnglish ? '' : ' a spoluzakladatelem spolku ' }}@endif@if(!$isEnglish)<a href="https://odskodnenizauraz.cz/">Odškodnění za úraz</a>{{ $isEnglish ? '' : '.' }}@endif</p></div>
+            <div><p>{{ $isEnglish ? 'The project is created with Mirek Mužík, a member of ' : 'Projekt vzniká ve spolupráci s Mirkem Mužíkem, členem ' }}<a href="https://www.sons.cz/">{{ $isEnglish ? 'SONS Czech Republic' : 'SONS ČR' }}</a>{{ $isEnglish ? ' and co-founder of the ' : ' a spoluzakladatelem spolku ' }}<a href="https://odskodnenizauraz.cz/">{{ $isEnglish ? 'Odškodnění za úraz association' : 'Odškodnění za úraz' }}</a>.</p></div>
         </div>
     </footer>
     @stack('scripts')

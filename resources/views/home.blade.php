@@ -34,7 +34,7 @@
         <div class="shell expedition-cards">
             @foreach($expeditions as $item)
                 <article class="expedition-card">
-                    <p class="status-pill status-pill--{{ $item->status()->value }}">{{ $item->status()->label() }}</p>
+                    <p class="status-pill status-pill--{{ $item->status()->value }}">{{ $isEnglish ? ucfirst(str_replace('_', ' ', $item->status()->value)) : $item->status()->label() }}</p>
                     <h3><a href="{{ route('expeditions.show', $item) }}">{{ $item->name }}</a></h3>
                     @if($item->start_at)<p><time datetime="{{ $item->start_at->toDateString() }}">{{ $item->start_at->translatedFormat('j. n. Y') }}</time>@if($item->end_at)–<time datetime="{{ $item->end_at->toDateString() }}">{{ $item->end_at->translatedFormat('j. n. Y') }}</time>@endif</p>@endif
                     <p>{{ $item->short_description }}</p>

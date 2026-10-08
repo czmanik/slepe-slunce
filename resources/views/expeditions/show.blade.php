@@ -2,7 +2,7 @@
 @php($isEnglish = $isEnglishSite ?? app()->isLocale('en'))
 
 @section('title', $expedition->name.' — '.($isEnglish ? 'Blind Sun' : 'Slepé Slunce'))
-@section('description', $isEnglish ? 'Details of a Blind Sun expedition by a Czech initiative based in Estepona, Spain.' : ($expedition->short_description ?: 'Podrobnosti expedice '.$expedition->name))
+@section('description', $isEnglish ? ($expedition->short_description ?: 'Details of a Blind Sun expedition.') : ($expedition->short_description ?: 'Podrobnosti expedice '.$expedition->name))
 
 @section('content')
 <header class="page-header"><div class="shell">
@@ -22,32 +22,32 @@
 
 <section class="section light-section"><div class="shell split">
     <div><p class="eyebrow ink">{{ $isEnglish ? 'About the expedition' : 'O expedici' }}</p><h2>{{ $isEnglish ? 'What we will experience together' : 'Co společně zažijeme' }}</h2></div>
-    <div class="prose-intro dark-prose"><p>{!! nl2br(e($expedition->description ?: 'Podrobný popis právě připravujeme.')) !!}</p></div>
+    <div class="prose-intro dark-prose"><p>{!! nl2br(e($expedition->description ?: ($isEnglish ? 'A detailed description is coming soon.' : 'Podrobný popis právě připravujeme.'))) !!}</p></div>
 </div></section>
 
 @if(data_get($expedition->settings, 'prototype'))
-<section class="section prototype-notice"><div class="shell narrow-section"><h2>Návrh pro testovací provoz</h2><p>Termín, partneři, cena i jednotlivé časy jsou připravené jako pracovní návrh. Rezervaci vždy osobně potvrdíme až po upřesnění všech podmínek.</p></div></section>
+<section class="section prototype-notice"><div class="shell narrow-section"><h2>{{ $isEnglish ? 'Pilot expedition proposal' : 'Návrh pro testovací provoz' }}</h2><p>{{ $isEnglish ? 'Dates, partners, prices and times are provisional. We will personally confirm each booking once the details are final.' : 'Termín, partneři, cena i jednotlivé časy jsou připravené jako pracovní návrh. Rezervaci vždy osobně potvrdíme až po upřesnění všech podmínek.' }}</p></div></section>
 @endif
 
 @if($expedition->transport_details || $expedition->accommodation_details || $expedition->accessibility_details)
 <section class="section dark-section"><div class="shell info-grid">
-    @if($expedition->transport_details)<article><h2>Doprava</h2><p>{{ $expedition->transport_details }}</p></article>@endif
-    @if($expedition->accommodation_details)<article><h2>Ubytování</h2><p>{{ $expedition->accommodation_details }}</p></article>@endif
-    @if($expedition->accessibility_details)<article><h2>Přístupnost a asistence</h2><p>{{ $expedition->accessibility_details }}</p></article>@endif
+    @if($expedition->transport_details)<article><h2>{{ $isEnglish ? 'Transport' : 'Doprava' }}</h2><p>{{ $expedition->transport_details }}</p></article>@endif
+    @if($expedition->accommodation_details)<article><h2>{{ $isEnglish ? 'Accommodation' : 'Ubytování' }}</h2><p>{{ $expedition->accommodation_details }}</p></article>@endif
+    @if($expedition->accessibility_details)<article><h2>{{ $isEnglish ? 'Accessibility and assistance' : 'Přístupnost a asistence' }}</h2><p>{{ $expedition->accessibility_details }}</p></article>@endif
 </div></section>
 @endif
 
 @if($expedition->departure_details || $expedition->included_services || $expedition->cancellation_terms)
 <section class="section light-section"><div class="shell info-grid">
-    @if($expedition->departure_details)<article><h2>Setkání a odjezd</h2><p>{{ $expedition->departure_details }}</p></article>@endif
-    @if($expedition->included_services)<article><h2>Co je v ceně</h2><p>{{ $expedition->included_services }}</p></article>@endif
-    @if($expedition->cancellation_terms)<article><h2>Rezervace a storno</h2><p>{{ $expedition->cancellation_terms }}</p></article>@endif
+    @if($expedition->departure_details)<article><h2>{{ $isEnglish ? 'Meeting and departure' : 'Setkání a odjezd' }}</h2><p>{{ $expedition->departure_details }}</p></article>@endif
+    @if($expedition->included_services)<article><h2>{{ $isEnglish ? 'What is included' : 'Co je v ceně' }}</h2><p>{{ $expedition->included_services }}</p></article>@endif
+    @if($expedition->cancellation_terms)<article><h2>{{ $isEnglish ? 'Booking and cancellation' : 'Rezervace a storno' }}</h2><p>{{ $expedition->cancellation_terms }}</p></article>@endif
 </div></section>
 @endif
 
 @include('expeditions._latest')
 
 @if($expedition->posts->isNotEmpty())
-<section class="section journal-section"><div class="shell"><div class="section-heading"><div><p class="eyebrow">Deník expedice</p><h2>Poslední články</h2></div><a class="text-link" href="{{ route('expeditions.posts', $expedition) }}">Celý deník</a></div><div class="card-grid">@foreach($expedition->posts as $post) @include('posts._card', ['post' => $post]) @endforeach</div></div></section>
+<section class="section journal-section"><div class="shell"><div class="section-heading"><div><p class="eyebrow">{{ $isEnglish ? 'Expedition journal' : 'Deník expedice' }}</p><h2>{{ $isEnglish ? 'Latest stories' : 'Poslední články' }}</h2></div><a class="text-link" href="{{ route('expeditions.posts', $expedition) }}">{{ $isEnglish ? 'Full journal' : 'Celý deník' }}</a></div><div class="card-grid">@foreach($expedition->posts as $post) @include('posts._card', ['post' => $post]) @endforeach</div></div></section>
 @endif
 @endsection

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Subscriber extends Model
 {
     protected $fillable = [
-        'email', 'name', 'status', 'new_expeditions', 'project_news', 'shop_news', 'confirm_token',
+        'email', 'name', 'locale', 'status', 'new_expeditions', 'project_news', 'shop_news', 'confirm_token',
         'unsubscribe_token', 'confirmed_at', 'unsubscribed_at', 'consent_at', 'consent_ip',
         'source', 'mailchimp_synced_at',
     ];

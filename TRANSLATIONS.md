@@ -49,3 +49,7 @@ Příkaz přeskočí aktuální a redakčně upravené překlady, změněný dos
 Strojový překlad před propagací ověřte u textů o lidech, asistenci a bezpečnosti. Překlad rozhraní a dalšího obsahu (mapy, popisky fotek, formuláře) vyžaduje samostatnou redakční kontrolu.
 
 Databázová fronta musí mít `DB_QUEUE_RETRY_AFTER` vyšší než maximální doba překladu (úloha má timeout 600 s). Po změně `.env` spusťte `php artisan optimize:clear` a restartujte `slepe-slunce-queue.service`. Na hostu nevystavujte port 5000 veřejně.
+
+## Jazyk newsletteru
+
+Ve veřejném formuláři si odběratel volí češtinu nebo angličtinu; výchozí jazyk odpovídá doméně. Starší odběratelé zůstávají v češtině. Volbu lze změnit také v administraci odběratelů. Potvrzení, odhlášení a plánované souhrny používají zvolený jazyk a odkazy na příslušnou doménu. Názvy článků v anglickém souhrnu se načítají z uložených překladů; chybějící překlad použije český originál.
