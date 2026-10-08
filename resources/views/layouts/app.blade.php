@@ -5,11 +5,6 @@
         $isEnglish = $isEnglishSite ?? app()->isLocale('en');
         $czechUrl = rtrim(config('international.czech_url'), '/').request()->getRequestUri();
         $englishUrl = rtrim(config('international.english_url'), '/').request()->getRequestUri();
-        $googleTranslateUrl = 'https://translate.google.com/translate?'.http_build_query([
-            'sl' => 'cs',
-            'tl' => 'en',
-            'u' => url()->full(),
-        ]);
         $defaultTitle = $isEnglish
             ? 'Blind Sun — travelling together without barriers'
             : 'Slepé Slunce — cestujeme spolu bez bariér';
@@ -82,9 +77,6 @@
                 <a href="{{ $englishUrl }}" lang="en" @if($isEnglish) aria-current="true" @endif>English</a>
             </nav>
         </div>
-        @if($isEnglish)
-            <div class="translation-notice"><div class="shell"><strong>Blind Sun is a Czech initiative, currently based in Estepona, Spain.</strong> Some stories are currently available in Czech. <a href="{{ $googleTranslateUrl }}" target="_blank" rel="noopener noreferrer">Translate this page automatically with Google Translate</a>.</div></div>
-        @endif
         @isset($expedition)
             <nav class="expedition-nav" aria-label="{{ $isEnglish ? 'Expedition navigation' : 'Navigace expedice' }} {{ $expedition->name }}">
                 <div class="shell">

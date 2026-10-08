@@ -10,9 +10,9 @@ return [
         'base_url' => env('ROUTING_BASE_URL', 'https://router.project-osrm.org'),
         'timeout' => env('ROUTING_TIMEOUT', 12),
     ],
-    'google_translate' => [
-        'key' => env('GOOGLE_TRANSLATE_API_KEY'),
-        'timeout' => (int) env('GOOGLE_TRANSLATE_TIMEOUT', 20),
+    'libretranslate' => [
+        'url' => env('LIBRETRANSLATE_URL', 'http://127.0.0.1:5000'),
+        'timeout' => (int) env('LIBRETRANSLATE_TIMEOUT', 60),
     ],
     'sentry' => [
         'browser_loader_url' => env('SENTRY_BROWSER_LOADER_URL'),

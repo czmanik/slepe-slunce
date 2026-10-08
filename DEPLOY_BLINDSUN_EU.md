@@ -4,7 +4,7 @@
 
 ## 1. DNS a certifikát
 
-Doména a `www` musí směřovat na stejný server jako `slepeslunce.cz`. Certifikát je už vystavený; před konfigurací ověřte jeho přesné cesty:
+Doména a `www` musí směřovat na stejný server jako `slepeslunce.cz`. Certifikát musí pokrývat `blindsun.eu` i `www.blindsun.eu` (TLS se ověřuje před přesměrováním). Před konfigurací ověřte SAN a cesty:
 
 ```bash
 sudo certbot certificates
@@ -22,7 +22,7 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-Konfiguraci pro `slepeslunce.cz` neměňte a domény nespojujte do jednoho `server_name`: samostatný blok zaručí, že se `www.blindsun.eu` vždy kanonicky přesměruje na `https://blindsun.eu`.
+Konfiguraci pro `slepeslunce.cz` neměňte a domény nespojujte do jednoho `server_name`: samostatný blok zaručí, že se holá doména vždy kanonicky přesměruje na `https://www.blindsun.eu`.
 
 ## 3. Aplikační konfigurace
 
@@ -30,7 +30,7 @@ Po nasazení větve doplňte do produkčního `.env`:
 
 ```dotenv
 CZECH_SITE_URL=https://slepeslunce.cz
-ENGLISH_SITE_URL=https://blindsun.eu
+ENGLISH_SITE_URL=https://www.blindsun.eu
 ENGLISH_SITE_HOSTS=blindsun.eu,www.blindsun.eu
 ```
 
@@ -47,14 +47,16 @@ php artisan optimize
 ```bash
 curl -I http://blindsun.eu
 curl -I https://www.blindsun.eu
-curl -s https://blindsun.eu | grep '<html lang="en">'
+curl -s https://www.blindsun.eu | grep '<html lang="en">'
 curl -s https://slepeslunce.cz | grep '<html lang="cs">'
 ```
 
-Očekávaný výsledek: HTTP i `www` přesměrují na `https://blindsun.eu`; veřejný HTML dokument na nové doméně má `lang="en"`.
+Očekávaný výsledek: HTTP i holá doména přesměrují na `https://www.blindsun.eu`; veřejný HTML dokument na nové doméně má `lang="en"`.
 
 ## Jak funguje obsah
 
-Domovská stránka a navigace mají anglickou vrstvu. Příspěvky, expedice a návody, které zatím nemají redakční anglický překlad, jasně nabídnou odkaz na automatický překlad aktuální stránky přes Google Translate. Tento odkaz nepřenáší do aplikace žádný Google API klíč a nemění uložený obsah.
+Domovská stránka a navigace mají anglickou vrstvu. Příspěvky, expedice a návody překládá interní LibreTranslate podle [TRANSLATIONS.md](TRANSLATIONS.md).
 
 Až budeme připravovat anglické redakční překlady článků, uložíme je přímo v administraci. Tím se jejich vlastní URL, metadata a SEO stanou plnohodnotně anglickými.
+
+Na serveru zjistěte aktivní konfiguraci: `sudo nginx -T | grep -n -A 12 -B 4 'server_name.*blindsun.eu'`. Dále otestujte obě HTTPS varianty pomocí `curl -IL https://blindsun.eu/` a `curl -IL https://www.blindsun.eu/`. Pokud `www` chybí v DNS či certifikátu, nejprve opravte DNS a vystavte certifikát pro obě jména. Úprava souboru v repozitáři sama nginx na serveru nepřenastaví.

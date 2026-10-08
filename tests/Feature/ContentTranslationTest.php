@@ -17,18 +17,17 @@ class ContentTranslationTest extends TestCase
 
     public function test_machine_translation_is_stored_and_used_on_english_domain(): void
     {
-        config()->set('services.google_translate.key', 'test-key');
-        Http::fake([
-            'translation.googleapis.com/*' => Http::response([
-                'data' => ['translations' => [
-                    ['translatedText' => 'A journey together'],
-                    ['translatedText' => 'A short English introduction.'],
-                    ['translatedText' => '<p>English story.</p>'],
-                    ['translatedText' => 'Estepona'],
-                    ['translatedText' => 'Friends by the sea'],
-                ]],
-            ]),
-        ]);
+        config()->set('services.libretranslate.url', 'http://127.0.0.1:5000');
+        Http::fake(function ($request) {
+            $translations = [
+                'Cesta spolu' => 'A journey together',
+                'Krátký český úvod.' => 'A short English introduction.',
+                '<p>Český příběh.</p>' => '<p>English story.</p>',
+                'Estepona' => 'Estepona',
+                'Kamarádi u moře' => 'Friends by the sea',
+            ];
+            return Http::response(['translatedText' => $translations[$request['q']] ?? 'Translated']);
+        });
 
         $user = User::create(['name' => 'Editor', 'email' => 'translation@example.test', 'password' => 'password-password', 'role' => UserRole::Editor]);
         $post = Post::create([

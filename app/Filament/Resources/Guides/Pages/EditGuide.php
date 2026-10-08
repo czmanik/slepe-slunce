@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Guides\Pages;
 
+use App\Jobs\TranslateContent;
+
 use App\Filament\Resources\Guides\GuideResource;
 use App\Models\Post;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
+use App\Filament\Support\ContentTranslationActions;
 use Filament\Resources\Pages\EditRecord;
 
 class EditGuide extends EditRecord
@@ -16,7 +19,7 @@ class EditGuide extends EditRecord
     {
         return [
             Action::make('preview')->label('Náhled')->url(fn (): string => route('guides.show', $this->record))->openUrlInNewTab(),
-            DeleteAction::make(),
+            DeleteAction::make(), ...ContentTranslationActions::for($this->record),
         ];
     }
 
@@ -34,5 +37,9 @@ class EditGuide extends EditRecord
         }
 
         return $data;
+    }
+    protected function afterSave(): void
+    {
+        TranslateContent::dispatch($this->record);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Guides\Pages;
 
+use App\Jobs\TranslateContent;
+
 use App\Filament\Resources\Guides\GuideResource;
 use App\Models\Post;
 use Filament\Resources\Pages\CreateRecord;
@@ -27,5 +29,9 @@ class CreateGuide extends CreateRecord
         }
 
         return $data;
+    }
+    protected function afterCreate(): void
+    {
+        TranslateContent::dispatch($this->record);
     }
 }
