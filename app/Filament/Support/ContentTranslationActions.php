@@ -7,6 +7,7 @@ use App\Models\Concerns\HasContentTranslations;
 use App\Services\ContentTranslationService;
 use App\Support\HtmlSanitizer;
 use Filament\Actions\Action;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
@@ -32,10 +33,15 @@ class ContentTranslationActions
             Action::make('editEnglish')
                 ->label('Upravit anglický překlad')
                 ->fillForm(fn (): array => $record->contentTranslations()->where('locale', 'en')->first()?->content ?? [])
-                ->form(array_map(fn (string $field) => Textarea::make($field)
-                    ->label($field.' (EN)')
-                    ->rows(in_array($field, ['body', 'description'], true) ? 12 : 3)
-                    ->columnSpanFull(), $fields))
+                ->form(array_map(fn (string $field) => $field === 'body'
+                    ? RichEditor::make($field)
+                        ->label('Obsah (EN)')
+                        ->toolbarButtons(['bold', 'italic', 'link', 'h2', 'h3', 'blockquote', 'bulletList', 'orderedList', 'undo', 'redo'])
+                        ->columnSpanFull()
+                    : Textarea::make($field)
+                        ->label($field.' (EN)')
+                        ->rows($field === 'description' ? 8 : 3)
+                        ->columnSpanFull(), $fields))
                 ->action(function (array $data) use ($record, $fields): void {
                     $content = array_intersect_key($data, array_flip($fields));
                     if (isset($content['body'])) {
