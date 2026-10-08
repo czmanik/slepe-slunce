@@ -12,6 +12,7 @@ use App\Models\RoutePoint;
 use App\Models\RouteSegment;
 use App\Models\User;
 use App\Services\ExpeditionTracker;
+use App\Services\ImageThumbnail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -93,7 +94,12 @@ class ExpeditionTrackingTest extends TestCase
         RoutePoint::query()->create(['name' => 'Letiště', 'latitude' => 50.1, 'longitude' => 14.2, 'status' => RoutePointStatus::Current]);
         $this->actingAs($user)->post(route('tracking.photo.store'), ['image' => UploadedFile::fake()->image('airport.jpg'), 'alt' => 'Členové čekají u odletové tabule'])->assertRedirect();
         $photo = MapPhoto::query()->firstOrFail(); Storage::disk('public')->assertExists($photo->image);
+        if (app(ImageThumbnail::class)->supported()) {
+            Storage::disk('public')->assertExists(app(ImageThumbnail::class)->path($photo->image, 'small'));
+            Storage::disk('public')->assertExists(app(ImageThumbnail::class)->path($photo->image, 'medium'));
+        }
         $path = $photo->image; $photo->delete(); Storage::disk('public')->assertMissing($path);
+        if (app(ImageThumbnail::class)->supported()) Storage::disk('public')->assertMissing(app(ImageThumbnail::class)->path($path, 'small'));
     }
 
     public function test_photo_added_from_journal_returns_to_journal(): void

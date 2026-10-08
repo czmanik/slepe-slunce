@@ -31,6 +31,10 @@ class ImageThumbnail
             return false;
         }
 
+        if (! $force && collect(array_keys(self::VARIANTS))->every(fn (string $variant) => $disk->exists($this->path($path, $variant)))) {
+            return true;
+        }
+
         $bytes = $disk->get($path);
         $source = @imagecreatefromstring($bytes);
 
@@ -96,6 +100,18 @@ class ImageThumbnail
     public function originalUrl(?string $path): ?string
     {
         return $path ? Storage::disk('public')->url($path) : null;
+    }
+
+    public function delete(?string $path): void
+    {
+        if (! $path) return;
+
+        foreach (array_keys(self::VARIANTS) as $variant) {
+            // Older installations may have used JPEG instead of WebP.
+            foreach (['webp', 'jpg'] as $extension) {
+                Storage::disk('public')->delete('thumbnails/'.$variant.'/'.ltrim($path, '/').'.'.$extension);
+            }
+        }
     }
 
     public function path(string $path, string $variant): string

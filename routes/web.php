@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ExpeditionController;
+use App\Http\Controllers\AndroidAppController;
 use App\Http\Controllers\ExpeditionRegistrationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MapPhotoController;
@@ -10,6 +11,8 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\QuickRoutePointController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\MobileContentController;
+use App\Http\Controllers\PublicPhotoController;
 use App\Http\Controllers\ShopCheckoutController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SitemapController;
@@ -22,6 +25,9 @@ Route::get('/navody', [PostController::class, 'travel'])->name('guides.index');
 Route::redirect('/cestovani-bez-barier', '/navody', 301)->name('travel.index');
 Route::get('/trasa', [RouteController::class, 'legacy'])->name('route.index');
 Route::get('/mapa', MapController::class)->name('map.index');
+Route::get('/fotky/{photo}', PublicPhotoController::class)->name('map.photos.show');
+Route::get('/app', [AndroidAppController::class, 'index'])->name('app.index');
+Route::get('/app/version.json', [AndroidAppController::class, 'version'])->name('app.version');
 Route::get('/clenove', [MemberController::class, 'index'])->name('members.index');
 Route::get('/expedice', [ExpeditionController::class, 'index'])->name('expeditions.index');
 Route::get('/expedice/{expedition}', [ExpeditionController::class, 'show'])->name('expeditions.show');
@@ -51,6 +57,11 @@ $shopRoutes = function (): void {
     ->name('shop.')
     ->group($shopRoutes);
 Route::middleware('auth')->group(function (): void {
+    Route::get('/admin/moje-zaznamy', [MobileContentController::class, 'index'])->name('mobile.content.index');
+    Route::get('/admin/moje-zaznamy/fotky/{photo}/upravit', [MobileContentController::class, 'editPhoto'])->name('mobile.photos.edit');
+    Route::patch('/admin/moje-zaznamy/fotky/{photo}', [MobileContentController::class, 'updatePhoto'])->name('mobile.photos.update');
+    Route::get('/admin/moje-zaznamy/mista/{point}/upravit', [MobileContentController::class, 'editPoint'])->name('mobile.points.edit');
+    Route::patch('/admin/moje-zaznamy/mista/{point}', [MobileContentController::class, 'updatePoint'])->name('mobile.points.update');
     Route::get('/admin/trasa/rychle-pridat', [QuickRoutePointController::class, 'create'])->name('route.quick.create');
     Route::post('/admin/trasa/rychle-pridat', [QuickRoutePointController::class, 'store'])->name('route.quick.store');
     Route::get('/admin/poloha', [MemberLocationController::class, 'create'])->name('tracking.location.create');

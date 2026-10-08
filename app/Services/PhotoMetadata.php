@@ -21,12 +21,29 @@ class PhotoMetadata
         $bytes = @file_get_contents($path); $image = $bytes === false ? false : @imagecreatefromstring($bytes);
         if (! $image) return;
         $mime = function_exists('mime_content_type') ? @mime_content_type($path) : null;
-        match ($mime) {
-            'image/jpeg' => @imagejpeg($image, $path, 90),
-            'image/png' => @imagepng($image, $path, 6),
-            'image/webp' => function_exists('imagewebp') ? @imagewebp($image, $path, 90) : false,
-            default => false,
-        };
+        if ($mime === 'image/jpeg' || ($mime === 'image/webp' && function_exists('imagewebp'))) {
+            // Re-encoding strips EXIF, but must not inflate a compressed mobile
+            // upload back above the 5 MiB limit.
+            $encoded = null;
+            for ($scale = 0; $scale < 7; $scale++) {
+                for ($quality = 85; $quality >= 45; $quality -= 10) {
+                    ob_start();
+                    $ok = $mime === 'image/jpeg' ? @imagejpeg($image, null, $quality) : @imagewebp($image, null, $quality);
+                    $candidate = ob_get_clean();
+                    if ($ok && is_string($candidate) && strlen($candidate) <= 5 * 1024 * 1024) {
+                        $encoded = $candidate;
+                        break 2;
+                    }
+                }
+                $smaller = imagescale($image, max(1, (int) (imagesx($image) * .8)), max(1, (int) (imagesy($image) * .8)));
+                if (! $smaller) break;
+                imagedestroy($image);
+                $image = $smaller;
+            }
+            if ($encoded !== null) file_put_contents($path, $encoded);
+        } elseif ($mime === 'image/png') {
+            @imagepng($image, $path, 6);
+        }
         imagedestroy($image);
     }
 

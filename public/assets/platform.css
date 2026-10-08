@@ -13,6 +13,13 @@
 .status-pill--completed, .status-pill--archived { background: #e6e3dc; color: #45413a; }
 .dark-link { color: #604e00; }
 .narrow-section { max-width: 850px; }
+.content-card { overflow: hidden; padding: 0 0 24px; background: #fffdf8; color: #211e18; border: 1px solid #d8d0c0; }
+.content-card > :not(a):not(img) { margin-inline: 22px; }
+.content-card > a:has(img) { display: block; }
+.content-card img { display: block; }
+.content-card .eyebrow { margin-top: 20px; color: #66531e; }
+.content-card h3 { font-family: Georgia,'Times New Roman',serif; font-size: 1.55rem; line-height: 1.2; }
+.content-card a { color: #33260a; }
 .accessible-form { display: grid; gap: 24px; margin-top: 38px; }
 .accessible-form label:not(.check-label) { display: block; font-weight: 800; margin-bottom: 7px; }
 .accessible-form input:not([type="checkbox"]):not([type="radio"]), .accessible-form textarea, .accessible-form select { width: 100%; padding: 12px; border: 2px solid #6e685d; background: #fff; color: #17150f; }

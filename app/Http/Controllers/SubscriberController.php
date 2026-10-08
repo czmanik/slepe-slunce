@@ -16,6 +16,7 @@ class SubscriberController extends Controller
         $data = $request->validate([
             'email' => ['required', 'email:rfc', 'max:190'],
             'name' => ['nullable', 'string', 'max:160'],
+            'locale' => ['nullable', 'in:cs,en'],
             'new_expeditions' => ['nullable', 'boolean'],
             'project_news' => ['nullable', 'boolean'],
             'shop_news' => ['nullable', 'boolean'],
@@ -26,13 +27,15 @@ class SubscriberController extends Controller
         ]);
         $topicsSelected = $request->boolean('new_expeditions') || $request->boolean('project_news')
             || $request->boolean('shop_news') || count($data['expeditions'] ?? []) > 0;
+        $locale = $data['locale'] ?? (app()->isLocale('en') ? 'en' : 'cs');
         if (! $topicsSelected) {
-            return back()->withErrors(['topics' => 'Vyberte alespoň jedno téma.'])->withInput();
+            return back()->withErrors(['topics' => $locale === 'en' ? 'Select at least one topic.' : 'Vyberte alespoň jedno téma.'])->withInput();
         }
 
         $subscriber = Subscriber::query()->firstOrNew(['email' => mb_strtolower($data['email'])]);
         $subscriber->fill([
             'name' => $data['name'] ?? null,
+            'locale' => $locale,
             'status' => 'pending',
             'new_expeditions' => $request->boolean('new_expeditions'),
             'project_news' => $request->boolean('project_news'),
@@ -47,19 +50,21 @@ class SubscriberController extends Controller
         ])->save();
         $subscriber->expeditions()->sync($data['expeditions'] ?? []);
 
-        $confirmationUrl = route('subscriptions.confirm', $subscriber->confirm_token);
+        $confirmationUrl = rtrim(config($locale === 'en' ? 'international.english_url' : 'international.czech_url'), '/').route('subscriptions.confirm', $subscriber->confirm_token, false);
         Mail::raw(
-            "Potvrďte odběr novinek projektu Slepé Slunce:\n\n{$confirmationUrl}\n\nPokud jste se nepřihlásili, zprávu ignorujte.",
-            fn ($message) => $message->to($subscriber->email)->subject('Potvrďte odběr novinek Slepé Slunce'),
+            $locale === 'en'
+                ? "Confirm your Blind Sun updates subscription:\n\n{$confirmationUrl}\n\nIf you did not subscribe, you can ignore this email."
+                : "Potvrďte odběr novinek projektu Slepé Slunce:\n\n{$confirmationUrl}\n\nPokud jste se nepřihlásili, zprávu ignorujte.",
+            fn ($message) => $message->to($subscriber->email)->subject($locale === 'en' ? 'Confirm your Blind Sun updates' : 'Potvrďte odběr novinek Slepé Slunce'),
         );
 
-        return back()->with('message', 'Poslali jsme vám potvrzovací odkaz. Odběr začne až po jeho otevření.');
+        return back()->with('message', $locale === 'en' ? 'We sent you a confirmation link. Your subscription starts when you open it.' : 'Poslali jsme vám potvrzovací odkaz. Odběr začne až po jeho otevření.');
     }
 
     public function confirm(string $token, MailchimpSubscriberSync $mailchimp): RedirectResponse
     {
         $subscriber = Subscriber::query()->where('confirm_token', $token)->firstOrFail();
-        abort_if($subscriber->created_at->lt(now()->subMonth()) && ! $subscriber->confirmed_at, 410, 'Platnost potvrzovacího odkazu vypršela.');
+        abort_if($subscriber->created_at->lt(now()->subMonth()) && ! $subscriber->confirmed_at, 410, $subscriber->locale === 'en' ? 'This confirmation link has expired.' : 'Platnost potvrzovacího odkazu vypršela.');
         $subscriber->update(['status' => 'active', 'confirmed_at' => now(), 'confirm_token' => Str::random(64)]);
         try {
             $mailchimp->sync($subscriber->load('expeditions'));
@@ -67,7 +72,7 @@ class SubscriberController extends Controller
             report($exception);
         }
 
-        return redirect()->route('home')->with('message', 'Odběr novinek je potvrzen. Děkujeme.');
+        return redirect()->route('home')->with('message', $subscriber->locale === 'en' ? 'Your subscription is confirmed. Thank you.' : 'Odběr novinek je potvrzen. Děkujeme.');
     }
 
     public function unsubscribe(string $token, MailchimpSubscriberSync $mailchimp): RedirectResponse
@@ -80,6 +85,6 @@ class SubscriberController extends Controller
             report($exception);
         }
 
-        return redirect()->route('home')->with('message', 'Odběr novinek byl ukončen.');
+        return redirect()->route('home')->with('message', $subscriber->locale === 'en' ? 'Your subscription has ended.' : 'Odběr novinek byl ukončen.');
     }
 }

@@ -12,7 +12,7 @@
     </div>
 @endif
 @if($record->videos)
-    <ul class="route-videos" aria-label="Videa {{ $label }}">
+    <ul class="route-videos" aria-label="{{ app()->isLocale('en') ? 'Videos' : 'Videa' }} {{ $label }}">
         @foreach($record->videos as $video)
             <li><a href="{{ $video['url'] }}" rel="noopener noreferrer">{{ $video['title'] }}</a>@if(!empty($video['description'])) — {{ $video['description'] }}@endif</li>
         @endforeach

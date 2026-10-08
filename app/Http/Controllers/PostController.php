@@ -39,7 +39,7 @@ class PostController extends Controller
         $posts = Post::publiclyVisible()
             ->inCategory($category)
             ->when($expedition, fn ($query) => $query->whereBelongsTo($expedition))
-            ->with(['authors', 'expedition'])
+            ->with(['authors', 'expedition', 'contentTranslations'])
             ->when($selectedDay, fn ($query) => $query->where(function ($query) use ($selectedDay): void {
                 $query->whereDate('event_date', $selectedDay)
                     ->orWhere(function ($query) use ($selectedDay): void {
@@ -58,7 +58,7 @@ class PostController extends Controller
 
         $posts = Post::publiclyVisible()
             ->inCategory(Post::CATEGORY_TRAVEL)
-            ->with('authors')
+            ->with(['authors', 'contentTranslations'])
             ->orderByRaw("CASE guide_topic WHEN 'pred-cestou' THEN 1 WHEN 'doprava' THEN 2 WHEN 's-partakem' THEN 3 ELSE 4 END")
             ->orderBy('title')
             ->get();
@@ -74,7 +74,7 @@ class PostController extends Controller
 
         abort_unless(Post::publiclyVisible()->whereKey($post->getKey())->exists(), 404);
 
-        return view('posts.show', ['post' => $post->load('authors'), 'preview' => false]);
+        return view('posts.show', ['post' => $post->load(['authors', 'contentTranslations']), 'preview' => false]);
     }
 
     public function guide(Post $post): View|\Illuminate\Http\RedirectResponse
@@ -92,6 +92,6 @@ class PostController extends Controller
     {
         $this->authorize('view', $post);
 
-        return view('posts.show', ['post' => $post->load('authors'), 'preview' => true]);
+        return view('posts.show', ['post' => $post->load(['authors', 'contentTranslations']), 'preview' => true]);
     }
 }

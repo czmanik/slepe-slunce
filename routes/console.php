@@ -23,7 +23,7 @@ Schedule::command('posts:publish-scheduled')->everyMinute()->withoutOverlapping(
 
 Artisan::command('subscriptions:send {frequency}', function (string $frequency): void {
     abort_unless(in_array($frequency, ['urgent', 'weekly'], true), 422, 'Frekvence musí být urgent nebo weekly.');
-    $posts = Post::publiclyVisible()->where('notification_frequency', $frequency)->whereNull('notification_sent_at')->with('expedition')->get();
+    $posts = Post::publiclyVisible()->where('notification_frequency', $frequency)->whereNull('notification_sent_at')->with(['expedition', 'contentTranslations'])->get();
     if ($posts->isEmpty()) {
         $this->info('Žádné příspěvky k rozeslání.');
 
@@ -37,10 +37,20 @@ Artisan::command('subscriptions:send {frequency}', function (string $frequency):
         if ($selected->isEmpty()) {
             return;
         }
-        $body = "Novinky projektu Slepé Slunce\n\n".$selected->map(fn (Post $post) => $post->title."\n".route('posts.show', $post))->join("\n\n")
-            ."\n\nOdhlásit odběr: ".route('subscriptions.unsubscribe', $subscriber->unsubscribe_token);
+        $english = $subscriber->locale === 'en';
+        $baseUrl = rtrim(config($english ? 'international.english_url' : 'international.czech_url'), '/');
+        $body = ($english ? "Blind Sun updates\n\n" : "Novinky projektu Slepé Slunce\n\n")
+            .$selected->map(function (Post $post) use ($english, $baseUrl): string {
+                $title = $english
+                    ? (data_get($post->contentTranslations->firstWhere('locale', 'en'), 'content.title') ?: $post->title)
+                    : $post->title;
+
+                return $title."\n".$baseUrl.route($post->category === Post::CATEGORY_TRAVEL ? 'guides.show' : 'posts.show', $post, false);
+            })->join("\n\n")
+            ."\n\n".($english ? 'Unsubscribe: ' : 'Odhlásit odběr: ')
+            .$baseUrl.route('subscriptions.unsubscribe', $subscriber->unsubscribe_token, false);
         try {
-            Mail::raw($body, fn ($message) => $message->to($subscriber->email)->subject($frequency === 'urgent' ? 'Aktuálně ze Slepého Slunce' : 'Týden se Slepým Sluncem'));
+            Mail::raw($body, fn ($message) => $message->to($subscriber->email)->subject($english ? ($frequency === 'urgent' ? 'Latest from Blind Sun' : 'This week with Blind Sun') : ($frequency === 'urgent' ? 'Aktuálně ze Slepého Slunce' : 'Týden se Slepým Sluncem')));
             foreach ($selected as $post) {
                 ContentDelivery::query()->updateOrCreate(['post_id' => $post->id, 'subscriber_id' => $subscriber->id], ['frequency' => $frequency, 'status' => 'sent', 'sent_at' => now(), 'error' => null]);
             }

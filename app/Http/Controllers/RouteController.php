@@ -9,24 +9,25 @@ use App\Models\ProgramItem;
 use App\Models\RoutePoint;
 use App\Models\RouteSegment;
 use App\Services\ExpeditionTracker;
+use App\Services\ImageThumbnail;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class RouteController extends Controller
 {
-    public function legacy(ExpeditionTracker $tracker): View
+    public function legacy(ExpeditionTracker $tracker, ImageThumbnail $thumbnails): View
     {
-        return $this->render(Expedition::default(), $tracker);
+        return $this->render(Expedition::default(), $tracker, $thumbnails);
     }
 
-    public function show(Expedition $expedition, ExpeditionTracker $tracker): View
+    public function show(Expedition $expedition, ExpeditionTracker $tracker, ImageThumbnail $thumbnails): View
     {
         abort_unless($expedition->publication_status === 'published', 404);
 
-        return $this->render($expedition, $tracker);
+        return $this->render($expedition, $tracker, $thumbnails);
     }
 
-    private function render(Expedition $expedition, ExpeditionTracker $tracker): View
+    private function render(Expedition $expedition, ExpeditionTracker $tracker, ImageThumbnail $thumbnails): View
     {
         $points = RoutePoint::query()
             ->whereBelongsTo($expedition)
@@ -92,8 +93,8 @@ class RouteController extends Controller
         ])->values();
         $mapPhotos = MapPhoto::query()->whereBelongsTo($expedition)->with('user')->latest('taken_at')->get()->map(fn (MapPhoto $photo): array => [
             'latitude' => (float) $photo->latitude, 'longitude' => (float) $photo->longitude,
-            'image' => asset('storage/'.$photo->image), 'alt' => $photo->alt, 'caption' => $photo->caption, 'shortStory' => $photo->short_story,
-            'author' => $photo->user?->name, 'takenAt' => $photo->taken_at?->translatedFormat('j. n. Y H:i'),
+            'image' => $thumbnails->url($photo->image, 'small'), 'alt' => $photo->alt, 'caption' => $photo->caption, 'shortStory' => $photo->short_story,
+            'author' => $photo->user?->name, 'takenAt' => $photo->taken_at?->translatedFormat('j. n. Y H:i'), 'url' => route('map.photos.show', $photo),
         ])->values();
         $memberLocations = MemberLocation::query()->whereBelongsTo($expedition)->with('user')->orderBy('reported_at')->orderBy('id')->get()->map(fn (MemberLocation $location): array => [
             'name' => str((string) $location->user?->name)->before(' ')->toString(),

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ExpeditionStatus;
+use App\Models\Concerns\HasContentTranslations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Expedition extends Model
 {
+    use HasContentTranslations;
+
+    public static function translatableFields(): array
+    {
+        return ['name', 'short_description', 'description', 'hero_alt', 'leader_name', 'departure_details', 'transport_details', 'accommodation_details', 'accessibility_details', 'included_services', 'cancellation_terms'];
+    }
     public static function default(): self
     {
         return static::query()

@@ -7,12 +7,13 @@ use App\Models\MapPhoto;
 use App\Models\Post;
 use App\Models\RoutePoint;
 use App\Models\RouteSegment;
+use App\Services\ImageThumbnail;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class MapController extends Controller
 {
-    public function __invoke(Request $request): View
+    public function __invoke(Request $request, ImageThumbnail $thumbnails): View
     {
         $expeditions = Expedition::query()->published()->orderByDesc('start_at')->get();
         $selected = $request->query('expedition');
@@ -43,12 +44,12 @@ class MapController extends Controller
                 'alt' => $post->cover_alt, 'url' => route('posts.show', $post),
             ]);
         });
-        MapPhoto::query()->whereIn('expedition_id', $ids)->get()->each(function (MapPhoto $photo) use ($items, $names): void {
+        MapPhoto::query()->whereIn('expedition_id', $ids)->get()->each(function (MapPhoto $photo) use ($items, $names, $thumbnails): void {
             $items->push([
                 'type' => 'photos', 'name' => $photo->caption ?: $photo->alt, 'expedition' => $names[$photo->expedition_id] ?? '',
                 'date' => $photo->taken_at?->toIso8601String(), 'dateLabel' => $photo->taken_at?->translatedFormat('j. n. Y H:i'),
                 'latitude' => (float) $photo->latitude, 'longitude' => (float) $photo->longitude,
-                'description' => $photo->short_story ?: $photo->caption, 'image' => asset('storage/'.$photo->image), 'alt' => $photo->alt, 'url' => null,
+                'description' => $photo->short_story ?: $photo->caption, 'image' => $thumbnails->url($photo->image, 'small'), 'alt' => $photo->alt, 'url' => route('map.photos.show', $photo),
             ]);
         });
         $segments = RouteSegment::query()->whereIn('expedition_id', $ids)->with(['fromPoint', 'toPoint'])->ordered()->get()
