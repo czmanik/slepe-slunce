@@ -43,5 +43,13 @@ class ContentTranslationTest extends TestCase
         $translated = $post->fresh()->load('contentTranslations');
         $this->assertSame('A journey together', $translated->title);
         $this->assertSame('<p>English story.</p>', $translated->body);
+        $this->assertFalse(app(ContentTranslationService::class)->translate($post->fresh()));
+
+        $translation = $post->contentTranslations()->firstOrFail();
+        $translation->update(['reviewed_at' => now()]);
+        $post->update(['title' => 'Nový název']);
+        $this->assertFalse(app(ContentTranslationService::class)->translate($post->fresh()));
+        $this->assertTrue(app(ContentTranslationService::class)->translate($post->fresh(), 'en', true));
+        $this->assertNull($translation->fresh()->reviewed_at);
     }
 }
