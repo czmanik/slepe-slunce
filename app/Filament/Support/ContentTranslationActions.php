@@ -5,6 +5,7 @@ namespace App\Filament\Support;
 use App\Jobs\TranslateContent;
 use App\Models\Concerns\HasContentTranslations;
 use App\Services\ContentTranslationService;
+use App\Support\HtmlSanitizer;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -37,6 +38,9 @@ class ContentTranslationActions
                     ->columnSpanFull(), $fields))
                 ->action(function (array $data) use ($record, $fields): void {
                     $content = array_intersect_key($data, array_flip($fields));
+                    if (isset($content['body'])) {
+                        $content['body'] = app(HtmlSanitizer::class)->sanitize($content['body']);
+                    }
                     $record->contentTranslations()->updateOrCreate(['locale' => 'en'], [
                         'content' => $content,
                         'source_hash' => app(ContentTranslationService::class)->sourceHash($record),

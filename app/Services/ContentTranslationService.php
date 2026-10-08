@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Concerns\HasContentTranslations;
+use App\Support\HtmlSanitizer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
@@ -47,6 +48,9 @@ class ContentTranslationService
         }
 
         $translated = $this->translator->translate($source, $locale);
+        if (isset($translated['body'])) {
+            $translated['body'] = app(HtmlSanitizer::class)->sanitize($translated['body']);
+        }
         $model->contentTranslations()->updateOrCreate(['locale' => $locale], [
             'content' => $translated,
             'source_hash' => $hash,

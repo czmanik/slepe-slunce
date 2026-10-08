@@ -21,7 +21,7 @@ class LibreTranslateService
                     'q' => $value,
                     'source' => 'cs',
                     'target' => $target,
-                    'format' => in_array($field, ['body', 'description'], true) && str_contains($value, '<') ? 'html' : 'text',
+                    'format' => in_array($field, ['body'], true) && str_contains($value, '<') ? 'html' : 'text',
                 ])->throw();
             $result = $response->json('translatedText');
             if (! is_string($result) || trim($result) === '') {
